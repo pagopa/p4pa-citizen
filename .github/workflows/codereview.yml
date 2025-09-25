@@ -1,4 +1,4 @@
-name: CHANGEME - Code Review
+name: p4pa-citizen - Code Review
 
 on:
   push:
