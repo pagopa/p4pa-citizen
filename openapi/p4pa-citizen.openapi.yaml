@@ -1,8 +1,11 @@
-openapi: 3.1.0
+openapi: 3.0.1
 info:
   title: Fake API
   description: "Sample API"
   version: "1.0.0"
+servers:
+  - url: "http://localhost:8080"
+    description: Generated server url
 paths:
   /api/v1/greet:
     get:
@@ -29,8 +32,77 @@ paths:
                   error:
                     type: string
                     example: "Internal Server Error"
+  /brokers/{brokerId}/organizations:
+    get:
+      tags:
+        - Organization
+      summary: "Retrieves the list of organizations with at least one dpto with flagSpontaneous and flagActive set to true"
+      operationId: getOrganizationsListWithSpontaneous
+      parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedOrganizationsListWithSpontaneousDTO"
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden - Access denied
+        '500':
+          description: Internal Server Error
+      x-spring-paginated: true
 components:
   schemas:
+    PagedOrganizationsListWithSpontaneousDTO:
+      type: object
+      required:
+        - content
+        - size
+        - totalElements
+        - totalPages
+        - number
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrganizationsWithSpontaneousDTO"
+        size:
+          type: integer
+          format: int64
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int64
+        number:
+          type: integer
+          format: int64
+    OrganizationsWithSpontaneousDTO:
+      type: object
+      required:
+        - organizationId
+        - orgName
+        - orgFiscalCode
+        - ipaCode
+      properties:
+        organizationId:
+          type: integer
+          format: int64
+        orgName:
+          type: string
+        orgFiscalCode:
+          type: string
+        ipaCode:
+          type: string
     ErrorDTO:
       type: object
       required:

@@ -42,6 +42,7 @@ val javaJwtVersion = "4.5.0"
 val jwksRsaVersion = "0.23.0"
 val bouncycastleVersion = "1.82"
 val nimbusVersion = "10.5"
+val mapStructVersion = "1.6.3"
 
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter")
@@ -56,6 +57,8 @@ dependencies {
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   implementation("org.openapitools:jackson-databind-nullable:$openApiToolsVersion")
   implementation("org.apache.httpcomponents.client5:httpclient5:$httpClientVersion")
+  implementation("org.springframework.data:spring-data-commons")
+  implementation ("org.mapstruct:mapstruct:${mapStructVersion}")
 
   // validation token jwt
   implementation("com.nimbusds:nimbus-jose-jwt:${nimbusVersion}")
@@ -65,7 +68,9 @@ dependencies {
 
   compileOnly("org.projectlombok:lombok")
   annotationProcessor("org.projectlombok:lombok")
+  annotationProcessor("org.mapstruct:mapstruct-processor:$mapStructVersion")
   testAnnotationProcessor("org.projectlombok:lombok")
+  testAnnotationProcessor("org.mapstruct:mapstruct-processor:$mapStructVersion")
 
   //	Testing
   testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -126,7 +131,8 @@ tasks.register("dependenciesBuild") {
   dependsOn(
     "openApiGenerate",
     "openApiGenerateP4PAAUTH",
-    "openApiGenerateDEBTPOSITIONS"
+    "openApiGenerateDEBTPOSITIONS",
+    "openApiGenerateORGANIZATION"
   )
 }
 
@@ -225,3 +231,32 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("ope
   ))
   library.set("resttemplate")
 }
+
+tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("openApiGenerateORGANIZATION") {
+  group = "openapi"
+  description = "description"
+
+  generatorName.set("java")
+  remoteInputSpec.set("https://raw.githubusercontent.com/pagopa/p4pa-organization/refs/heads/$targetEnv/openapi/generated.openapi.json")
+  outputDir.set("$projectDir/build/generated")
+  apiPackage.set("it.gov.pagopa.pu.organization.controller.generated")
+  modelPackage.set("it.gov.pagopa.pu.organization.dto.generated")
+  configOptions.set(mapOf(
+    "swaggerAnnotations" to "false",
+    "openApiNullable" to "false",
+    "dateLibrary" to "java8",
+    "serializableModel" to "true",
+    "useSpringBoot3" to "true",
+    "useJakartaEe" to "true",
+    "useOneOfInterfaces" to "true",
+    "useBeanValidation" to "true",
+    "serializationLibrary" to "jackson",
+    "generateSupportingFiles" to "true",
+    "generateConstructorWithAllArgs" to "true",
+    "generatedConstructorWithRequiredArgs" to "true",
+    "enumPropertyNaming" to "original",
+    "additionalModelTypeAnnotations" to "@lombok.experimental.SuperBuilder(toBuilder = true)"
+  ))
+  library.set("resttemplate")
+}
+
