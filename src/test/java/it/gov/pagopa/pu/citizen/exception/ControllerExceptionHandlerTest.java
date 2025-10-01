@@ -188,6 +188,7 @@ class ControllerExceptionHandlerTest {
     private final ConstraintViolationException constraintViolationException = new ConstraintViolationException("Error", Set.of(ConstraintViolationImpl.forParameterValidation(
       "error message template", Map.of(), Map.of(), "resolved message", null, null, null, null, PathImpl.createPathFromString("fieldName"), null, null, null
     )));
+
     @Test
     void handleViolationException() throws Exception {
         doThrow(constraintViolationException).when(testControllerSpy).testEndpoint(DATA, BODY);
@@ -196,5 +197,15 @@ class ControllerExceptionHandlerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("BAD_REQUEST"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Invalid request content. fieldName: resolved message"));
+    }
+
+    @Test
+    void handleResourceNotFoundException() throws Exception {
+      doThrow(new ResourceNotFoundException("Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+
+      performRequest(DATA, MediaType.APPLICATION_JSON)
+        .andExpect(MockMvcResultMatchers.status().isNotFound())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("NOT_FOUND"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"));
     }
 }
