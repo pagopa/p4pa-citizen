@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
+
 @Service
 @Slf4j
 public class OrganizationSearchClient {
@@ -17,12 +19,13 @@ public class OrganizationSearchClient {
     this.organizationApisHolder = organizationApisHolder;
   }
 
-  public PagedModelOrganization getOrganizationsByBrokerIdAndFilters(Long brokerId, String orgName, String ipaCode, Pageable pageable, String accessToken){
+  public PagedModelOrganization getOrganizationsByBrokerIdAndFilters(Long brokerId, String orgName, String ipaCode, Set<Long> organizationIds,Pageable pageable, String accessToken){
     return organizationApisHolder.getOrganizationSearchControllerApi(accessToken)
       .crudOrganizationsFindByBrokerIdAndFilters(
         brokerId,
         orgName,
         ipaCode,
+        organizationIds,
         PageUtils.getPageNumber(pageable),
         PageUtils.getPageSize(pageable),
         PageUtils.getSortList(pageable));

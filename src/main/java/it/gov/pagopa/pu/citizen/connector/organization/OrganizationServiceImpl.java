@@ -5,6 +5,8 @@ import it.gov.pagopa.pu.organization.dto.generated.PagedModelOrganization;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
+
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
 
@@ -15,7 +17,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
-  public PagedModelOrganization getOrganizationsByBrokerIdAndFilters(Long brokerId, String orgName, String ipaCode, Pageable pageable, String accessToken) {
-    return organizationSearchClient.getOrganizationsByBrokerIdAndFilters(brokerId, orgName, ipaCode, pageable, accessToken);
+  public PagedModelOrganization getOrganizationsByBrokerIdAndFilters(Long brokerId, String orgName, String ipaCode, Set<Long> organizationIds,Pageable pageable, String accessToken) {
+    return organizationSearchClient.getOrganizationsByBrokerIdAndFilters(brokerId, orgName, ipaCode, organizationIds, pageable, accessToken);
   }
 }
