@@ -62,4 +62,48 @@ class OrganizationSearchClientTest {
     Assertions.assertNotNull(result);
     Assertions.assertEquals(expectedResult.getEmbedded().getOrganizations(), result);
   }
+
+  @Test
+  void givenNullPagedModelWhenGetOrganizationsByBrokerIdAndFiltersThenReturnEmptyList() {
+    String accessToken = "ACCESS_TOKEN";
+    Long brokerId = 1L;
+    String orgName = "orgName";
+    String ipaCode = "ipaCode";
+    PageRequest pageable = PageRequest.of(0, 10);
+
+    Mockito.when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
+      .thenReturn(organizationSearchControllerApiMock);
+    Mockito.when(organizationSearchControllerApiMock
+        .crudOrganizationsFindByBrokerIdAndFilters(brokerId, orgName, ipaCode, Set.of(1L), pageable.getPageNumber(), pageable.getPageSize(), new ArrayList<>()))
+      .thenReturn(null);
+
+    List<Organization> result = organizationSearchClient.getOrganizationsByBrokerIdAndFilters(brokerId, orgName, ipaCode, Set.of(1L), pageable, accessToken);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void givenNullEmbeddedWhenGetOrganizationsByBrokerIdAndFiltersThenReturnEmptyList() {
+    String accessToken = "ACCESS_TOKEN";
+    Long brokerId = 1L;
+    String orgName = "orgName";
+    String ipaCode = "ipaCode";
+    PageRequest pageable = PageRequest.of(0, 10);
+
+    PagedModelOrganization pagedModel = podamFactory.manufacturePojo(PagedModelOrganization.class);
+    pagedModel.setEmbedded(null);
+
+    Mockito.when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
+      .thenReturn(organizationSearchControllerApiMock);
+    Mockito.when(organizationSearchControllerApiMock
+        .crudOrganizationsFindByBrokerIdAndFilters(brokerId, orgName, ipaCode, Set.of(1L), pageable.getPageNumber(), pageable.getPageSize(), new ArrayList<>()))
+      .thenReturn(pagedModel);
+
+    List<Organization> result = organizationSearchClient.getOrganizationsByBrokerIdAndFilters(brokerId, orgName, ipaCode, Set.of(1L), pageable, accessToken);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertTrue(result.isEmpty());
+  }
+
 }

@@ -54,4 +54,46 @@ class DebtPositionTypeOrgWithActiveSpontaneousCountSearchClientTest {
     Assertions.assertNotNull(result);
     Assertions.assertEquals(expectedResult.getEmbedded().getDebtPositionTypeOrgWithActiveSpontaneousCounts(), result);
   }
+
+  @Test
+  void givenNullCollectionWhenGetDebtPositionTypeOrgWithActiveSpontaneousCountThenReturnEmptyList() {
+    String accessToken = "ACCESS_TOKEN";
+    List<Long> organizationsIds = List.of(1L, 2L);
+
+    Mockito.when(debtPositionsApisHolderMock.getDebtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApi(accessToken))
+      .thenReturn(debtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApiMock);
+    Mockito.when(debtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApiMock
+        .crudDebtPositionTypeOrgWithActiveSpontaneousCountCountByOrganizationIds(organizationsIds))
+      .thenReturn(null);
+
+    List<DebtPositionTypeOrgWithActiveSpontaneousCount> result =
+      debtPositionTypeOrgWithActiveSpontaneousCountSearchClient
+        .getDebtPositionTypeOrgWithActiveSpontaneousCount(organizationsIds, accessToken);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void givenNullEmbeddedWhenGetDebtPositionTypeOrgWithActiveSpontaneousCountThenReturnEmptyList() {
+    String accessToken = "ACCESS_TOKEN";
+    List<Long> organizationsIds = List.of(1L, 2L);
+
+    CollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount collection = podamFactory.manufacturePojo(CollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount.class);
+    collection.setEmbedded(null);
+
+    Mockito.when(debtPositionsApisHolderMock.getDebtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApi(accessToken))
+      .thenReturn(debtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApiMock);
+    Mockito.when(debtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApiMock
+        .crudDebtPositionTypeOrgWithActiveSpontaneousCountCountByOrganizationIds(organizationsIds))
+      .thenReturn(collection);
+
+    List<DebtPositionTypeOrgWithActiveSpontaneousCount> result =
+      debtPositionTypeOrgWithActiveSpontaneousCountSearchClient
+        .getDebtPositionTypeOrgWithActiveSpontaneousCount(organizationsIds, accessToken);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertTrue(result.isEmpty());
+  }
+
 }
