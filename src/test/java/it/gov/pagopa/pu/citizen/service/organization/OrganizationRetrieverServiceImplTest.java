@@ -7,6 +7,7 @@ import it.gov.pagopa.pu.citizen.mapper.OrganizationsWithSpontaneousDTOMapper;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrgWithActiveSpontaneousCount;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +40,11 @@ class OrganizationRetrieverServiceImplTest {
   @BeforeEach
   void setUp() {
     organizationRetrieverService = new OrganizationRetrieverServiceImpl(organizationServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock, maxSize );
+  }
+
+  @AfterEach
+  void mockitoVerify(){
+    Mockito.verifyNoMoreInteractions(organizationServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock);
   }
 
   @Test
@@ -100,7 +106,7 @@ class OrganizationRetrieverServiceImplTest {
 
     assertNotNull(result);
     assertTrue(result.isEmpty());
-
+    Mockito.verifyNoInteractions(debtPositionTypeOrgServiceMock);
   }
 
   @Test
@@ -119,13 +125,13 @@ class OrganizationRetrieverServiceImplTest {
     Mockito.when(debtPositionTypeOrgServiceMock
         .getDebtPositionTypeOrgWithActiveSpontaneousCount(Mockito.anyList(), Mockito.eq(accessToken)))
       .thenReturn(debtPositions);
+    Mockito.when(organizationsWithSpontaneousDTOMapperMock.map(Mockito.anyList())).thenReturn(Collections.emptyList());
 
     List<OrganizationsWithSpontaneousDTO> result =
       organizationRetrieverService.getOrganizationsWithSpontaneous(brokerId, accessToken);
 
     assertNotNull(result);
     assertTrue(result.isEmpty());
-
   }
 
 }
