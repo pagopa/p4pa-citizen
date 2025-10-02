@@ -1,6 +1,8 @@
 package it.gov.pagopa.pu.citizen.security;
 
+import it.gov.pagopa.pu.citizen.controller.OrganizationApiController;
 import it.gov.pagopa.pu.citizen.service.AuthorizationService;
+import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -13,13 +15,17 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
-  classes = JwtAuthenticationFilter.class) )
+@WebMvcTest(value = {OrganizationApiController.class}, includeFilters = @ComponentScan.Filter(
+  type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthenticationFilter.class))
 @Import(WebSecurityConfig.class)
-class WebSecurityConfigTest {
+class OrganizationApiControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
+
+  @MockitoBean
+  private OrganizationRetrieverService organizationRetrieverService;
+
   @MockitoBean
   private AuthorizationService authorizationServiceMock;
 
@@ -28,5 +34,5 @@ class WebSecurityConfigTest {
     mockMvc.perform(MockMvcRequestBuilders.get("/notFound"))
       .andExpect(status().is4xxClientError());
   }
-
 }
+
