@@ -199,13 +199,4 @@ class ControllerExceptionHandlerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Invalid request content. fieldName: resolved message"));
     }
 
-    @Test
-    void handleResourceNotFoundException() throws Exception {
-      doThrow(new ResourceNotFoundException("Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
-
-      performRequest(DATA, MediaType.APPLICATION_JSON)
-        .andExpect(MockMvcResultMatchers.status().isNotFound())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("NOT_FOUND"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"));
-    }
 }

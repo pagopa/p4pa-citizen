@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -38,6 +39,10 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
 
     Pageable maxPageable = PageRequest.of(0, pageMaxSize);
     List<Organization> organizations = organizationService.getOrganizationsByBrokerIdAndFilters(brokerId, null, null, null, maxPageable, accessToken);
+
+    if (organizations.isEmpty()) {
+      return Collections.emptyList();
+    }
 
     List<DebtPositionTypeOrgWithActiveSpontaneousCount> debtPositionTypeOrgWithActiveSpontaneousCount = getDebtPositionTypeOrgWithActiveSpontaneousCounts(accessToken, organizations);
 

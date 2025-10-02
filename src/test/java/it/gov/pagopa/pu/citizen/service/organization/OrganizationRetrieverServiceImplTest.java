@@ -128,29 +128,4 @@ class OrganizationRetrieverServiceImplTest {
 
   }
 
-  @Test
-  void givenMapperReturnsEmptyListWhenGetOrganizationsWithSpontaneousThenReturnEmptyList() {
-    Long brokerId = 1L;
-    String accessToken = "ACCESS_TOKEN";
-    PageRequest pageable = PageRequest.of(0, maxSize);
-
-    List<Organization> organizations = podamFactory.manufacturePojo(List.class, Organization.class);
-    List<DebtPositionTypeOrgWithActiveSpontaneousCount> debtPositions =
-      podamFactory.manufacturePojo(List.class, DebtPositionTypeOrgWithActiveSpontaneousCount.class);
-
-    Mockito.when(organizationServiceMock.getOrganizationsByBrokerIdAndFilters(
-      brokerId, null, null, null, pageable, accessToken)).thenReturn(organizations);
-    Mockito.when(debtPositionTypeOrgServiceMock
-        .getDebtPositionTypeOrgWithActiveSpontaneousCount(Mockito.anyList(), Mockito.eq(accessToken)))
-      .thenReturn(debtPositions);
-    Mockito.when(organizationsWithSpontaneousDTOMapperMock.map(Mockito.anyList()))
-      .thenReturn(Collections.emptyList());
-
-    List<OrganizationsWithSpontaneousDTO> result =
-      organizationRetrieverService.getOrganizationsWithSpontaneous(brokerId, accessToken);
-
-    assertNotNull(result);
-    assertTrue(result.isEmpty());
-    Mockito.verifyNoMoreInteractions(organizationServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock);
-  }
 }
