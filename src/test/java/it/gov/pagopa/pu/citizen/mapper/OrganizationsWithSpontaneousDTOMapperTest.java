@@ -73,12 +73,34 @@ class OrganizationsWithSpontaneousDTOMapperTest {
     case3.getEmbedded().getOrganizations()
       .forEach(org -> org.setOrganizationId(Long.MAX_VALUE));
 
+    PagedModelOrganization case4 = null;
+    CollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount coll4 =
+      podamFactory.manufacturePojo(CollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount.class);
+
+    PagedModelOrganization case5 = podamFactory.manufacturePojo(PagedModelOrganization.class);
+    case5.getEmbedded().setOrganizations(null);
+    CollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount coll5 =
+      podamFactory.manufacturePojo(CollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount.class);
+
+    PagedModelOrganization case6 = podamFactory.manufacturePojo(PagedModelOrganization.class);
+    CollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount coll6 =
+      new CollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount();
+    coll6.setEmbedded(null);
+
+    PagedModelOrganization case7 = podamFactory.manufacturePojo(PagedModelOrganization.class);
+    CollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount coll7 =
+      podamFactory.manufacturePojo(CollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount.class);
+    coll7.getEmbedded().setDebtPositionTypeOrgWithActiveSpontaneousCounts(null);
+
     return Stream.of(
       Arguments.of(case1, coll1),
       Arguments.of(case2, coll2),
-      Arguments.of(case3, coll3)
+      Arguments.of(case3, coll3),
+      Arguments.of(case4, coll4),
+      Arguments.of(case5, coll5),
+      Arguments.of(case6, coll6),
+      Arguments.of(case7, coll7)
     );
   }
-
 }
 

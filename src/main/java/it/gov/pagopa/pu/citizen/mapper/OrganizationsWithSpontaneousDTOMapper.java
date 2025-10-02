@@ -54,7 +54,4 @@ public interface OrganizationsWithSpontaneousDTOMapper {
       .toList();
   }
 
-
-
-
 }

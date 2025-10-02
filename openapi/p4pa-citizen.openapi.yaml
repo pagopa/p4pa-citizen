@@ -60,7 +60,14 @@ paths:
           description: Forbidden - Access denied
         '500':
           description: Internal Server Error
+security:
+  - BearerAuth: [ ]
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     OrganizationsWithSpontaneousDTO:
       type: object
