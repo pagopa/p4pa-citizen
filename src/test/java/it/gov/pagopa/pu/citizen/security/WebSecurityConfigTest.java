@@ -1,6 +1,6 @@
 package it.gov.pagopa.pu.citizen.security;
 
-import it.gov.pagopa.pu.citizen.controller.OrganizationApiController;
+import it.gov.pagopa.pu.citizen.controller.OrganizationController;
 import it.gov.pagopa.pu.citizen.service.AuthorizationService;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import org.junit.jupiter.api.Test;
@@ -15,10 +15,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(value = {OrganizationApiController.class}, includeFilters = @ComponentScan.Filter(
+@WebMvcTest(value = {OrganizationController.class}, includeFilters = @ComponentScan.Filter(
   type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthenticationFilter.class))
 @Import(WebSecurityConfig.class)
-class OrganizationApiControllerTest {
+class WebSecurityConfigTest {
 
   @Autowired
   private MockMvc mockMvc;

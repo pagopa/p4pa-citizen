@@ -1,7 +1,7 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionTypeOrgWithActiveSpontaneousCountSearchClient;
-import it.gov.pagopa.pu.debtpositions.dto.generated.CollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrgWithActiveSpontaneousCount;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public class DebtPositionTypeOrgServiceImpl implements DebtPositionTypeOrgServic
   }
 
   @Override
-  public CollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount getDebtPositionTypeOrgWithActiveSpontaneousCount(List<Long> organizationIds, String accessToken) {
+  public List<DebtPositionTypeOrgWithActiveSpontaneousCount> getDebtPositionTypeOrgWithActiveSpontaneousCount(List<Long> organizationIds, String accessToken) {
     return debtPositionTypeOrgWithActiveSpontaneousCountSearchClient.getDebtPositionTypeOrgWithActiveSpontaneousCount(organizationIds, accessToken);
   }
 }

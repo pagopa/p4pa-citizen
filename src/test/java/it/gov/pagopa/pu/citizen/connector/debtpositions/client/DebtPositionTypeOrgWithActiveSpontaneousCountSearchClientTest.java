@@ -4,6 +4,7 @@ import it.gov.pagopa.pu.citizen.connector.debtpositions.config.DebtPositionsApis
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.controller.generated.DebtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApi;
 import it.gov.pagopa.pu.debtpositions.dto.generated.CollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrgWithActiveSpontaneousCount;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +40,7 @@ class DebtPositionTypeOrgWithActiveSpontaneousCountSearchClientTest {
   }
 
   @Test
-  void givenOrganizationIdsWhenGetDebtPositionTypeOrgWithActiveSpontaneousCountThenReturnCollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount() {
+  void givenOrganizationIdsWhenGetDebtPositionTypeOrgWithActiveSpontaneousCountThenReturnDebtPositionTypeOrgWithActiveSpontaneousCountList() {
     //given
     String accessToken = "ACCESS_TOKEN";
     List<Long> organizationsIds = List.of(1L, 2L);
@@ -48,9 +49,9 @@ class DebtPositionTypeOrgWithActiveSpontaneousCountSearchClientTest {
     Mockito.when(debtPositionsApisHolderMock.getDebtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApi(accessToken)).thenReturn(debtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApiMock);
     Mockito.when(debtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApiMock.crudDebtPositionTypeOrgWithActiveSpontaneousCountCountByOrganizationIds(organizationsIds)).thenReturn(expectedResult);
     //when
-    CollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount result = debtPositionTypeOrgWithActiveSpontaneousCountSearchClient.getDebtPositionTypeOrgWithActiveSpontaneousCount(organizationsIds, accessToken);
+    List<DebtPositionTypeOrgWithActiveSpontaneousCount> result = debtPositionTypeOrgWithActiveSpontaneousCountSearchClient.getDebtPositionTypeOrgWithActiveSpontaneousCount(organizationsIds, accessToken);
     //then
     Assertions.assertNotNull(result);
-    Assertions.assertEquals(expectedResult, result);
+    Assertions.assertEquals(expectedResult.getEmbedded().getDebtPositionTypeOrgWithActiveSpontaneousCounts(), result);
   }
 }

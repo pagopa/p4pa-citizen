@@ -41,10 +41,12 @@ public class DebtPositionsApisHolder {
     bearerTokenHolder.remove();
   }
 
+  /** It will return a {@link DebtPositionTypeOrgSearchControllerApi} instrumented with the provided accessToken. Use null if auth is not required */
   public DebtPositionTypeOrgSearchControllerApi getDebtPositionTypeOrgSearchControllerApi(String accessToken) {
     return getApi(accessToken, debtPositionTypeOrgSearchControllerApi);
   }
 
+  /** It will return a {@link DebtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApi} instrumented with the provided accessToken. Use null if auth is not required */
   public DebtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApi getDebtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApi(String accessToken) {
     return getApi(accessToken, debtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApi);
   }

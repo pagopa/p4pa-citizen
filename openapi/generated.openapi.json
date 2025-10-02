@@ -17,11 +17,11 @@
     "description" : "the Organization API"
   } ],
   "paths" : {
-    "/brokers/{brokerId}/organizations" : {
+    "/brokers/{brokerId}/organizations/spontaneous" : {
       "get" : {
         "tags" : [ "Organization" ],
         "summary" : "Retrieves the list of organizations with at least one dpto with flagSpontaneous and flagActive set to true",
-        "operationId" : "getOrganizationsListWithSpontaneous",
+        "operationId" : "getOrganizationsWithSpontaneous",
         "parameters" : [ {
           "name" : "brokerId",
           "in" : "path",

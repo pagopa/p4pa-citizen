@@ -2,11 +2,14 @@ package it.gov.pagopa.pu.citizen.connector.organization.client;
 
 import it.gov.pagopa.pu.citizen.connector.organization.config.OrganizationApisHolder;
 import it.gov.pagopa.pu.citizen.utils.PageUtils;
+import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import it.gov.pagopa.pu.organization.dto.generated.PagedModelOrganization;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -19,8 +22,8 @@ public class OrganizationSearchClient {
     this.organizationApisHolder = organizationApisHolder;
   }
 
-  public PagedModelOrganization getOrganizationsByBrokerIdAndFilters(Long brokerId, String orgName, String ipaCode, Set<Long> organizationIds,Pageable pageable, String accessToken){
-    return organizationApisHolder.getOrganizationSearchControllerApi(accessToken)
+  public List<Organization> getOrganizationsByBrokerIdAndFilters(Long brokerId, String orgName, String ipaCode, Set<Long> organizationIds, Pageable pageable, String accessToken){
+    PagedModelOrganization pagedModelOrganization = organizationApisHolder.getOrganizationSearchControllerApi(accessToken)
       .crudOrganizationsFindByBrokerIdAndFilters(
         brokerId,
         orgName,
@@ -29,6 +32,9 @@ public class OrganizationSearchClient {
         PageUtils.getPageNumber(pageable),
         PageUtils.getPageSize(pageable),
         PageUtils.getSortList(pageable));
+
+    return pagedModelOrganization !=null && pagedModelOrganization.getEmbedded() !=null?
+      pagedModelOrganization.getEmbedded().getOrganizations(): Collections.emptyList();
   }
 
 }

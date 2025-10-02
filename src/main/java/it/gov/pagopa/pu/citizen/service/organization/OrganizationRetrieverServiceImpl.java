@@ -3,11 +3,9 @@ package it.gov.pagopa.pu.citizen.service.organization;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.DebtPositionTypeOrgService;
 import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
 import it.gov.pagopa.pu.citizen.dto.generated.OrganizationsWithSpontaneousDTO;
-import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.OrganizationsWithSpontaneousDTOMapper;
-import it.gov.pagopa.pu.debtpositions.dto.generated.CollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrgWithActiveSpontaneousCount;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
-import it.gov.pagopa.pu.organization.dto.generated.PagedModelOrganization;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -36,20 +34,30 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
   }
 
   @Override
-  public List<OrganizationsWithSpontaneousDTO> getOrganizationsListWithSpontaneous(Long brokerId, String accessToken) {
+  public List<OrganizationsWithSpontaneousDTO> getOrganizationsWithSpontaneous(Long brokerId, String accessToken) {
 
     Pageable maxPageable = PageRequest.of(0, pageMaxSize);
-    PagedModelOrganization organizations = organizationService.getOrganizationsByBrokerIdAndFilters(brokerId, null, null, null, maxPageable, accessToken);
+    List<Organization> organizations = organizationService.getOrganizationsByBrokerIdAndFilters(brokerId, null, null, null, maxPageable, accessToken);
 
-    if (organizations == null ||
-      organizations.getEmbedded() == null
-      || organizations.getEmbedded().getOrganizations() == null){
-      throw new ResourceNotFoundException("No organizations found for broker with id %d".formatted(brokerId));
-    }
+    List<DebtPositionTypeOrgWithActiveSpontaneousCount> debtPositionTypeOrgWithActiveSpontaneousCount = getDebtPositionTypeOrgWithActiveSpontaneousCounts(accessToken, organizations);
 
-    List<Long> organizationsIds = organizations.getEmbedded().getOrganizations().stream().map(Organization::getOrganizationId).toList();
-    CollectionModelDebtPositionTypeOrgWithActiveSpontaneousCount debtPositionTypeOrgWithActiveSpontaneousCount = debtPositionTypeOrgService.getDebtPositionTypeOrgWithActiveSpontaneousCount(organizationsIds, accessToken);
+    return organizationsWithSpontaneousDTOMapper.map(getOrganizationsFiltered(organizations, debtPositionTypeOrgWithActiveSpontaneousCount));
+  }
 
-    return organizationsWithSpontaneousDTOMapper.map(organizations, debtPositionTypeOrgWithActiveSpontaneousCount);
+  private List<DebtPositionTypeOrgWithActiveSpontaneousCount> getDebtPositionTypeOrgWithActiveSpontaneousCounts(String accessToken, List<Organization> organizations) {
+    List<Long> organizationsIds = organizations.stream().map(Organization::getOrganizationId).toList();
+    return debtPositionTypeOrgService.getDebtPositionTypeOrgWithActiveSpontaneousCount(organizationsIds, accessToken);
+  }
+
+  private List<Organization> getOrganizationsFiltered( List<Organization> organizationList, List<DebtPositionTypeOrgWithActiveSpontaneousCount> debtPositionTypeOrgWithActiveSpontaneousCounts) {
+
+    List<Long> validIds = debtPositionTypeOrgWithActiveSpontaneousCounts
+      .stream()
+      .map(DebtPositionTypeOrgWithActiveSpontaneousCount::getOrganizationId)
+      .toList();
+
+    return organizationList.stream()
+      .filter(organization -> validIds.contains(organization.getOrganizationId()))
+      .toList();
   }
 }

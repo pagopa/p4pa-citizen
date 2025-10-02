@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
-class OrganizationApiControllerTest {
+class OrganizationControllerTest {
 
   @Mock
   private OrganizationRetrieverService organizationRetrieverServiceMock;
@@ -31,12 +31,12 @@ class OrganizationApiControllerTest {
   private final String accessToken = "fakeAccessToken";
   private final UserInfo loggedUser = podamFactory.manufacturePojo(UserInfo.class);
 
-  OrganizationApiController organizationApiController;
+  OrganizationController organizationController;
 
   @BeforeEach
   void setUp() {
     SecurityUtilsTest.configureSecurityContext(accessToken, loggedUser);
-    organizationApiController = new OrganizationApiController(organizationRetrieverServiceMock);
+    organizationController = new OrganizationController(organizationRetrieverServiceMock);
   }
 
   @AfterEach
@@ -50,9 +50,9 @@ class OrganizationApiControllerTest {
     Long brokerId = 1L;
     List<OrganizationsWithSpontaneousDTO> expectedResult = podamFactory.manufacturePojo(List.class, OrganizationsWithSpontaneousDTO.class);
 
-    Mockito.when(organizationRetrieverServiceMock.getOrganizationsListWithSpontaneous(brokerId, accessToken)).thenReturn(expectedResult);
+    Mockito.when(organizationRetrieverServiceMock.getOrganizationsWithSpontaneous(brokerId, accessToken)).thenReturn(expectedResult);
     //when
-    ResponseEntity<List<OrganizationsWithSpontaneousDTO>> result = organizationApiController.getOrganizationsListWithSpontaneous(brokerId);
+    ResponseEntity<List<OrganizationsWithSpontaneousDTO>> result = organizationController.getOrganizationsWithSpontaneous(brokerId);
     //then
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertNotNull(result);

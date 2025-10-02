@@ -12,18 +12,18 @@ import java.util.List;
 
 @Slf4j
 @RestController
-public class OrganizationApiController implements OrganizationApi {
+public class OrganizationController implements OrganizationApi {
 
   private final OrganizationRetrieverService organizationRetrieverService;
 
-  public OrganizationApiController(OrganizationRetrieverService organizationRetrieverService) {
+  public OrganizationController(OrganizationRetrieverService organizationRetrieverService) {
     this.organizationRetrieverService = organizationRetrieverService;
   }
 
   @Override
-  public ResponseEntity<List<OrganizationsWithSpontaneousDTO>> getOrganizationsListWithSpontaneous(Long brokerId) {
-    log.info("getOrganizationsListWithSpontaneous was requested with brokerId {}", brokerId);
+  public ResponseEntity<List<OrganizationsWithSpontaneousDTO>> getOrganizationsWithSpontaneous(Long brokerId) {
+    log.info("getOrganizationsWithSpontaneous was requested with brokerId {}", brokerId);
 
-    return ResponseEntity.ok(organizationRetrieverService.getOrganizationsListWithSpontaneous(brokerId, SecurityUtils.getAccessToken()));
+    return ResponseEntity.ok(organizationRetrieverService.getOrganizationsWithSpontaneous(brokerId, SecurityUtils.getAccessToken()));
   }
 }

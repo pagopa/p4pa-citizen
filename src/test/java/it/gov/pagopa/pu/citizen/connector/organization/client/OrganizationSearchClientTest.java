@@ -3,6 +3,7 @@ package it.gov.pagopa.pu.citizen.connector.organization.client;
 import it.gov.pagopa.pu.citizen.connector.organization.config.OrganizationApisHolder;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.organization.controller.generated.OrganizationSearchControllerApi;
+import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import it.gov.pagopa.pu.organization.dto.generated.PagedModelOrganization;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,7 +43,7 @@ class OrganizationSearchClientTest {
   }
 
   @Test
-  void givenBrokerIdWhenGetOrganizationsByBrokerIdAndFiltersThenReturnPagedModelOrganization() {
+  void givenBrokerIdWhenGetOrganizationsByBrokerIdAndFiltersThenReturnOrganizationsList() {
     //given
     String accessToken = "ACCESS_TOKEN";
     Long brokerId = 1L;
@@ -55,9 +57,9 @@ class OrganizationSearchClientTest {
 
     Mockito.when(organizationSearchControllerApiMock.crudOrganizationsFindByBrokerIdAndFilters(brokerId, orgName, ipaCode, Set.of(1L), pageable.getPageNumber(), pageable.getPageSize(), new ArrayList<>())).thenReturn(expectedResult);
     //when
-    PagedModelOrganization result = organizationSearchClient.getOrganizationsByBrokerIdAndFilters(brokerId, orgName, ipaCode, Set.of(1L), pageable, accessToken);
+    List<Organization> result = organizationSearchClient.getOrganizationsByBrokerIdAndFilters(brokerId, orgName, ipaCode, Set.of(1L), pageable, accessToken);
     //then
     Assertions.assertNotNull(result);
-    Assertions.assertEquals(expectedResult, result);
+    Assertions.assertEquals(expectedResult.getEmbedded().getOrganizations(), result);
   }
 }
