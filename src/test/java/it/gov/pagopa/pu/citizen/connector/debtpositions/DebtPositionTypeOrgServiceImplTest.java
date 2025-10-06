@@ -1,7 +1,9 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions;
 
+import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionTypeOrgSearchClient;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionTypeOrgWithActiveSpontaneousCountSearchClient;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrg;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrgWithActiveSpontaneousCount;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -20,6 +22,8 @@ class DebtPositionTypeOrgServiceImplTest {
 
   @Mock
   private DebtPositionTypeOrgWithActiveSpontaneousCountSearchClient debtPositionTypeOrgWithActiveSpontaneousCountSearchClientMock;
+  @Mock
+  private DebtPositionTypeOrgSearchClient debtPositionTypeOrgSearchClientMock;
 
   private final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
@@ -27,12 +31,12 @@ class DebtPositionTypeOrgServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    debtPositionTypeOrgService = new DebtPositionTypeOrgServiceImpl(debtPositionTypeOrgWithActiveSpontaneousCountSearchClientMock);
+    debtPositionTypeOrgService = new DebtPositionTypeOrgServiceImpl(debtPositionTypeOrgWithActiveSpontaneousCountSearchClientMock, debtPositionTypeOrgSearchClientMock);
   }
 
   @AfterEach
   void mockitoVerify(){
-    Mockito.verifyNoMoreInteractions(debtPositionTypeOrgWithActiveSpontaneousCountSearchClientMock);
+    Mockito.verifyNoMoreInteractions(debtPositionTypeOrgWithActiveSpontaneousCountSearchClientMock, debtPositionTypeOrgSearchClientMock);
   }
 
   @Test
@@ -46,6 +50,23 @@ class DebtPositionTypeOrgServiceImplTest {
     //when
     List<DebtPositionTypeOrgWithActiveSpontaneousCount> result = debtPositionTypeOrgService.getDebtPositionTypeOrgWithActiveSpontaneousCount(organizationsIds, accessToken);
     //then
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(expectedResult, result);
+  }
+
+  @Test
+  void givenOrganizationIdWhenGetDebtPositionTypeOrgsFindActiveDebtPositionTypeOrgThenReturnDebtPositionTypeOrgList() {
+    //given
+    String accessToken = "ACCESS_TOKEN";
+    Long organizationId = 2L;
+
+    List<DebtPositionTypeOrg> expectedResult = podamFactory.manufacturePojo(List.class, DebtPositionTypeOrg.class);
+
+    Mockito.when(debtPositionTypeOrgSearchClientMock.getDebtPositionTypeOrgsFindActiveDebtPositionTypeOrg(organizationId, accessToken)).thenReturn(expectedResult);
+    //when
+    List<DebtPositionTypeOrg> result = debtPositionTypeOrgService.getDebtPositionTypeOrgsFindActiveDebtPositionTypeOrg(organizationId, accessToken);
+    //then
+
     Assertions.assertNotNull(result);
     Assertions.assertEquals(expectedResult, result);
   }
