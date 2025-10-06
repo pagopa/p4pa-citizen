@@ -66,7 +66,7 @@ springdoc:
 
 rest:
   page:
-    request-max-page-size: "\${REST_PAGE_REQUEST_MAX_PAGE_SIZE:4000}"
+    request-max-page-size: "\${REST_PAGE_REQUEST_MAX_PAGE_SIZE:100}"
   defaults:
     connection-pool:
       size: "\${DEFAULT_REST_CONNECTION_POOL_SIZE:10}"

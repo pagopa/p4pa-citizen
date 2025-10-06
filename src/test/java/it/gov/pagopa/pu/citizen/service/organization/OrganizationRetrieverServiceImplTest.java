@@ -1,7 +1,6 @@
 package it.gov.pagopa.pu.citizen.service.organization;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.DebtPositionTypeOrgService;
-import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
 import it.gov.pagopa.pu.citizen.dto.generated.OrganizationsWithSpontaneousDTO;
 import it.gov.pagopa.pu.citizen.mapper.OrganizationsWithSpontaneousDTOMapper;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.util.Collections;
@@ -26,25 +24,24 @@ import static org.junit.jupiter.api.Assertions.*;
 class OrganizationRetrieverServiceImplTest {
 
   @Mock
-  private OrganizationService organizationServiceMock;
+  private BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverServiceMock;
   @Mock
   private DebtPositionTypeOrgService debtPositionTypeOrgServiceMock;
   @Mock
   private OrganizationsWithSpontaneousDTOMapper organizationsWithSpontaneousDTOMapperMock;
 
   private static final PodamFactory podamFactory = TestUtils.getPodamFactory();
-  private final Integer maxSize = 1000;
 
   OrganizationRetrieverService organizationRetrieverService;
 
   @BeforeEach
   void setUp() {
-    organizationRetrieverService = new OrganizationRetrieverServiceImpl(organizationServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock, maxSize );
+    organizationRetrieverService = new OrganizationRetrieverServiceImpl(brokerOrganizationsRetrieverServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock);
   }
 
   @AfterEach
   void mockitoVerify(){
-    Mockito.verifyNoMoreInteractions(organizationServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock);
+    Mockito.verifyNoMoreInteractions(brokerOrganizationsRetrieverServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock);
   }
 
   @Test
@@ -52,7 +49,6 @@ class OrganizationRetrieverServiceImplTest {
     // given
     Long brokerId = 1L;
     String accessToken = "ACCESS_TOKEN";
-    PageRequest pageable = PageRequest.of(0, maxSize);
 
     Organization org1 = new Organization(); org1.setOrganizationId(1L);
     Organization org2 = new Organization(); org2.setOrganizationId(2L);
@@ -69,8 +65,8 @@ class OrganizationRetrieverServiceImplTest {
     OrganizationsWithSpontaneousDTO dto3 = new OrganizationsWithSpontaneousDTO(); dto3.setOrganizationId(3L);
     List<OrganizationsWithSpontaneousDTO> expectedResult = List.of(dto1, dto3);
 
-    Mockito.when(organizationServiceMock.getOrganizationsByBrokerIdAndFilters(
-        brokerId, null, null, null, pageable, accessToken))
+    Mockito.when(brokerOrganizationsRetrieverServiceMock.getAllOrganizationsByBrokerId(
+        brokerId, null, null, null, accessToken))
       .thenReturn(organizations);
 
     Mockito.when(debtPositionTypeOrgServiceMock.getDebtPositionTypeOrgWithActiveSpontaneousCount(
@@ -89,17 +85,16 @@ class OrganizationRetrieverServiceImplTest {
     assertEquals(2, result.size());
     assertTrue(result.stream().allMatch(dto -> dto.getOrganizationId() == 1L || dto.getOrganizationId() == 3L));
     assertFalse(result.stream().anyMatch(dto -> dto.getOrganizationId() == 2L));
-    Mockito.verifyNoMoreInteractions(organizationServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock);
+    Mockito.verifyNoMoreInteractions(brokerOrganizationsRetrieverServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock);
   }
 
   @Test
   void givenNoOrganizationsWhenGetOrganizationsWithSpontaneousThenReturnEmptyList() {
     Long brokerId = 1L;
     String accessToken = "ACCESS_TOKEN";
-    PageRequest pageable = PageRequest.of(0, maxSize);
 
-    Mockito.when(organizationServiceMock.getOrganizationsByBrokerIdAndFilters(
-      brokerId, null, null, null, pageable, accessToken)).thenReturn(Collections.emptyList());
+    Mockito.when(brokerOrganizationsRetrieverServiceMock.getAllOrganizationsByBrokerId(
+      brokerId, null, null, null, accessToken)).thenReturn(Collections.emptyList());
 
     List<OrganizationsWithSpontaneousDTO> result =
       organizationRetrieverService.getOrganizationsWithSpontaneous(brokerId, accessToken);
@@ -113,15 +108,14 @@ class OrganizationRetrieverServiceImplTest {
   void givenOrganizationsButNoMatchingDebtPositionsWhenGetOrganizationsWithSpontaneousThenReturnEmptyList() {
     Long brokerId = 1L;
     String accessToken = "ACCESS_TOKEN";
-    PageRequest pageable = PageRequest.of(0, maxSize);
 
     List<Organization> organizations = podamFactory.manufacturePojo(List.class, Organization.class);
     List<DebtPositionTypeOrgWithActiveSpontaneousCount> debtPositions =
       podamFactory.manufacturePojo(List.class, DebtPositionTypeOrgWithActiveSpontaneousCount.class);
     debtPositions.forEach(d -> d.setOrganizationId(Long.MAX_VALUE));
 
-    Mockito.when(organizationServiceMock.getOrganizationsByBrokerIdAndFilters(
-      brokerId, null, null, null, pageable, accessToken)).thenReturn(organizations);
+    Mockito.when(brokerOrganizationsRetrieverServiceMock.getAllOrganizationsByBrokerId(
+      brokerId, null, null, null, accessToken)).thenReturn(organizations);
     Mockito.when(debtPositionTypeOrgServiceMock
         .getDebtPositionTypeOrgWithActiveSpontaneousCount(Mockito.anyList(), Mockito.eq(accessToken)))
       .thenReturn(debtPositions);
