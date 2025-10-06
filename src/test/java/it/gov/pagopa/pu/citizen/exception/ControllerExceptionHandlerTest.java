@@ -188,6 +188,7 @@ class ControllerExceptionHandlerTest {
     private final ConstraintViolationException constraintViolationException = new ConstraintViolationException("Error", Set.of(ConstraintViolationImpl.forParameterValidation(
       "error message template", Map.of(), Map.of(), "resolved message", null, null, null, null, PathImpl.createPathFromString("fieldName"), null, null, null
     )));
+
     @Test
     void handleViolationException() throws Exception {
         doThrow(constraintViolationException).when(testControllerSpy).testEndpoint(DATA, BODY);
@@ -197,4 +198,5 @@ class ControllerExceptionHandlerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("BAD_REQUEST"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Invalid request content. fieldName: resolved message"));
     }
+
 }

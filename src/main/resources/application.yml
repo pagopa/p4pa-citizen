@@ -65,6 +65,8 @@ springdoc:
   writer-with-default-pretty-printer: true
 
 rest:
+  page:
+    request-max-page-size: "\${REST_PAGE_REQUEST_MAX_PAGE_SIZE:100}"
   defaults:
     connection-pool:
       size: "\${DEFAULT_REST_CONNECTION_POOL_SIZE:10}"
@@ -83,3 +85,8 @@ rest:
     max-attempts: "\${DEBT_POSITIONS_MAX_ATTEMPTS:3}" # It's counting also the first attempt
     wait-time-millis: "\${DEBT_POSITIONS_WAIT_TIME_MILLIS:500}"
     print-body-when-error: "\${DEBT_POSITIONS_PRINT_BODY_WHEN_ERROR:true}"
+  organization:
+    base-url: "\${ORGANIZATION_BASE_URL:}"
+    max-attempts: "\${ORGANIZATION_MAX_ATTEMPTS:3}" # It's counting also the first attempt
+    wait-time-millis: "\${ORGANIZATION_WAIT_TIME_MILLIS:500}"
+    print-body-when-error: "\${ORGANIZATION_PRINT_BODY_WHEN_ERROR:true}"
