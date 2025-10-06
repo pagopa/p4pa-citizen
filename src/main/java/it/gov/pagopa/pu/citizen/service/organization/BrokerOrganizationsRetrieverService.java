@@ -2,6 +2,7 @@ package it.gov.pagopa.pu.citizen.service.organization;
 
 import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
+import it.gov.pagopa.pu.organization.dto.generated.OrganizationStatus;
 import it.gov.pagopa.pu.organization.dto.generated.PagedModelOrganization;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -27,22 +27,19 @@ public class BrokerOrganizationsRetrieverService {
     this.organizationService = organizationService;
   }
 
-  public List<Organization> getAllOrganizationsByBrokerId(
+  public List<Organization> getAllActiveOrganizationsByBrokerId(
     Long brokerId,
-    String orgName,
-    String ipaCode,
-    Set<Long> organizationIds,
     String accessToken) {
 
     AtomicInteger pageNumber = new AtomicInteger(0);
 
     return Stream.iterate(
-        getPage(brokerId, orgName, ipaCode, organizationIds, accessToken, pageNumber.get()),
+        getPage(brokerId, OrganizationStatus.ACTIVE, accessToken, pageNumber.get()),
         Objects::nonNull,
         p -> {
           int nextPage = pageNumber.incrementAndGet();
           if (p.getPage() != null && p.getPage().getTotalPages() != null && nextPage < p.getPage().getTotalPages()) {
-            return getPage(brokerId, orgName, ipaCode, organizationIds, accessToken, nextPage);
+            return getPage(brokerId, OrganizationStatus.ACTIVE, accessToken, nextPage);
           }
           return null;
         })
@@ -51,9 +48,9 @@ public class BrokerOrganizationsRetrieverService {
       .toList();
   }
 
-  private PagedModelOrganization getPage(Long brokerId, String orgName,  String ipaCode, Set<Long> organizationIds,  String accessToken, int pageNumber) {
+  private PagedModelOrganization getPage(Long brokerId, OrganizationStatus status, String accessToken, int pageNumber) {
     Pageable pageable = PageRequest.of(pageNumber, pageMaxSize);
-    return organizationService.getOrganizationsByBrokerIdAndFilters(brokerId, orgName, ipaCode, organizationIds, pageable, accessToken);
+    return organizationService.getPagedOrganizationsByBrokerIdAndStatus(brokerId, status, pageable, accessToken);
   }
 }
 

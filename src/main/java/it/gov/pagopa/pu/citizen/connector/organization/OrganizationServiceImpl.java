@@ -1,11 +1,10 @@
 package it.gov.pagopa.pu.citizen.connector.organization;
 
 import it.gov.pagopa.pu.citizen.connector.organization.client.OrganizationSearchClient;
+import it.gov.pagopa.pu.organization.dto.generated.OrganizationStatus;
 import it.gov.pagopa.pu.organization.dto.generated.PagedModelOrganization;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.Set;
 
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
@@ -17,7 +16,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
-  public PagedModelOrganization getOrganizationsByBrokerIdAndFilters(Long brokerId, String orgName, String ipaCode, Set<Long> organizationIds, Pageable pageable, String accessToken) {
-    return organizationSearchClient.getOrganizationsByBrokerIdAndFilters(brokerId, orgName, ipaCode, organizationIds, pageable, accessToken);
+  public PagedModelOrganization getPagedOrganizationsByBrokerIdAndStatus(Long brokerId, OrganizationStatus status, Pageable pageable, String accessToken) {
+    return organizationSearchClient.getPagedOrganizationsByBrokerIdAndStatus(brokerId, status, pageable, accessToken);
   }
 }

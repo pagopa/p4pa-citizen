@@ -65,8 +65,8 @@ class OrganizationRetrieverServiceImplTest {
     OrganizationsWithSpontaneousDTO dto3 = new OrganizationsWithSpontaneousDTO(); dto3.setOrganizationId(3L);
     List<OrganizationsWithSpontaneousDTO> expectedResult = List.of(dto1, dto3);
 
-    Mockito.when(brokerOrganizationsRetrieverServiceMock.getAllOrganizationsByBrokerId(
-        brokerId, null, null, null, accessToken))
+    Mockito.when(brokerOrganizationsRetrieverServiceMock.getAllActiveOrganizationsByBrokerId(
+        brokerId, accessToken))
       .thenReturn(organizations);
 
     Mockito.when(debtPositionTypeOrgServiceMock.getDebtPositionTypeOrgWithActiveSpontaneousCount(
@@ -93,8 +93,8 @@ class OrganizationRetrieverServiceImplTest {
     Long brokerId = 1L;
     String accessToken = "ACCESS_TOKEN";
 
-    Mockito.when(brokerOrganizationsRetrieverServiceMock.getAllOrganizationsByBrokerId(
-      brokerId, null, null, null, accessToken)).thenReturn(Collections.emptyList());
+    Mockito.when(brokerOrganizationsRetrieverServiceMock.getAllActiveOrganizationsByBrokerId(
+      brokerId, accessToken)).thenReturn(Collections.emptyList());
 
     List<OrganizationsWithSpontaneousDTO> result =
       organizationRetrieverService.getOrganizationsWithSpontaneous(brokerId, accessToken);
@@ -114,8 +114,8 @@ class OrganizationRetrieverServiceImplTest {
       podamFactory.manufacturePojo(List.class, DebtPositionTypeOrgWithActiveSpontaneousCount.class);
     debtPositions.forEach(d -> d.setOrganizationId(Long.MAX_VALUE));
 
-    Mockito.when(brokerOrganizationsRetrieverServiceMock.getAllOrganizationsByBrokerId(
-      brokerId, null, null, null, accessToken)).thenReturn(organizations);
+    Mockito.when(brokerOrganizationsRetrieverServiceMock.getAllActiveOrganizationsByBrokerId(
+      brokerId, accessToken)).thenReturn(organizations);
     Mockito.when(debtPositionTypeOrgServiceMock
         .getDebtPositionTypeOrgWithActiveSpontaneousCount(Mockito.anyList(), Mockito.eq(accessToken)))
       .thenReturn(debtPositions);
