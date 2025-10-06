@@ -6,6 +6,7 @@ import it.gov.pagopa.pu.debtpositions.controller.generated.DebtPositionTypeOrgSe
 import it.gov.pagopa.pu.debtpositions.dto.generated.CollectionModelDebtPositionTypeOrg;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrg;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,6 +59,43 @@ class DebtPositionTypeOrgSearchClientTest {
 
     assertNotNull(result);
     assertEquals(expectedResult.getEmbedded().getDebtPositionTypeOrgs(), result);
+  }
+
+  @Test
+  void givenNullCollectionWhenGetDebtPositionTypeOrgsFindActiveDebtPositionTypeOrgThenReturnEmptyList() {
+    String accessToken = "ACCESS_TOKEN";
+    Long organizationId = 1L;
+
+    Mockito.when(debtPositionsApisHolderMock.getDebtPositionTypeOrgSearchControllerApi(accessToken)).thenReturn(debtPositionTypeOrgSearchControllerApiMock);
+    Mockito.when(debtPositionTypeOrgSearchControllerApiMock.crudDebtPositionTypeOrgsFindActiveDebtPositionTypeOrg(organizationId)).thenReturn(null);
+
+    //when
+    List<DebtPositionTypeOrg> result = debtPositionTypeOrgSearchClient.getDebtPositionTypeOrgsFindActiveDebtPositionTypeOrg(organizationId, accessToken);
+    //then
+
+    assertNotNull(result);
+    Assertions.assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void givenNullEmbeddedWhenGetDebtPositionTypeOrgsFindActiveDebtPositionTypeOrgThenReturnEmptyList() {
+    String accessToken = "ACCESS_TOKEN";
+    Long organizationId = 1L;
+
+    Mockito.when(debtPositionsApisHolderMock.getDebtPositionTypeOrgSearchControllerApi(accessToken)).thenReturn(debtPositionTypeOrgSearchControllerApiMock);
+    Mockito.when(debtPositionTypeOrgSearchControllerApiMock.crudDebtPositionTypeOrgsFindActiveDebtPositionTypeOrg(organizationId)).thenReturn(null);
+
+    CollectionModelDebtPositionTypeOrg collection = podamFactory.manufacturePojo(CollectionModelDebtPositionTypeOrg.class);
+    collection.setEmbedded(null);
+
+
+    Mockito.when(debtPositionsApisHolderMock.getDebtPositionTypeOrgSearchControllerApi(accessToken)).thenReturn(debtPositionTypeOrgSearchControllerApiMock);
+    Mockito.when(debtPositionTypeOrgSearchControllerApiMock.crudDebtPositionTypeOrgsFindActiveDebtPositionTypeOrg(organizationId)).thenReturn(collection);
+
+    List<DebtPositionTypeOrg> result = debtPositionTypeOrgSearchClient.getDebtPositionTypeOrgsFindActiveDebtPositionTypeOrg(organizationId, accessToken);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertTrue(result.isEmpty());
   }
 
 }
