@@ -13,10 +13,86 @@
     "BearerAuth" : [ ]
   } ],
   "tags" : [ {
+    "name" : "DebtPositionTypeOrg",
+    "description" : "the DebtPositionTypeOrg API"
+  }, {
     "name" : "Organization",
     "description" : "the Organization API"
   } ],
   "paths" : {
+    "/spontaneous/organizations/{organizationId}/debt-position-type-orgs" : {
+      "get" : {
+        "tags" : [ "DebtPositionTypeOrg" ],
+        "summary" : "Retrieves the list of debtPositionTypeOrg with flagSpontaneous and flagActive set to true",
+        "operationId" : "getDebtPositionTypeOrgsWithSpontaneous",
+        "parameters" : [ {
+          "name" : "organizationId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDTO"
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid token",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden - Access denied",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDTO"
+                  }
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDTO"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
     "/brokers/{brokerId}/organizations/spontaneous" : {
       "get" : {
         "tags" : [ "Organization" ],
@@ -93,6 +169,26 @@
   },
   "components" : {
     "schemas" : {
+      "DebtPositionTypeOrgsWithSpontaneousDTO" : {
+        "type" : "object",
+        "properties" : {
+          "debtPositionTypeOrgId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "organizationId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "code", "debtPositionTypeOrgId", "description", "organizationId" ]
+      },
       "OrganizationsWithSpontaneousDTO" : {
         "type" : "object",
         "properties" : {
