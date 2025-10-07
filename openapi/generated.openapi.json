@@ -20,6 +20,79 @@
     "description" : "the Organization API"
   } ],
   "paths" : {
+    "/spontaneous/organizations/{organizationId}/debt-position-type-orgs" : {
+      "get" : {
+        "tags" : [ "DebtPositionTypeOrg" ],
+        "summary" : "Retrieves the list of debtPositionTypeOrg with flagSpontaneous and flagActive set to true",
+        "operationId" : "getDebtPositionTypeOrgsWithSpontaneous",
+        "parameters" : [ {
+          "name" : "organizationId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDTO"
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid token",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden - Access denied",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDTO"
+                  }
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDTO"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
     "/brokers/{brokerId}/organizations/spontaneous" : {
       "get" : {
         "tags" : [ "Organization" ],
@@ -92,110 +165,10 @@
           "BearerAuth" : [ ]
         } ]
       }
-    },
-    "/brokers/{brokerId}/organizations/spontaneous/{organizationId}/debt-position-type-orgs" : {
-      "get" : {
-        "tags" : [ "DebtPositionTypeOrg" ],
-        "summary" : "Retrieves the list of debtPositionTypeOrg with flagSpontaneous and flagActive set to true",
-        "operationId" : "getDebtPositionTypeOrgsWithSpontaneous",
-        "parameters" : [ {
-          "name" : "brokerId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "name" : "organizationId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDTO"
-                  }
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized - Missing or invalid token",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDTO"
-                  }
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Forbidden - Access denied",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDTO"
-                  }
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Internal Server Error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDTO"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "BearerAuth" : [ ]
-        } ]
-      }
     }
   },
   "components" : {
     "schemas" : {
-      "OrganizationsWithSpontaneousDTO" : {
-        "type" : "object",
-        "properties" : {
-          "organizationId" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "orgName" : {
-            "type" : "string"
-          },
-          "orgFiscalCode" : {
-            "type" : "string"
-          },
-          "ipaCode" : {
-            "type" : "string"
-          }
-        },
-        "required" : [ "ipaCode", "orgFiscalCode", "orgName", "organizationId" ]
-      },
       "DebtPositionTypeOrgsWithSpontaneousDTO" : {
         "type" : "object",
         "properties" : {
@@ -215,6 +188,25 @@
           }
         },
         "required" : [ "code", "debtPositionTypeOrgId", "description", "organizationId" ]
+      },
+      "OrganizationsWithSpontaneousDTO" : {
+        "type" : "object",
+        "properties" : {
+          "organizationId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "orgName" : {
+            "type" : "string"
+          },
+          "orgFiscalCode" : {
+            "type" : "string"
+          },
+          "ipaCode" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "ipaCode", "orgFiscalCode", "orgName", "organizationId" ]
       }
     },
     "securitySchemes" : {

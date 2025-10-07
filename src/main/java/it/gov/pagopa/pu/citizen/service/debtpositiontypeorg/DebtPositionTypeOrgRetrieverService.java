@@ -5,5 +5,5 @@ import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionTypeOrgsWithSpontaneou
 import java.util.List;
 
 public interface DebtPositionTypeOrgRetrieverService {
-  List<DebtPositionTypeOrgsWithSpontaneousDTO> getDebtPositionTypeOrgsWithSpontaneous(Long brokerId, Long organizationId, String accessToken);
+  List<DebtPositionTypeOrgsWithSpontaneousDTO> getDebtPositionTypeOrgsWithSpontaneous(Long organizationId, String accessToken);
 }
