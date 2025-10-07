@@ -88,6 +88,34 @@ paths:
           description: Forbidden - Access denied
         '500':
           description: Internal Server Error
+  /spontaneous/debt-position-type-orgs/{debtPositionTypeOrgId}:
+    get:
+      tags:
+        - DebtPositionTypeOrg
+      summary: "Retrieves the detail of debtPositionTypeOrg with flagSpontaneous and flagActive set to true"
+      operationId: getDebtPositionTypeOrgsWithSpontaneousDetail
+      parameters:
+        - name: debtPositionTypeOrgId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDetailsDTO"
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden - Access denied
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
 security:
   - BearerAuth: [ ]
 components:
@@ -132,6 +160,43 @@ components:
           type: string
         description:
           type: string
+    DebtPositionTypeOrgsWithSpontaneousDetailsDTO:
+      type: object
+      required:
+        - debtPositionTypeOrgId
+        - debtPositionTypeId
+        - organizationId
+        - code
+        - description
+        - formType
+      properties:
+        debtPositionTypeOrgId:
+          type: integer
+          format: int64
+        debtPositionTypeId:
+          type: integer
+          format: int64
+        organizationId:
+          type: integer
+          format: int64
+        code:
+          type: string
+        description:
+          type: string
+        formType:
+          type: string
+          enum:
+            - STANDARD
+            - PRESET_AMOUNT
+            - EXTERNAL_URL
+            - CUSTOM
+        amountCents:
+          type: integer
+          format: int64
+        externalPaymentUrl:
+          type: string
+        formCustom:
+          type: 'FormCustom'
     ErrorDTO:
       type: object
       required:

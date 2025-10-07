@@ -1,5 +1,6 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions;
 
+import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionTypeOrgEntityClient;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionTypeOrgSearchClient;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionTypeOrgWithActiveSpontaneousCountSearchClient;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrg;
@@ -13,10 +14,12 @@ public class DebtPositionTypeOrgServiceImpl implements DebtPositionTypeOrgServic
 
   private final DebtPositionTypeOrgWithActiveSpontaneousCountSearchClient debtPositionTypeOrgWithActiveSpontaneousCountSearchClient;
   private final DebtPositionTypeOrgSearchClient debtPositionTypeOrgSearchClient;
+  private final DebtPositionTypeOrgEntityClient debtPositionTypeOrgEntityClient;
 
-  public DebtPositionTypeOrgServiceImpl(DebtPositionTypeOrgWithActiveSpontaneousCountSearchClient debtPositionTypeOrgWithActiveSpontaneousCountSearchClient, DebtPositionTypeOrgSearchClient debtPositionTypeOrgSearchClient) {
+  public DebtPositionTypeOrgServiceImpl(DebtPositionTypeOrgWithActiveSpontaneousCountSearchClient debtPositionTypeOrgWithActiveSpontaneousCountSearchClient, DebtPositionTypeOrgSearchClient debtPositionTypeOrgSearchClient, DebtPositionTypeOrgEntityClient debtPositionTypeOrgEntityClient) {
     this.debtPositionTypeOrgWithActiveSpontaneousCountSearchClient = debtPositionTypeOrgWithActiveSpontaneousCountSearchClient;
     this.debtPositionTypeOrgSearchClient = debtPositionTypeOrgSearchClient;
+    this.debtPositionTypeOrgEntityClient = debtPositionTypeOrgEntityClient;
   }
 
   @Override
@@ -27,5 +30,10 @@ public class DebtPositionTypeOrgServiceImpl implements DebtPositionTypeOrgServic
   @Override
   public List<DebtPositionTypeOrg> getDebtPositionTypeOrgsFindActiveDebtPositionTypeOrg(Long organizationId, String accessToken) {
     return debtPositionTypeOrgSearchClient.getDebtPositionTypeOrgsFindActiveDebtPositionTypeOrg(organizationId, accessToken);
+  }
+
+  @Override
+  public DebtPositionTypeOrg getDebtPositionTypeOrg(Long debtPositionTypeOrgId, String accessToken) {
+      return debtPositionTypeOrgEntityClient.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken);
   }
 }
