@@ -1,5 +1,6 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions;
 
+import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionTypeOrgEntityClient;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionTypeOrgSearchClient;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionTypeOrgWithActiveSpontaneousCountSearchClient;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
@@ -24,6 +25,8 @@ class DebtPositionTypeOrgServiceImplTest {
   private DebtPositionTypeOrgWithActiveSpontaneousCountSearchClient debtPositionTypeOrgWithActiveSpontaneousCountSearchClientMock;
   @Mock
   private DebtPositionTypeOrgSearchClient debtPositionTypeOrgSearchClientMock;
+  @Mock
+  private DebtPositionTypeOrgEntityClient debtPositionTypeOrgEntityClient;
 
   private final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
@@ -31,7 +34,7 @@ class DebtPositionTypeOrgServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    debtPositionTypeOrgService = new DebtPositionTypeOrgServiceImpl(debtPositionTypeOrgWithActiveSpontaneousCountSearchClientMock, debtPositionTypeOrgSearchClientMock);
+    debtPositionTypeOrgService = new DebtPositionTypeOrgServiceImpl(debtPositionTypeOrgWithActiveSpontaneousCountSearchClientMock, debtPositionTypeOrgSearchClientMock, debtPositionTypeOrgEntityClient);
   }
 
   @AfterEach
@@ -67,6 +70,21 @@ class DebtPositionTypeOrgServiceImplTest {
     List<DebtPositionTypeOrg> result = debtPositionTypeOrgService.getDebtPositionTypeOrgsFindActiveDebtPositionTypeOrg(organizationId, accessToken);
     //then
 
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(expectedResult, result);
+  }
+
+  @Test
+  void givenDebtPositionTypeOrgIdWhenGetDebtPositionTypeOrgThenReturnDebtPositionTypeOrg() {
+    //given
+    String accessToken = "ACCESS_TOKEN";
+    Long debtPositionTypeOrgId = 2L;
+
+    DebtPositionTypeOrg expectedResult = podamFactory.manufacturePojo(DebtPositionTypeOrg.class);
+    Mockito.when(debtPositionTypeOrgEntityClient.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken)).thenReturn(expectedResult);
+    //when
+    DebtPositionTypeOrg result = debtPositionTypeOrgService.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken);
+    //then
     Assertions.assertNotNull(result);
     Assertions.assertEquals(expectedResult, result);
   }
