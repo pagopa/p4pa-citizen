@@ -105,5 +105,28 @@ class DebtPositionTypeOrgRetrieverServiceImplTest {
     assertEquals("DebtPositionTypeOrg with deptPositionTypeOrgId 3 not found", ex.getMessage());
   }
 
+  @Test
+  void givenNullSpontaneousFormIdWhenGetDebtPositionTypeOrgsWithSpontaneousDetailsDTOThenReturnNullSpontaneousForm() {
+    //given
+    Long debtPositionTypeOrgId = 3L;
+    String accessToken = "accessToken";
+
+    DebtPositionTypeOrg debtPostionTypeOrg = podamFactory.manufacturePojo(DebtPositionTypeOrg.class);
+    debtPostionTypeOrg.setSpontaneousFormId(null);
+
+    Mockito.when(debtPositionTypeOrgServiceMock.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken)).thenReturn(debtPostionTypeOrg);
+
+    DebtPositionTypeOrgsWithSpontaneousDetailsDTO expectedResult = podamFactory.manufacturePojo(DebtPositionTypeOrgsWithSpontaneousDetailsDTO.class);
+    expectedResult.setFormCustom(null);
+    Mockito.when(debtPositionTypeOrgsWithSpontaneousDetailsDTOMapperMock.map(debtPostionTypeOrg, null)).thenReturn(expectedResult);
+    //when
+    DebtPositionTypeOrgsWithSpontaneousDetailsDTO result = debtPositionTypeOrgRetrieverService.getDebtPositionTypeOrgsWithSpontaneousDetailsDTO(debtPositionTypeOrgId, accessToken);
+    //then
+    assertNotNull(result);
+    assertEquals(expectedResult, result);
+    assertNull(result.getFormCustom());
+
+  }
+
 
 }
