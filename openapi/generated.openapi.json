@@ -93,20 +93,12 @@
         } ]
       }
     },
-    "/spontaneous/organizations/{organizationId}/debt-position-type-orgs/{debtPositionTypeOrgId}" : {
+    "/spontaneous/debt-position-type-orgs/{debtPositionTypeOrgId}" : {
       "get" : {
         "tags" : [ "DebtPositionTypeOrg" ],
         "summary" : "Retrieves the detail of debtPositionTypeOrg with flagSpontaneous and flagActive set to true",
         "operationId" : "getDebtPositionTypeOrgsWithSpontaneousDetail",
         "parameters" : [ {
-          "name" : "organizationId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
           "name" : "debtPositionTypeOrgId",
           "in" : "path",
           "required" : true,
