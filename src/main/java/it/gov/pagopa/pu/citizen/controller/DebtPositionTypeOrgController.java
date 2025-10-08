@@ -2,6 +2,7 @@ package it.gov.pagopa.pu.citizen.controller;
 
 import it.gov.pagopa.pu.citizen.controller.generated.DebtPositionTypeOrgApi;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionTypeOrgsWithSpontaneousDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionTypeOrgsWithSpontaneousDetailsDTO;
 import it.gov.pagopa.pu.citizen.security.SecurityUtils;
 import it.gov.pagopa.pu.citizen.service.debtpositiontypeorg.DebtPositionTypeOrgRetrieverService;
 import lombok.extern.slf4j.Slf4j;
@@ -24,5 +25,11 @@ public class DebtPositionTypeOrgController implements DebtPositionTypeOrgApi {
   public ResponseEntity<List<DebtPositionTypeOrgsWithSpontaneousDTO>> getDebtPositionTypeOrgsWithSpontaneous(Long organizationId) {
     log.info("Requested getDebtPositionTypeOrgsWithSpontaneous on organizationId {}", organizationId);
     return ResponseEntity.ok(debtPositionTypeOrgRetrieverService.getDebtPositionTypeOrgsWithSpontaneous(organizationId, SecurityUtils.getAccessToken()));
+  }
+
+  @Override
+  public ResponseEntity<DebtPositionTypeOrgsWithSpontaneousDetailsDTO> getDebtPositionTypeOrgsWithSpontaneousDetail(Long debtPositionTypeOrgId) {
+    log.info("Requested getDebtPositionTypeOrgsWithSpontaneousDetail with debtPositionTypeOrgId {}", debtPositionTypeOrgId);
+    return ResponseEntity.ok(debtPositionTypeOrgRetrieverService.getDebtPositionTypeOrgsWithSpontaneousDetailsDTO(debtPositionTypeOrgId, SecurityUtils.getAccessToken()));
   }
 }
