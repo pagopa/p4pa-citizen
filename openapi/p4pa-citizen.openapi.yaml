@@ -128,13 +128,6 @@ paths:
         - DebtPosition
       summary: "Create spontaneous debt positions"
       operationId: CreateSpontaneousDebtPosition
-      parameters:
-        - name: massive
-          in: query
-          description: Indicates if the operation is massive (true) or single (false).
-          required: false
-          schema:
-            type: boolean
       requestBody:
         content:
           application/json:
@@ -251,9 +244,7 @@ components:
           items:
             $ref: '#/components/schemas/PaymentOptionRequestDTO'
       required:
-        - debtPositionOrigin
         - debtPositionTypeOrgId
-        - flagPuPagoPaPayment
         - organizationId
         - paymentOptions
     InstallmentRequestDTO:

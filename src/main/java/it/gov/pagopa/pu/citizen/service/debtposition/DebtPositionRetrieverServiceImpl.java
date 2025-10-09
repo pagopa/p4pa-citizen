@@ -24,7 +24,7 @@ public class DebtPositionRetrieverServiceImpl implements DebtPositionRetrieverSe
   }
 
   @Override
-  public DebtPositionDTO createDebtPositionDTO(DebtPositionRequestDTO debtPositionRequestDTO, String accessToken) {
+  public DebtPositionDTO createSpontaneousDebtPosition(DebtPositionRequestDTO debtPositionRequestDTO, String accessToken) {
     return debtPositionService.createDebtPosition(debtPositionDTOMapper.mapSpontaneousDebtPositionDTO(debtPositionRequestDTO, dueDateOffsetDays), false, accessToken);
   }
 

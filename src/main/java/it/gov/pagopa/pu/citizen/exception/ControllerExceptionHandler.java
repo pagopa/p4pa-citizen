@@ -21,6 +21,7 @@ import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.stream.Collectors;
@@ -58,6 +59,11 @@ public class ControllerExceptionHandler {
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<ErrorDTO> handleResourceNotFoundException(ResourceNotFoundException ex, HttpServletRequest request) {
     return handleException(ex, request, HttpStatus.NOT_FOUND, ErrorDTO.CodeEnum.NOT_FOUND);
+  }
+
+  @ExceptionHandler({HttpClientErrorException.class})
+  public ResponseEntity<ErrorDTO> handleHttpClientErrorException(HttpClientErrorException ex, HttpServletRequest request) {
+    return handleException(ex, request, ex.getStatusCode(),  ErrorDTO.CodeEnum.GENERIC_ERROR);
   }
 
   static ResponseEntity<ErrorDTO> handleException(Exception ex, HttpServletRequest request, HttpStatusCode httpStatus, ErrorDTO.CodeEnum errorEnum) {
