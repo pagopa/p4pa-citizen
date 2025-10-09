@@ -1,8 +1,11 @@
-openapi: 3.1.0
+openapi: 3.0.1
 info:
   title: Fake API
   description: "Sample API"
   version: "1.0.0"
+servers:
+  - url: "http://localhost:8080"
+    description: Generated server url
 paths:
   /api/v1/greet:
     get:
@@ -29,8 +32,177 @@ paths:
                   error:
                     type: string
                     example: "Internal Server Error"
+  /brokers/{brokerId}/organizations/spontaneous:
+    get:
+      tags:
+        - Organization
+      summary: "Retrieves the list of organizations with at least one dpto with flagSpontaneous and flagActive set to true"
+      operationId: getOrganizationsWithSpontaneous
+      parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrganizationsWithSpontaneousDTO"
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden - Access denied
+        '500':
+          description: Internal Server Error
+  /spontaneous/organizations/{organizationId}/debt-position-type-orgs:
+    get:
+      tags:
+        - DebtPositionTypeOrg
+      summary: "Retrieves the list of debtPositionTypeOrg with flagSpontaneous and flagActive set to true"
+      operationId: getDebtPositionTypeOrgsWithSpontaneous
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDTO"
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden - Access denied
+        '500':
+          description: Internal Server Error
+  /spontaneous/organizations/{organizationId}/debt-position-type-orgs/{debtPositionTypeOrgId}:
+    get:
+      tags:
+        - DebtPositionTypeOrg
+      summary: "Retrieves the detail of debtPositionTypeOrg with flagSpontaneous and flagActive set to true"
+      operationId: getDebtPositionTypeOrgsWithSpontaneousDetail
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: debtPositionTypeOrgId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDetailsDTO"
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden - Access denied
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+security:
+  - BearerAuth: [ ]
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
+    OrganizationsWithSpontaneousDTO:
+      type: object
+      required:
+        - organizationId
+        - orgName
+        - orgFiscalCode
+        - ipaCode
+      properties:
+        organizationId:
+          type: integer
+          format: int64
+        orgName:
+          type: string
+        orgFiscalCode:
+          type: string
+        ipaCode:
+          type: string
+    DebtPositionTypeOrgsWithSpontaneousDTO:
+      type: object
+      required:
+        - debtPositionTypeOrgId
+        - organizationId
+        - code
+        - description
+      properties:
+        debtPositionTypeOrgId:
+          type: integer
+          format: int64
+        organizationId:
+          type: integer
+          format: int64
+        code:
+          type: string
+        description:
+          type: string
+    DebtPositionTypeOrgsWithSpontaneousDetailsDTO:
+      type: object
+      required:
+        - debtPositionTypeOrgId
+        - debtPositionTypeId
+        - organizationId
+        - code
+        - description
+        - formType
+      properties:
+        debtPositionTypeOrgId:
+          type: integer
+          format: int64
+        debtPositionTypeId:
+          type: integer
+          format: int64
+        organizationId:
+          type: integer
+          format: int64
+        code:
+          type: string
+        description:
+          type: string
+        formType:
+          type: string
+          enum:
+            - STANDARD
+            - PRESET_AMOUNT
+            - EXTERNAL_URL
+            - CUSTOM
+        amountCents:
+          type: integer
+          format: int64
+        externalPaymentUrl:
+          type: string
+        formCustom:
+          type: 'FormCustom'
     ErrorDTO:
       type: object
       required:
