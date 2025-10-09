@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -36,17 +37,17 @@ public class DebtPositionTypeOrgRetrieverServiceImpl implements DebtPositionType
   }
 
   @Override
-  public DebtPositionTypeOrgsWithSpontaneousDetailsDTO getDebtPositionTypeOrgsWithSpontaneousDetailsDTO(Long debtPositionTypeOrgId, String accessToken) {
+  public DebtPositionTypeOrgsWithSpontaneousDetailsDTO getDebtPositionTypeOrgsWithSpontaneousDetailsDTO(Long organizationId, Long debtPositionTypeOrgId, String accessToken) {
     DebtPositionTypeOrg debtPositionTypeOrg = debtPositionTypeOrgService.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken);
 
-    if (debtPositionTypeOrg == null){
-      throw new ResourceNotFoundException("DebtPositionTypeOrg with deptPositionTypeOrgId %d not found".formatted(debtPositionTypeOrgId));
+    if (debtPositionTypeOrg == null || !Objects.equals(organizationId, debtPositionTypeOrg.getOrganizationId())){
+      throw new ResourceNotFoundException("DebtPositionTypeOrg with deptPositionTypeOrgId %d  and organizationId %d not found".formatted(debtPositionTypeOrgId, organizationId));
     }
 
-    return debtPositionTypeOrgsWithSpontaneousDetailsDTOMapper.map(debtPositionTypeOrg, extractSpontaneousForm(accessToken, debtPositionTypeOrg));
+    return debtPositionTypeOrgsWithSpontaneousDetailsDTOMapper.map(debtPositionTypeOrg, getSpontaneousForm(accessToken, debtPositionTypeOrg));
   }
 
-  private SpontaneousForm extractSpontaneousForm(String accessToken, DebtPositionTypeOrg debtPositionTypeOrg) {
+  private SpontaneousForm getSpontaneousForm(String accessToken, DebtPositionTypeOrg debtPositionTypeOrg) {
     if (debtPositionTypeOrg.getSpontaneousFormId() != null){
       return spontaneousFormService.getSpontaneousForm(debtPositionTypeOrg.getSpontaneousFormId(), accessToken);
     }

@@ -64,7 +64,7 @@ class SpontaneousFormEntityClientTest {
   }
 
   @Test
-  void givenExceptionWhenGetSpontaneousFormThenReturnNull() {
+  void givenNoSpontaneousFormWhenGetSpontaneousFormThenReturnNull() {
     String accessToken = "ACCESSTOKEN";
     Long spontaneousFormId = 1L;
 

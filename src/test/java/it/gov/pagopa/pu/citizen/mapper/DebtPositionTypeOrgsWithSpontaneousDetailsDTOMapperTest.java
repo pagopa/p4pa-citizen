@@ -39,13 +39,14 @@ class DebtPositionTypeOrgsWithSpontaneousDetailsDTOMapperTest {
     assertEquals(debtPositionTypeOrg.getOrganizationId(), result.getOrganizationId());
     assertEquals(spontaneousForm, result.getFormCustom());
     assertEquals(DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum.STANDARD, result.getFormType());
+    TestUtils.checkNotNullFields(result, "amountCents", "externalPaymentUrl", "spontaneousFormId");
   }
 
 
 
   @ParameterizedTest
   @MethodSource("debtPositionsTypeOrgSource")
-  void givenDebtPositionTypeOrg_whenCalculateFormType_thenCorrectEnumOrException( DebtPositionTypeOrg org, DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum expected) {
+  void givenDebtPositionTypeOrgWhenCalculateFormTypeThenCorrectEnumOrException( DebtPositionTypeOrg org, DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum expected) {
 
     if (expected != null){
       DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum formTypeEnum = mapper.calculateFormType(org);
