@@ -165,6 +165,9 @@ openApiGenerate {
     "enumPropertyNaming" to "original",
     "additionalModelTypeAnnotations" to "@lombok.experimental.SuperBuilder(toBuilder = true)"
   ))
+  typeMappings.set(mapOf(
+    "FormCustom" to "it.gov.pagopa.pu.debtpositions.dto.generated.SpontaneousForm"
+  ))
 }
 
 var targetEnv = when (Objects.requireNonNullElse(System.getProperty("targetBranch"), grgit.branch.current().name)) {
