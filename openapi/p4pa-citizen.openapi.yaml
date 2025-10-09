@@ -127,7 +127,7 @@ paths:
       tags:
         - DebtPosition
       summary: "Create spontaneous debt positions"
-      operationId: CreateSpontaneousDebtPosition
+      operationId: createSpontaneousDebtPosition
       requestBody:
         content:
           application/json:
