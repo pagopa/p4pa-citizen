@@ -1,8 +1,8 @@
 package it.gov.pagopa.pu.citizen.service.debtposition;
 
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
 
 public interface DebtPositionRetrieverService {
-  DebtPositionDTO createSpontaneousDebtPosition(DebtPositionRequestDTO debtPositionRequestDTO, String accessToken);
+  DebtPositionResponseDTO createSpontaneousDebtPosition(DebtPositionRequestDTO debtPositionRequestDTO, String accessToken);
 }

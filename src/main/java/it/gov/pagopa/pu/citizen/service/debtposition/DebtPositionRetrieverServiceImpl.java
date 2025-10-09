@@ -1,9 +1,14 @@
 package it.gov.pagopa.pu.citizen.service.debtposition;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.DebtPositionService;
+import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
+import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionDTOMapper;
+import it.gov.pagopa.pu.citizen.mapper.DebtPositionResponseDTOMapper;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
+import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -13,19 +18,34 @@ public class DebtPositionRetrieverServiceImpl implements DebtPositionRetrieverSe
   private final DebtPositionService debtPositionService;
   private final DebtPositionDTOMapper debtPositionDTOMapper;
   private final Integer dueDateOffsetDays;
+  private final OrganizationService organizationService;
+  private final DebtPositionResponseDTOMapper debtPositionResponseDTOMapper;
 
   public DebtPositionRetrieverServiceImpl(DebtPositionService debtPositionService,
                                           DebtPositionDTOMapper debtPositionDTOMapper,
-                                          @Value("${rest.spontaneous.dueDateOffsetDays}")Integer dueDateOffsetDays
+                                          @Value("${rest.spontaneous.dueDateOffsetDays}")Integer dueDateOffsetDays,
+                                          OrganizationService organizationService, DebtPositionResponseDTOMapper debtPositionResponseDTOMapper
   ) {
     this.debtPositionDTOMapper = debtPositionDTOMapper;
     this.debtPositionService = debtPositionService;
     this.dueDateOffsetDays =dueDateOffsetDays;
+    this.organizationService = organizationService;
+    this.debtPositionResponseDTOMapper = debtPositionResponseDTOMapper;
   }
 
   @Override
-  public DebtPositionDTO createSpontaneousDebtPosition(DebtPositionRequestDTO debtPositionRequestDTO, String accessToken) {
-    return debtPositionService.createDebtPosition(debtPositionDTOMapper.mapSpontaneousDebtPositionDTO(debtPositionRequestDTO, dueDateOffsetDays), false, accessToken);
+  public DebtPositionResponseDTO createSpontaneousDebtPosition(DebtPositionRequestDTO debtPositionRequestDTO, String accessToken) {
+    DebtPositionDTO debtPosition = debtPositionService.createDebtPosition(debtPositionDTOMapper.mapSpontaneousDebtPositionDTO(debtPositionRequestDTO, dueDateOffsetDays), false, accessToken);
+    Organization organization = getOrganization(debtPositionRequestDTO.getOrganizationId(), accessToken);
+    return debtPositionResponseDTOMapper.map(debtPosition, organization);
+  }
+
+  private Organization getOrganization(Long organizationId, String accessToken) {
+    Organization organization = organizationService.getOrganizationByOrganizationId(organizationId, accessToken);
+    if (organization == null){
+      throw new ResourceNotFoundException("Organization with id %d not found".formatted(organizationId));
+    }
+    return organization;
   }
 
 }

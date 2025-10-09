@@ -2,10 +2,10 @@ package it.gov.pagopa.pu.citizen.controller;
 
 import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
 import it.gov.pagopa.pu.citizen.security.SecurityUtilsTest;
 import it.gov.pagopa.pu.citizen.service.debtposition.DebtPositionRetrieverService;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
-import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,13 +53,13 @@ class DebtPositionControllerTest {
   @Test
   void givenCorrectRequestWhenCreateDebtPositionThenOk() {
     DebtPositionRequestDTO debtPositionRequestDTO = podamFactory.manufacturePojo(DebtPositionRequestDTO.class);
-    DebtPositionDTO expectedResult = podamFactory.manufacturePojo(DebtPositionDTO.class);
+    DebtPositionResponseDTO expectedResult = podamFactory.manufacturePojo(DebtPositionResponseDTO.class);
 
     Mockito.when(debtPositionRetrieverServiceMock.createSpontaneousDebtPosition(
         Mockito.same(debtPositionRequestDTO), Mockito.same(accessToken)))
       .thenReturn(expectedResult);
 
-    ResponseEntity<DebtPositionDTO> response = debtPositionController.createSpontaneousDebtPosition(debtPositionRequestDTO);
+    ResponseEntity<DebtPositionResponseDTO> response = debtPositionController.createSpontaneousDebtPosition(debtPositionRequestDTO);
 
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     Assertions.assertNotNull(response.getBody());

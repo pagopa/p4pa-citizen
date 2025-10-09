@@ -1,5 +1,6 @@
 package it.gov.pagopa.pu.citizen.connector.organization;
 
+import it.gov.pagopa.pu.citizen.connector.organization.client.OrganizationEntityClient;
 import it.gov.pagopa.pu.citizen.connector.organization.client.OrganizationSearchClient;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.organization.dto.generated.OrganizationStatus;
@@ -20,6 +21,8 @@ class OrganizationServiceImplTest {
 
   @Mock
   private OrganizationSearchClient organizationSearchClientMock;
+  @Mock
+  private OrganizationEntityClient organizationEntityClientMock;
 
   private final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
@@ -27,7 +30,7 @@ class OrganizationServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    organizationService =new OrganizationServiceImpl(organizationSearchClientMock);
+    organizationService = new OrganizationServiceImpl(organizationSearchClientMock, organizationEntityClientMock);
   }
 
   @AfterEach

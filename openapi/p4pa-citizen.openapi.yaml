@@ -140,7 +140,7 @@ paths:
           content:
             application/json:
               schema:
-                type: 'DebtPositionDTO'
+                $ref: "#/components/schemas/DebtPositionResponseDTO"
         '400':
           description: Invalid request
         '403':
@@ -277,6 +277,40 @@ components:
       required:
         - installments
         - totalAmountCents
+    DebtPositionResponseDTO:
+      type: object
+      properties:
+        organizationId:
+          type: integer
+          format: int64
+        orgFiscalCode:
+          type: string
+        orgName:
+          type: string
+        paymentDetails:
+          $ref: '#/components/schemas/PaymentDetailsDTO'
+    PaymentDetailsDTO:
+      type: object
+      properties:
+        iupdPagopa:
+          type: string
+        iud:
+          type: string
+        iuv:
+          type: string
+        nav:
+          type: string
+        dueDate:
+          type: string
+          format: date
+        notificationFeeCents:
+          type: integer
+          format: int64
+        amountCents:
+          type: integer
+          format: int64
+        remittanceInformation:
+          type: string
     ErrorDTO:
       type: object
       required:
