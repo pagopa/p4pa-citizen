@@ -166,7 +166,9 @@ openApiGenerate {
     "additionalModelTypeAnnotations" to "@lombok.experimental.SuperBuilder(toBuilder = true)"
   ))
   typeMappings.set(mapOf(
-    "FormCustom" to "it.gov.pagopa.pu.debtpositions.dto.generated.SpontaneousForm"
+    "FormCustom" to "it.gov.pagopa.pu.debtpositions.dto.generated.SpontaneousForm",
+    "DebtPositionDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO",
+    "PersonDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.PersonDTO"
   ))
 }
 

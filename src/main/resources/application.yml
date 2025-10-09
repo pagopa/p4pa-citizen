@@ -65,6 +65,8 @@ springdoc:
   writer-with-default-pretty-printer: true
 
 rest:
+  spontaneous:
+    dueDateOffsetDays: "\${REST_SPONTANEOUS_DUE_DATE_OFFSET_DAYS:1}"
   page:
     request-max-page-size: "\${REST_PAGE_REQUEST_MAX_PAGE_SIZE:100}"
   defaults:
