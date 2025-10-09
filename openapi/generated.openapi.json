@@ -27,16 +27,7 @@
       "post" : {
         "tags" : [ "DebtPosition" ],
         "summary" : "Create spontaneous debt positions",
-        "operationId" : "createSpontaneousDebtPositionType",
-        "parameters" : [ {
-          "name" : "massive",
-          "in" : "query",
-          "description" : "Indicates if the operation is massive (true) or single (false).",
-          "required" : false,
-          "schema" : {
-            "type" : "boolean"
-          }
-        } ],
+        "operationId" : "createSpontaneousDebtPosition",
         "requestBody" : {
           "content" : {
             "application/json" : {
