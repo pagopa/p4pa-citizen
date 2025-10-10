@@ -21,8 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)
 class DebtPositionRetrieverServiceImplTest {
@@ -67,7 +65,7 @@ class DebtPositionRetrieverServiceImplTest {
     DebtPositionResponseDTO expectedResult = podamFactory.manufacturePojo(DebtPositionResponseDTO.class);
 
     Mockito.when(debtPositionDTOMapperMock.mapSpontaneousDebtPositionDTO(requestDTO, 1)).thenReturn(debtPosition);
-    Mockito.when(debtPositionServiceMock.createDebtPosition(any(), eq(false), eq(accessToken)))
+    Mockito.when(debtPositionServiceMock.createDebtPosition(debtPosition, false, accessToken))
         .thenReturn(debtPosition);
     Mockito.when(organizationServiceMock.getOrganizationByOrganizationId(requestDTO.getOrganizationId(), accessToken)).thenReturn(organization);
     Mockito.when(debtPositionResponseDTOMapperMock.map(debtPosition, organization)).thenReturn(expectedResult);
@@ -86,7 +84,7 @@ class DebtPositionRetrieverServiceImplTest {
     DebtPositionDTO debtPosition = podamFactory.manufacturePojo(DebtPositionDTO.class);
 
     Mockito.when(debtPositionDTOMapperMock.mapSpontaneousDebtPositionDTO(requestDTO, 1)).thenReturn(debtPosition);
-    Mockito.when(debtPositionServiceMock.createDebtPosition(any(), eq(false), eq(accessToken)))
+    Mockito.when(debtPositionServiceMock.createDebtPosition(debtPosition, false, accessToken))
       .thenReturn(debtPosition);
     Mockito.when(organizationServiceMock.getOrganizationByOrganizationId(requestDTO.getOrganizationId(), accessToken)).thenReturn(null);
 
