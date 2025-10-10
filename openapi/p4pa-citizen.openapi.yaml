@@ -279,7 +279,16 @@ components:
         - totalAmountCents
     DebtPositionResponseDTO:
       type: object
+      required:
+        - debtPositionId
+        - organizationId
+        - orgFiscalCode
+        - orgName
+        - paymentDetails
       properties:
+        debtPositionId:
+          type: integer
+          format: int64
         organizationId:
           type: integer
           format: int64
@@ -291,6 +300,10 @@ components:
           $ref: '#/components/schemas/PaymentDetailsDTO'
     PaymentDetailsDTO:
       type: object
+      required:
+        - amountCents
+        - debtor
+        - remittanceInformation
       properties:
         iupdPagopa:
           type: string

@@ -5,7 +5,6 @@ import it.gov.pagopa.pu.citizen.connector.organization.client.OrganizationSearch
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import it.gov.pagopa.pu.organization.dto.generated.OrganizationStatus;
 import it.gov.pagopa.pu.organization.dto.generated.PagedModelOrganization;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +25,6 @@ public class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
-  @Cacheable(key = "#organizationId", unless="#result == null")
   public Organization getOrganizationByOrganizationId(Long organizationId, String accessToken){
     return organizationEntityClient.getOrganizationByOrganizationId(organizationId, accessToken);
   }

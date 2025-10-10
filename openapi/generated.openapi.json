@@ -326,6 +326,10 @@
       "DebtPositionResponseDTO" : {
         "type" : "object",
         "properties" : {
+          "debtPositionId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
           "organizationId" : {
             "type" : "integer",
             "format" : "int64"
@@ -339,7 +343,8 @@
           "paymentDetails" : {
             "$ref" : "#/components/schemas/PaymentDetailsDTO"
           }
-        }
+        },
+        "required" : [ "debtPositionId", "orgFiscalCode", "orgName", "organizationId", "paymentDetails" ]
       },
       "PaymentDetailsDTO" : {
         "type" : "object",
@@ -371,7 +376,8 @@
           "remittanceInformation" : {
             "type" : "string"
           }
-        }
+        },
+        "required" : [ "amountCents", "remittanceInformation" ]
       },
       "DebtPositionRequestDTO" : {
         "type" : "object",

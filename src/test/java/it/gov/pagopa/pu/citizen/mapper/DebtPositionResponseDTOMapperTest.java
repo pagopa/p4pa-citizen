@@ -37,6 +37,7 @@ class DebtPositionResponseDTOMapperTest {
 
     // then
     assertNotNull(result);
+    assertEquals(debtPositionDTO.getDebtPositionId(), result.getDebtPositionId());
     assertEquals(organization.getOrganizationId(), result.getOrganizationId());
     assertEquals(organization.getOrgFiscalCode(), result.getOrgFiscalCode());
     assertEquals(organization.getOrgName(), result.getOrgName());
