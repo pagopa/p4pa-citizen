@@ -37,14 +37,17 @@ class DebtPositionDTOMapperTest {
       assertEquals(PaymentOptionStatus.UNPAID, opt.getStatus());
       assertEquals(PaymentOptionTypeEnum.SINGLE_INSTALLMENT, opt.getPaymentOptionType());
       assertEquals(1, opt.getPaymentOptionIndex());
+      TestUtils.checkNotNullFields(opt, "paymentOptionId", "debtPositionId", "description","creationDate", "updateDate", "updateOperatorExternalId", "updateTraceId");
 
       opt.getInstallments().forEach(inst -> {
         assertEquals(InstallmentStatus.UNPAID, inst.getStatus());
         assertTrue(inst.getGenerateNotice());
         assertEquals(LocalDate.now().plusDays(expirationDays), inst.getDueDate());
+        assertNull(inst.getTransfers());
+        TestUtils.checkNotNullFields(inst, "updateTraceId", "nav", "updateDate", "iun", "switchToExpired", "iur", "iuv", "creationDate", "iupdPagopa", "ingestionFlowFileId", "ingestionFlowFileLineNumber", "installmentId", "balance", "transfers", "iud", "iuf", "legacyPaymentMetadata", "sourceFlowName", "updateOperatorExternalId", "receiptId", "syncStatus", "ingestionFlowFileAction", "paymentOptionId", "notificationDate");
       });
     });
-    TestUtils.checkNotNullFields(result, "updateTraceId", "multiDebtor", "updateDate", "validityDate", "description", "iupdOrg", "flagIuvVolatile", "updateOperatorExternalId", "creationDate", "debtPositionId");
+
   }
 
   @Test
@@ -61,8 +64,7 @@ class DebtPositionDTOMapperTest {
     assertEquals(PaymentOptionTypeEnum.SINGLE_INSTALLMENT, result.getPaymentOptionType());
     assertEquals(1, result.getPaymentOptionIndex());
     assertEquals(PaymentOptionStatus.UNPAID, result.getStatus());
-    TestUtils.checkNotNullFields(result,
-      "updateTraceId", "nav", "updateDate", "iun", "switchToExpired", "iur", "iuv", "creationDate", "iupdPagopa", "ingestionFlowFileId", "ingestionFlowFileLineNumber", "installmentId", "balance", "transfers", "iud", "iuf", "legacyPaymentMetadata", "sourceFlowName", "updateOperatorExternalId", "receiptId", "syncStatus", "ingestionFlowFileAction", "paymentOptionId", "notificationDate", "description", "debtPositionId");
+    TestUtils.checkNotNullFields(result, "paymentOptionId", "debtPositionId", "description", "creationDate", "updateDate", "updateOperatorExternalId", "updateTraceId");
   }
 
   @Test
