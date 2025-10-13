@@ -98,7 +98,7 @@ See [application.yml](src/main/resources/application.yml) for each configurable 
 #### 💼 Business logic
 | ENV                                   | DESCRIPTION                     | DEFAULT   |
 |---------------------------------------|---------------------------------|-----------|
-| REST_SPONTANEOUS_DUE_DATE_OFFSET_DAYS | Offset for spontaneous dueDate  | 1         |
+| SPONTANEOUS_DUE_DATE_OFFSET_DAYS | Offset for spontaneous dueDate  | 1         |
 
 
 ## 🛠️ Getting Started

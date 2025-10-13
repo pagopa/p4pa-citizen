@@ -65,7 +65,7 @@ springdoc:
   writer-with-default-pretty-printer: true
 
 spontaneous:
-  dueDateOffsetDays: "\${REST_SPONTANEOUS_DUE_DATE_OFFSET_DAYS:1}"
+  dueDateOffsetDays: "\${SPONTANEOUS_DUE_DATE_OFFSET_DAYS:1}"
 
 rest:
   page:
