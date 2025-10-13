@@ -78,7 +78,7 @@ See [application.yml](src/main/resources/application.yml) for each configurable 
 | DEFAULT_REST_CONNECTION_POOL_TIME_TO_LIVE_MINUTES | Default connection pool TTL (minutes)     | 10      |
 | DEFAULT_REST_TIMEOUT_CONNECT_MILLIS               | Default connection timeout (milliseconds) | 120000  |
 | DEFAULT_REST_TIMEOUT_READ_MILLIS                  | Default read timeout (milliseconds)       | 120000  |
-| REST_SPONTANEOUS_DUE_DATE_OFFSET_DAYS             | Offset for spontaneous dueDate            | 1       |
+
 ##### 🧩 Microservices
 | ENV                                   | DESCRIPTION                                            | DEFAULT |
 |---------------------------------------|--------------------------------------------------------|---------|
@@ -96,9 +96,9 @@ See [application.yml](src/main/resources/application.yml) for each configurable 
 | ORGANIZATION_PRINT_BODY_WHEN_ERROR    | To print body when an error occurs                     | true    |
 
 #### 💼 Business logic
-| ENV | DESCRIPTION | DEFAULT   |
-|-----|-------------|-----------|
-|     |             |           |
+| ENV                                   | DESCRIPTION                     | DEFAULT   |
+|---------------------------------------|---------------------------------|-----------|
+| REST_SPONTANEOUS_DUE_DATE_OFFSET_DAYS | Offset for spontaneous dueDate  | 1         |
 
 
 ## 🛠️ Getting Started

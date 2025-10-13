@@ -23,7 +23,7 @@ public class DebtPositionRetrieverServiceImpl implements DebtPositionRetrieverSe
 
   public DebtPositionRetrieverServiceImpl(DebtPositionService debtPositionService,
                                           DebtPositionDTOMapper debtPositionDTOMapper,
-                                          @Value("${rest.spontaneous.dueDateOffsetDays}")Integer dueDateOffsetDays,
+                                          @Value("${spontaneous.dueDateOffsetDays}")Integer dueDateOffsetDays,
                                           OrganizationService organizationService, DebtPositionResponseDTOMapper debtPositionResponseDTOMapper
   ) {
     this.debtPositionDTOMapper = debtPositionDTOMapper;
