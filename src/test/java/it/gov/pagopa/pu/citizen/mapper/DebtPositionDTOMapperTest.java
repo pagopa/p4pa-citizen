@@ -22,10 +22,10 @@ class DebtPositionDTOMapperTest {
   void givenDebtPositionRequestDTOWhenMapSpontaneousDebtPositionDTOThenFieldsAreMappedCorrectly() {
     // given
     DebtPositionRequestDTO request = podamFactory.manufacturePojo(DebtPositionRequestDTO.class);
-    int dueDateOffsetDays = 5;
+    int expirationDays = 5;
 
     // when
-    DebtPositionDTO result = mapper.mapSpontaneousDebtPositionDTO(request, dueDateOffsetDays);
+    DebtPositionDTO result = mapper.mapSpontaneousDebtPositionDTO(request, expirationDays);
 
     // then
     assertNotNull(result);
@@ -41,45 +41,49 @@ class DebtPositionDTOMapperTest {
       opt.getInstallments().forEach(inst -> {
         assertEquals(InstallmentStatus.UNPAID, inst.getStatus());
         assertTrue(inst.getGenerateNotice());
-        assertEquals(LocalDate.now().plusDays(dueDateOffsetDays), inst.getDueDate());
+        assertEquals(LocalDate.now().plusDays(expirationDays), inst.getDueDate());
       });
     });
+    TestUtils.checkNotNullFields(result, "updateTraceId", "multiDebtor", "updateDate", "validityDate", "description", "iupdOrg", "flagIuvVolatile", "updateOperatorExternalId", "creationDate", "debtPositionId");
   }
 
   @Test
   void givenPaymentOptionRequestDTOWhenMapSpontaneousPaymentOptionDTOThenReturnPaymentOptionDTO() {
     // given
     PaymentOptionRequestDTO request = podamFactory.manufacturePojo(PaymentOptionRequestDTO.class);
-    Integer dueDateOffsetDays = 10;
+    Integer expirationDays = 10;
 
     // when
-    PaymentOptionDTO result = mapper.mapSpontaneousPaymentOptionDTO(request, dueDateOffsetDays);
+    PaymentOptionDTO result = mapper.mapSpontaneousPaymentOptionDTO(request, expirationDays);
 
     // then
     assertNotNull(result);
     assertEquals(PaymentOptionTypeEnum.SINGLE_INSTALLMENT, result.getPaymentOptionType());
     assertEquals(1, result.getPaymentOptionIndex());
     assertEquals(PaymentOptionStatus.UNPAID, result.getStatus());
+    TestUtils.checkNotNullFields(result,
+      "updateTraceId", "nav", "updateDate", "iun", "switchToExpired", "iur", "iuv", "creationDate", "iupdPagopa", "ingestionFlowFileId", "ingestionFlowFileLineNumber", "installmentId", "balance", "transfers", "iud", "iuf", "legacyPaymentMetadata", "sourceFlowName", "updateOperatorExternalId", "receiptId", "syncStatus", "ingestionFlowFileAction", "paymentOptionId", "notificationDate", "description", "debtPositionId");
   }
 
   @Test
   void givenInstallmentRequestDTOWhenMapSpontaneousInstallmentDTOThenReturnInstallmentDTO() {
     // given
     InstallmentRequestDTO request = podamFactory.manufacturePojo(InstallmentRequestDTO.class);
-    int dueDateOffsetDays = 7;
+    int expirationDays = 7;
 
     // when
-    InstallmentDTO result = mapper.mapSpontaneousInstallmentDTO(request, dueDateOffsetDays);
+    InstallmentDTO result = mapper.mapSpontaneousInstallmentDTO(request, expirationDays);
 
     // then
     assertNotNull(result);
     assertTrue(result.getGenerateNotice());
     assertEquals(InstallmentStatus.UNPAID, result.getStatus());
-    assertEquals(LocalDate.now().plusDays(dueDateOffsetDays), result.getDueDate());
+    assertEquals(LocalDate.now().plusDays(expirationDays), result.getDueDate());
+    TestUtils.checkNotNullFields(result, "updateTraceId", "nav", "updateDate", "iun", "switchToExpired", "iur", "iuv", "creationDate", "iupdPagopa", "ingestionFlowFileId", "ingestionFlowFileLineNumber", "installmentId", "balance", "transfers", "iud", "iuf", "legacyPaymentMetadata", "sourceFlowName", "updateOperatorExternalId", "receiptId", "syncStatus", "ingestionFlowFileAction", "paymentOptionId", "notificationDate");
   }
 
   @Test
-  void givenNullDueDateOffsetDaysMapSpontaneousInstallmentDTOThenMapLocalDate() {
+  void givenNullExpirationDaysMapSpontaneousInstallmentDTOThenMapLocalDate() {
     // given
     InstallmentRequestDTO request = podamFactory.manufacturePojo(InstallmentRequestDTO.class);
 
@@ -88,6 +92,7 @@ class DebtPositionDTOMapperTest {
 
     // then
     assertEquals(LocalDate.now(), result.getDueDate());
+    TestUtils.checkNotNullFields(result, "updateTraceId", "nav", "updateDate", "iun", "switchToExpired", "iur", "iuv", "creationDate", "iupdPagopa", "ingestionFlowFileId", "ingestionFlowFileLineNumber", "installmentId", "balance", "transfers", "iud", "iuf", "legacyPaymentMetadata", "sourceFlowName", "updateOperatorExternalId", "receiptId", "syncStatus", "ingestionFlowFileAction", "paymentOptionId", "notificationDate");
   }
 
 }

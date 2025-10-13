@@ -17,25 +17,25 @@ public class DebtPositionRetrieverServiceImpl implements DebtPositionRetrieverSe
 
   private final DebtPositionService debtPositionService;
   private final DebtPositionDTOMapper debtPositionDTOMapper;
-  private final Integer dueDateOffsetDays;
+  private final Integer expirationDays;
   private final OrganizationService organizationService;
   private final DebtPositionResponseDTOMapper debtPositionResponseDTOMapper;
 
   public DebtPositionRetrieverServiceImpl(DebtPositionService debtPositionService,
                                           DebtPositionDTOMapper debtPositionDTOMapper,
-                                          @Value("${spontaneous.dueDateOffsetDays}")Integer dueDateOffsetDays,
+                                          @Value("${spontaneous.expiration-days}")Integer expirationDays,
                                           OrganizationService organizationService, DebtPositionResponseDTOMapper debtPositionResponseDTOMapper
   ) {
     this.debtPositionDTOMapper = debtPositionDTOMapper;
     this.debtPositionService = debtPositionService;
-    this.dueDateOffsetDays =dueDateOffsetDays;
+    this.expirationDays = expirationDays;
     this.organizationService = organizationService;
     this.debtPositionResponseDTOMapper = debtPositionResponseDTOMapper;
   }
 
   @Override
   public DebtPositionResponseDTO createSpontaneousDebtPosition(DebtPositionRequestDTO debtPositionRequestDTO, String accessToken) {
-    DebtPositionDTO debtPosition = debtPositionService.createDebtPosition(debtPositionDTOMapper.mapSpontaneousDebtPositionDTO(debtPositionRequestDTO, dueDateOffsetDays), false, accessToken);
+    DebtPositionDTO debtPosition = debtPositionService.createDebtPosition(debtPositionDTOMapper.mapSpontaneousDebtPositionDTO(debtPositionRequestDTO, expirationDays), false, accessToken);
     Organization organization = getOrganization(debtPositionRequestDTO.getOrganizationId(), accessToken);
     return debtPositionResponseDTOMapper.map(debtPosition, organization);
   }

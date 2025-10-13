@@ -96,9 +96,9 @@ See [application.yml](src/main/resources/application.yml) for each configurable 
 | ORGANIZATION_PRINT_BODY_WHEN_ERROR    | To print body when an error occurs                     | true    |
 
 #### 💼 Business logic
-| ENV                                   | DESCRIPTION                     | DEFAULT   |
-|---------------------------------------|---------------------------------|-----------|
-| SPONTANEOUS_DUE_DATE_OFFSET_DAYS | Offset for spontaneous dueDate  | 1         |
+| ENV                                  | DESCRIPTION                   | DEFAULT   |
+|--------------------------------------|-------------------------------|-----------|
+| SPONTANEOUS_EXPIRATION_DAYS          | Spontaneous expiration days   | 1         |
 
 
 ## 🛠️ Getting Started
