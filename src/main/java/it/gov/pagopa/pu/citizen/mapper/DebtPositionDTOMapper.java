@@ -25,6 +25,7 @@ public interface DebtPositionDTOMapper {
 
   @Mapping(target = "generateNotice", constant = "true")
   @Mapping(target = "status", constant = "UNPAID")
+  @Mapping(target = "switchToExpired", constant = "true")
   @Mapping(target = "dueDate", expression = "java(expirationDays != null ? java.time.LocalDate.now().plusDays(expirationDays) : java.time.LocalDate.now())")
   InstallmentDTO mapSpontaneousInstallmentDTO(InstallmentRequestDTO installmentRequestDTO, @Context Integer expirationDays);
 

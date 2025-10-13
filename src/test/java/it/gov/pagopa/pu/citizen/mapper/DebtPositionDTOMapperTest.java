@@ -81,7 +81,8 @@ class DebtPositionDTOMapperTest {
     assertTrue(result.getGenerateNotice());
     assertEquals(InstallmentStatus.UNPAID, result.getStatus());
     assertEquals(LocalDate.now().plusDays(expirationDays), result.getDueDate());
-    TestUtils.checkNotNullFields(result, "updateTraceId", "nav", "updateDate", "iun", "switchToExpired", "iur", "iuv", "creationDate", "iupdPagopa", "ingestionFlowFileId", "ingestionFlowFileLineNumber", "installmentId", "balance", "transfers", "iud", "iuf", "legacyPaymentMetadata", "sourceFlowName", "updateOperatorExternalId", "receiptId", "syncStatus", "ingestionFlowFileAction", "paymentOptionId", "notificationDate");
+    assertTrue(result.getSwitchToExpired());
+    TestUtils.checkNotNullFields(result, "updateTraceId", "nav", "updateDate", "iun", "iur", "iuv", "creationDate", "iupdPagopa", "ingestionFlowFileId", "ingestionFlowFileLineNumber", "installmentId", "balance", "transfers", "iud", "iuf", "legacyPaymentMetadata", "sourceFlowName", "updateOperatorExternalId", "receiptId", "syncStatus", "ingestionFlowFileAction", "paymentOptionId", "notificationDate");
   }
 
   @Test
