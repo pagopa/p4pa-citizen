@@ -3,10 +3,7 @@ package it.gov.pagopa.pu.citizen.connector.debtpositions.config;
 import it.gov.pagopa.pu.citizen.config.rest.RestTemplateConfig;
 import it.gov.pagopa.pu.debtpositions.controller.ApiClient;
 import it.gov.pagopa.pu.debtpositions.controller.BaseApi;
-import it.gov.pagopa.pu.debtpositions.controller.generated.DebtPositionTypeOrgEntityControllerApi;
-import it.gov.pagopa.pu.debtpositions.controller.generated.DebtPositionTypeOrgSearchControllerApi;
-import it.gov.pagopa.pu.debtpositions.controller.generated.DebtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApi;
-import it.gov.pagopa.pu.debtpositions.controller.generated.SpontaneousFormEntityControllerApi;
+import it.gov.pagopa.pu.debtpositions.controller.generated.*;
 import jakarta.annotation.PreDestroy;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
@@ -19,6 +16,7 @@ public class DebtPositionsApisHolder {
   private final DebtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApi debtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApi;
   private final DebtPositionTypeOrgEntityControllerApi debtPositionTypeOrgEntityControllerApi;
   private final SpontaneousFormEntityControllerApi spontaneousFormEntityControllerApi;
+  private final DebtPositionApi debtPositionApi;
 
   private final ThreadLocal<String> bearerTokenHolder = new ThreadLocal<>();
 
@@ -40,6 +38,7 @@ public class DebtPositionsApisHolder {
     this.debtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApi = new DebtPositionTypeOrgWithActiveSpontaneousCountSearchControllerApi(apiClient);
     this.debtPositionTypeOrgEntityControllerApi = new DebtPositionTypeOrgEntityControllerApi(apiClient);
     this.spontaneousFormEntityControllerApi = new SpontaneousFormEntityControllerApi(apiClient);
+    this.debtPositionApi = new DebtPositionApi(apiClient);
   }
 
   @PreDestroy
@@ -69,6 +68,13 @@ public class DebtPositionsApisHolder {
    */
   public SpontaneousFormEntityControllerApi getSpontaneousFormEntityControllerApi(String accessToken) {
     return getApi(accessToken, spontaneousFormEntityControllerApi);
+  }
+
+  /**
+   * It will return a {@link DebtPositionApi} instrumented with the provided accessToken. Use null if auth is not required
+   */
+  public DebtPositionApi getDebtPositionApi(String accessToken) {
+    return getApi(accessToken, debtPositionApi);
   }
 
   private <T extends BaseApi> T getApi(String accessToken, T api) {

@@ -64,6 +64,9 @@ logging:
 springdoc:
   writer-with-default-pretty-printer: true
 
+spontaneous:
+  expiration-days: "\${SPONTANEOUS_EXPIRATION_DAYS:1}"
+
 rest:
   page:
     request-max-page-size: "\${REST_PAGE_REQUEST_MAX_PAGE_SIZE:100}"

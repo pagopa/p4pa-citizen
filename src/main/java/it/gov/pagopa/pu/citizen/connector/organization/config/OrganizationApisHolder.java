@@ -4,6 +4,7 @@ package it.gov.pagopa.pu.citizen.connector.organization.config;
 import it.gov.pagopa.pu.citizen.config.rest.RestTemplateConfig;
 import it.gov.pagopa.pu.organization.controller.ApiClient;
 import it.gov.pagopa.pu.organization.controller.BaseApi;
+import it.gov.pagopa.pu.organization.controller.generated.OrganizationEntityControllerApi;
 import it.gov.pagopa.pu.organization.controller.generated.OrganizationSearchControllerApi;
 import jakarta.annotation.PreDestroy;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -13,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class OrganizationApisHolder {
   private final OrganizationSearchControllerApi organizationSearchControllerApi;
+  private final OrganizationEntityControllerApi organizationEntityControllerApi;
   private final ThreadLocal<String> bearerTokenHolder = new ThreadLocal<>();
 
   public OrganizationApisHolder(OrganizationApiClientConfig clientConfig, RestTemplateBuilder restTemplateBuilder){
@@ -28,6 +30,7 @@ public class OrganizationApisHolder {
     }
 
     this.organizationSearchControllerApi = new OrganizationSearchControllerApi(apiClient);
+    this.organizationEntityControllerApi = new OrganizationEntityControllerApi(apiClient);
   }
 
   @PreDestroy
@@ -39,6 +42,12 @@ public class OrganizationApisHolder {
   public OrganizationSearchControllerApi getOrganizationSearchControllerApi(String accessToken){
     return getApi(accessToken, organizationSearchControllerApi);
   }
+
+  /** It will return a {@link OrganizationEntityControllerApi} instrumented with the provided accessToken. Use null if auth is not required */
+  public OrganizationEntityControllerApi getOrganizationEntityControllerApi(String accessToken){
+    return getApi(accessToken,organizationEntityControllerApi);
+  }
+
 
   private <T extends BaseApi> T getApi(String accessToken, T api) {
     bearerTokenHolder.set(accessToken);

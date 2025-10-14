@@ -122,6 +122,33 @@ paths:
           description: Not Found
         '500':
           description: Internal Server Error
+  /spontaneous/debt-positions:
+    post:
+      tags:
+        - DebtPosition
+      summary: "Create spontaneous debt positions"
+      operationId: createSpontaneousDebtPosition
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DebtPositionRequestDTO"
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DebtPositionResponseDTO"
+        '400':
+          description: Invalid request
+        '403':
+          description: Forbidden
+        '409':
+          description: Conflict
+        '500':
+          description: Internal server error
 security:
   - BearerAuth: [ ]
 components:
@@ -203,6 +230,100 @@ components:
           type: string
         formCustom:
           type: 'FormCustom'
+    DebtPositionRequestDTO:
+      type: object
+      properties:
+        organizationId:
+          type: integer
+          format: int64
+        debtPositionTypeOrgId:
+          type: integer
+          format: int64
+        paymentOptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentOptionRequestDTO'
+      required:
+        - debtPositionTypeOrgId
+        - organizationId
+        - paymentOptions
+    InstallmentRequestDTO:
+      type: object
+      properties:
+        notificationFeeCents:
+          type: integer
+          format: int64
+        amountCents:
+          type: integer
+          format: int64
+        remittanceInformation:
+          type: string
+        debtor:
+          type: 'PersonDTO'
+      required:
+        - amountCents
+        - debtor
+        - remittanceInformation
+    PaymentOptionRequestDTO:
+      type: object
+      properties:
+        totalAmountCents:
+          type: integer
+          format: int64
+        installments:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstallmentRequestDTO'
+      required:
+        - installments
+        - totalAmountCents
+    DebtPositionResponseDTO:
+      type: object
+      required:
+        - debtPositionId
+        - organizationId
+        - orgFiscalCode
+        - orgName
+        - paymentDetails
+      properties:
+        debtPositionId:
+          type: integer
+          format: int64
+        organizationId:
+          type: integer
+          format: int64
+        orgFiscalCode:
+          type: string
+        orgName:
+          type: string
+        paymentDetails:
+          $ref: '#/components/schemas/PaymentDetailsDTO'
+    PaymentDetailsDTO:
+      type: object
+      required:
+        - amountCents
+        - debtor
+        - remittanceInformation
+      properties:
+        iupdPagopa:
+          type: string
+        iud:
+          type: string
+        iuv:
+          type: string
+        nav:
+          type: string
+        dueDate:
+          type: string
+          format: date
+        notificationFeeCents:
+          type: integer
+          format: int64
+        amountCents:
+          type: integer
+          format: int64
+        remittanceInformation:
+          type: string
     ErrorDTO:
       type: object
       required:

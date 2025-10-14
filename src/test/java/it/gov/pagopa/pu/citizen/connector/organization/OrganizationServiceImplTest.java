@@ -1,7 +1,9 @@
 package it.gov.pagopa.pu.citizen.connector.organization;
 
+import it.gov.pagopa.pu.citizen.connector.organization.client.OrganizationEntityClient;
 import it.gov.pagopa.pu.citizen.connector.organization.client.OrganizationSearchClient;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
+import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import it.gov.pagopa.pu.organization.dto.generated.OrganizationStatus;
 import it.gov.pagopa.pu.organization.dto.generated.PagedModelOrganization;
 import org.junit.jupiter.api.AfterEach;
@@ -15,11 +17,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import uk.co.jemos.podam.api.PodamFactory;
 
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 class OrganizationServiceImplTest {
 
   @Mock
   private OrganizationSearchClient organizationSearchClientMock;
+  @Mock
+  private OrganizationEntityClient organizationEntityClientMock;
 
   private final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
@@ -27,7 +34,7 @@ class OrganizationServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    organizationService =new OrganizationServiceImpl(organizationSearchClientMock);
+    organizationService = new OrganizationServiceImpl(organizationSearchClientMock, organizationEntityClientMock);
   }
 
   @AfterEach
@@ -51,5 +58,19 @@ class OrganizationServiceImplTest {
     //then
     Assertions.assertNotNull(result);
     Assertions.assertEquals(expectedResult, result);
+  }
+
+  @Test
+  void testGetOrganizationByOrganizationId() {
+    Organization expected = new Organization();
+    Long organizationId = 1L;
+    String accessToken = "accessToken";
+
+    when(organizationEntityClientMock.getOrganizationByOrganizationId(Mockito.same(organizationId), Mockito.same(accessToken)))
+      .thenReturn(expected);
+
+    Organization result = organizationService.getOrganizationByOrganizationId(organizationId, accessToken);
+
+    assertSame(expected, result);
   }
 }
