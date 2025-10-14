@@ -44,7 +44,8 @@ class DebtPositionDTOMapperTest {
         assertTrue(inst.getGenerateNotice());
         assertEquals(LocalDate.now().plusDays(expirationDays), inst.getDueDate());
         assertNull(inst.getTransfers());
-        TestUtils.checkNotNullFields(inst, "updateTraceId", "nav", "updateDate", "iun", "switchToExpired", "iur", "iuv", "creationDate", "iupdPagopa", "ingestionFlowFileId", "ingestionFlowFileLineNumber", "installmentId", "balance", "transfers", "iud", "iuf", "legacyPaymentMetadata", "sourceFlowName", "updateOperatorExternalId", "receiptId", "syncStatus", "ingestionFlowFileAction", "paymentOptionId", "notificationDate");
+        assertTrue(inst.getSwitchToExpired());
+        TestUtils.checkNotNullFields(inst, "updateTraceId", "nav", "updateDate", "iun", "iur", "iuv", "creationDate", "iupdPagopa", "ingestionFlowFileId", "ingestionFlowFileLineNumber", "installmentId", "balance", "transfers", "iud", "iuf", "legacyPaymentMetadata", "sourceFlowName", "updateOperatorExternalId", "receiptId", "syncStatus", "ingestionFlowFileAction", "paymentOptionId", "notificationDate");
       });
     });
 
@@ -94,8 +95,12 @@ class DebtPositionDTOMapperTest {
     InstallmentDTO result = mapper.mapSpontaneousInstallmentDTO(request, null);
 
     // then
+    assertNotNull(result);
     assertEquals(LocalDate.now(), result.getDueDate());
-    TestUtils.checkNotNullFields(result, "updateTraceId", "nav", "updateDate", "iun", "switchToExpired", "iur", "iuv", "creationDate", "iupdPagopa", "ingestionFlowFileId", "ingestionFlowFileLineNumber", "installmentId", "balance", "transfers", "iud", "iuf", "legacyPaymentMetadata", "sourceFlowName", "updateOperatorExternalId", "receiptId", "syncStatus", "ingestionFlowFileAction", "paymentOptionId", "notificationDate");
+    assertTrue(result.getGenerateNotice());
+    assertEquals(InstallmentStatus.UNPAID, result.getStatus());
+    assertTrue(result.getSwitchToExpired());
+    TestUtils.checkNotNullFields(result, "updateTraceId", "nav", "updateDate", "iun", "iur", "iuv", "creationDate", "iupdPagopa", "ingestionFlowFileId", "ingestionFlowFileLineNumber", "installmentId", "balance", "transfers", "iud", "iuf", "legacyPaymentMetadata", "sourceFlowName", "updateOperatorExternalId", "receiptId", "syncStatus", "ingestionFlowFileAction", "paymentOptionId", "notificationDate");
   }
 
 }
