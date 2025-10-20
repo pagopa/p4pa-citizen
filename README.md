@@ -44,6 +44,8 @@ See [log configured pattern](/src/main/resources/logback-spring.xml).
   * To access to domain data and operations;
 * [p4pa-organization](https://github.com/pagopa/p4pa-organization):
   * To access to domain data and operations;
+* [p4pa-pagopa-payments](https://github.com/pagopa/p4pa-pagopa-payments):
+  * To get payment pdf notice;
 
 ## 🔧 Configuration
 
@@ -94,6 +96,10 @@ See [application.yml](src/main/resources/application.yml) for each configurable 
 | ORGANIZATION_MAX_ATTEMPTS             | Organization API max attempts                          | 3       |
 | ORGANIZATION_WAIT_TIME_MILLIS         | Organization retry waiting time (milliseconds)         | 500     |
 | ORGANIZATION_PRINT_BODY_WHEN_ERROR    | To print body when an error occurs                     | true    |
+| PAGOPA_PAYMENTS_BASE_URL                 | PagoPaPayments microservice URL                     |         |
+| PAGOPA_PAYMENTS_MAX_ATTEMPTS             | PagoPaPayments API max attempts                     | 3       |
+| PAGOPA_PAYMENTS_WAIT_TIME_MILLIS         | PagoPaPayments retry waiting time (milliseconds)    | 500     |
+| PAGOPA_PAYMENTS_PRINT_BODY_WHEN_ERROR    | To print body when an error occurs                  | true    |
 
 #### 💼 Business logic
 | ENV                                  | DESCRIPTION                   | DEFAULT   |
