@@ -7,31 +7,6 @@ servers:
   - url: "http://localhost:8080"
     description: Generated server url
 paths:
-  /api/v1/greet:
-    get:
-      summary: "Hello World"
-      description: "Sample endpoint that return greetings"
-      responses:
-        '200':
-          description: "Success"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Hello, World!"
-        '500':
-          description: "Internal Server Error"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Internal Server Error"
   /brokers/{brokerId}/organizations/spontaneous:
     get:
       tags:
@@ -149,6 +124,42 @@ paths:
           description: Conflict
         '500':
           description: Internal server error
+  /debt-positions/{debtPositionId}/notice/zip:
+    get:
+      tags:
+        - DebtPosition
+      summary: "Retrieve and generate a ZIP file containing the payment notices of a specific DebtPosition"
+      operationId: getUnpaidPaymentNoticeZip
+      parameters:
+        - name: X-fiscal-code
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: debtPositionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: ZIP file containing the payment notices
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '204':
+          description: No Content - No installments found
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
 security:
   - BearerAuth: [ ]
 components:
@@ -336,5 +347,6 @@ components:
             - NOT_FOUND
             - BAD_REQUEST
             - GENERIC_ERROR
+            - FORBIDDEN
         message:
           type: string

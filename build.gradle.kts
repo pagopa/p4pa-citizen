@@ -132,7 +132,8 @@ tasks.register("dependenciesBuild") {
     "openApiGenerate",
     "openApiGenerateP4PAAUTH",
     "openApiGenerateDEBTPOSITIONS",
-    "openApiGenerateORGANIZATION"
+    "openApiGenerateORGANIZATION",
+    "openApiGeneratePAGOPAPAYMENTS"
   )
 }
 
@@ -265,3 +266,37 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("ope
   library.set("resttemplate")
 }
 
+tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("openApiGeneratePAGOPAPAYMENTS") {
+    group = "openapi"
+    description = "description"
+
+    generatorName.set("java")
+    remoteInputSpec.set("https://raw.githubusercontent.com/pagopa/p4pa-pagopa-payments/refs/heads/$targetEnv/openapi/p4pa-pagopa-payments.openapi.yaml")
+    outputDir.set("$projectDir/build/generated")
+    apiPackage.set("it.gov.pagopa.pu.pagopapayments.controller.generated")
+    modelPackage.set("it.gov.pagopa.pu.pagopapayments.dto.generated")
+    configOptions.set(mapOf(
+        "swaggerAnnotations" to "false",
+        "openApiNullable" to "false",
+        "dateLibrary" to "java8",
+        "serializableModel" to "true",
+        "useSpringBoot3" to "true",
+        "useJakartaEe" to "true",
+        "useOneOfInterfaces" to "true",
+        "useBeanValidation" to "true",
+        "serializationLibrary" to "jackson",
+        "generateSupportingFiles" to "true",
+        "generateConstructorWithAllArgs" to "true",
+        "generatedConstructorWithRequiredArgs" to "true",
+        "enumPropertyNaming" to "original",
+        "additionalModelTypeAnnotations" to "@lombok.experimental.SuperBuilder(toBuilder = true)"
+    ))
+    typeMappings.set(mapOf(
+        "string+binary" to "Resource",
+        "DebtPositionDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO"
+    ))
+    importMappings.set(mapOf(
+        "Resource" to "org.springframework.core.io.Resource"
+    ))
+    library.set("resttemplate")
+}

@@ -17,4 +17,9 @@ public class DebtPositionServiceImpl implements DebtPositionService{
   public DebtPositionDTO createDebtPosition(DebtPositionDTO debtPositionDTO, Boolean massive, String accessToken){
     return debtPositionClient.createDebtPosition(debtPositionDTO, massive, accessToken);
   }
+
+  @Override
+  public DebtPositionDTO getDebtPosition(Long debtPositionId, String accessToken) {
+    return debtPositionClient.getDebtPosition(debtPositionId, accessToken);
+  }
 }
