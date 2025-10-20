@@ -1,5 +1,9 @@
 package it.gov.pagopa.pu.citizen.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
@@ -15,6 +19,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.co.jemos.podam.api.PodamFactory;
@@ -64,5 +70,37 @@ class DebtPositionControllerTest {
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     Assertions.assertNotNull(response.getBody());
     Assertions.assertSame(expectedResult, response.getBody());
+  }
+
+  @Test
+  void whenGetUnpaidPaymentNoticeZipThenOk() {
+    Long debtPositionId = 2L;
+    String fiscalCode = "fiscalCode";
+
+    Resource resource = new ByteArrayResource("PDF-DATA".getBytes());
+
+    Mockito.when(debtPositionRetrieverServiceMock.getDebtPositionNoticesZip(fiscalCode, debtPositionId, accessToken))
+        .thenReturn(resource);
+
+    ResponseEntity<Resource> response = debtPositionController.getUnpaidPaymentNoticeZip(fiscalCode, debtPositionId);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(resource, response.getBody());
+    assertEquals(debtPositionId+"_NOTICES_PDF.zip", response.getHeaders().getContentDisposition().getFilename());
+  }
+
+  @Test
+  void givenNullResourceWhenGetUnpaidPaymentNoticeZipThenNoContent() {
+    Long debtPositionId = 2L;
+    String fiscalCode = "fiscalCode";
+
+    Mockito.when(debtPositionRetrieverServiceMock.getDebtPositionNoticesZip(fiscalCode, debtPositionId, accessToken))
+        .thenReturn(null);
+
+    ResponseEntity<Resource> response = debtPositionController.getUnpaidPaymentNoticeZip(fiscalCode, debtPositionId);
+
+    assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    assertNull(response.getBody());
   }
 }

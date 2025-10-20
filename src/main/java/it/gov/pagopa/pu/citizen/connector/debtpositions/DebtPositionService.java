@@ -4,4 +4,5 @@ import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 
 public interface DebtPositionService {
   DebtPositionDTO createDebtPosition(DebtPositionDTO debtPositionDTO, Boolean massive, String accessToken);
+  DebtPositionDTO getDebtPosition(Long debtPositionId, String accessToken);
 }
