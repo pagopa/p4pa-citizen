@@ -63,13 +63,19 @@ paths:
           description: Forbidden - Access denied
         '500':
           description: Internal Server Error
-  /spontaneous/organizations/{organizationId}/debt-position-type-orgs/{debtPositionTypeOrgId}:
+  /brokers/{brokerId}/spontaneous/organizations/{organizationId}/debt-position-type-orgs/{debtPositionTypeOrgId}:
     get:
       tags:
         - DebtPositionTypeOrg
       summary: "Retrieves the detail of debtPositionTypeOrg with flagSpontaneous and flagActive set to true"
       operationId: getDebtPositionTypeOrgsWithSpontaneousDetail
       parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
         - name: organizationId
           in: path
           required: true
