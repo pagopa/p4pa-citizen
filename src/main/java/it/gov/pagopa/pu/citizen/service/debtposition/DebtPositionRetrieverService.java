@@ -6,5 +6,5 @@ import org.springframework.core.io.Resource;
 
 public interface DebtPositionRetrieverService {
   DebtPositionResponseDTO createSpontaneousDebtPosition(DebtPositionRequestDTO debtPositionRequestDTO, String accessToken);
-  Resource getDebtPositionNoticesZip(String fiscalCode, Long debtPositionId, String accessToken);
+  Resource getDebtPositionNoticesZip(Long brokerId, String fiscalCode, Long debtPositionId, String accessToken);
 }

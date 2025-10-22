@@ -31,10 +31,10 @@ public class DebtPositionController implements DebtPositionApi {
   }
 
   @Override
-  public ResponseEntity<Resource> getUnpaidPaymentNoticeZip(String fiscalCode, Long debtPositionId) {
-    log.info("User requested getUnpaidPaymentNoticeZip having debtPositionId {} ", debtPositionId);
+  public ResponseEntity<Resource> getUnpaidPaymentNoticeZip(Long brokerId, String fiscalCode, Long debtPositionId) {
+    log.info("User requested getUnpaidPaymentNoticeZip having brokerId {} and debtPositionId {} ", brokerId, debtPositionId);
 
-    Resource debtPositionPaymentNoticesZipped = debtPositionRetrieverService.getDebtPositionNoticesZip(fiscalCode, debtPositionId, SecurityUtils.getAccessToken());
+    Resource debtPositionPaymentNoticesZipped = debtPositionRetrieverService.getDebtPositionNoticesZip(brokerId, fiscalCode, debtPositionId, SecurityUtils.getAccessToken());
     if (debtPositionPaymentNoticesZipped != null){
       HttpHeaders headers = new HttpHeaders();
       headers.setContentDisposition(ContentDisposition.attachment()

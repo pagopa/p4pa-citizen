@@ -124,13 +124,19 @@ paths:
           description: Conflict
         '500':
           description: Internal server error
-  /debt-positions/{debtPositionId}/notice/zip:
+  /brokers/{brokerId}/debt-positions/{debtPositionId}/notice/zip:
     get:
       tags:
         - DebtPosition
       summary: "Retrieve and generate a ZIP file containing the payment notices of a specific DebtPosition"
       operationId: getUnpaidPaymentNoticeZip
       parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
         - name: X-fiscal-code
           in: header
           required: true
