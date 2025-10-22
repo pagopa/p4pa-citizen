@@ -1,12 +1,22 @@
 package it.gov.pagopa.pu.citizen.service.organization;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import it.gov.pagopa.pu.citizen.connector.debtpositions.DebtPositionTypeOrgService;
+import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
 import it.gov.pagopa.pu.citizen.dto.generated.OrganizationsWithSpontaneousDTO;
+import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.OrganizationsWithSpontaneousDTOMapper;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrgWithActiveSpontaneousCount;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,11 +24,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.jemos.podam.api.PodamFactory;
-
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class OrganizationRetrieverServiceImplTest {
@@ -29,6 +34,8 @@ class OrganizationRetrieverServiceImplTest {
   private DebtPositionTypeOrgService debtPositionTypeOrgServiceMock;
   @Mock
   private OrganizationsWithSpontaneousDTOMapper organizationsWithSpontaneousDTOMapperMock;
+  @Mock
+  private OrganizationService organizationServiceMock;
 
   private static final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
@@ -36,12 +43,12 @@ class OrganizationRetrieverServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    organizationRetrieverService = new OrganizationRetrieverServiceImpl(brokerOrganizationsRetrieverServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock);
+    organizationRetrieverService = new OrganizationRetrieverServiceImpl(brokerOrganizationsRetrieverServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock, organizationServiceMock);
   }
 
   @AfterEach
   void mockitoVerify(){
-    Mockito.verifyNoMoreInteractions(brokerOrganizationsRetrieverServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock);
+    Mockito.verifyNoMoreInteractions(brokerOrganizationsRetrieverServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock, organizationServiceMock);
   }
 
   @Test
@@ -128,4 +135,44 @@ class OrganizationRetrieverServiceImplTest {
     assertTrue(result.isEmpty());
   }
 
+  @Test
+  void whenValidateOrganizationThenOk(){
+    String accessToken = "ACCESS_TOKEN";
+    long brokerId = 1L;
+    long organizationId = 2L;
+
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    organization.setBrokerId(brokerId);
+    organization.setOrganizationId(organizationId);
+
+    Mockito.when(organizationServiceMock.getOrganizationByOrganizationId(organizationId,accessToken)).thenReturn(organization);
+
+    Assertions.assertDoesNotThrow(() -> organizationRetrieverService.validateOrganization(organizationId,brokerId,accessToken));
+  }
+
+  @Test
+  void givenNoOrganizationWhenValidateOrganizationThenResourceNotFoundException(){
+    String accessToken = "ACCESS_TOKEN";
+    long brokerId = 1L;
+    long organizationId = 2L;
+
+    Mockito.when(organizationServiceMock.getOrganizationByOrganizationId(organizationId,accessToken)).thenReturn(null);
+
+    Assertions.assertThrows(ResourceNotFoundException.class,() -> organizationRetrieverService.validateOrganization(organizationId,brokerId,accessToken));
+  }
+
+  @Test
+  void givenNoMatchingBrokerIdWhenValidateOrganizationThenResourceNotFoundException(){
+    String accessToken = "ACCESS_TOKEN";
+    long brokerId = 1L;
+    long organizationId = 2L;
+
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    organization.setBrokerId(brokerId+1);
+    organization.setOrganizationId(organizationId);
+
+    Mockito.when(organizationServiceMock.getOrganizationByOrganizationId(organizationId,accessToken)).thenReturn(organization);
+
+    Assertions.assertThrows(ResourceNotFoundException.class,() -> organizationRetrieverService.validateOrganization(organizationId,brokerId,accessToken));
+  }
 }

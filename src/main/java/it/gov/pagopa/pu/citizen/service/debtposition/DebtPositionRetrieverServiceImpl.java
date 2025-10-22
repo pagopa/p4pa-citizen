@@ -10,6 +10,7 @@ import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionDTOMapper;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionResponseDTOMapper;
 import it.gov.pagopa.pu.citizen.service.ZipFileService;
+import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
@@ -30,12 +31,13 @@ public class DebtPositionRetrieverServiceImpl implements DebtPositionRetrieverSe
   private final DebtPositionResponseDTOMapper debtPositionResponseDTOMapper;
   private final PrintPaymentNoticeService printPaymentNoticeService;
   private final ZipFileService zipFileService;
+  private final OrganizationRetrieverService organizationRetrieverService;
 
   public DebtPositionRetrieverServiceImpl(DebtPositionService debtPositionService,
                                           DebtPositionDTOMapper debtPositionDTOMapper,
                                           @Value("${spontaneous.expiration-days}")Integer expirationDays,
                                           OrganizationService organizationService, DebtPositionResponseDTOMapper debtPositionResponseDTOMapper,
-      PrintPaymentNoticeService printPaymentNoticeService, ZipFileService zipFileService
+      PrintPaymentNoticeService printPaymentNoticeService, ZipFileService zipFileService, OrganizationRetrieverService organizationRetrieverService
   ) {
     this.debtPositionDTOMapper = debtPositionDTOMapper;
     this.debtPositionService = debtPositionService;
@@ -44,6 +46,7 @@ public class DebtPositionRetrieverServiceImpl implements DebtPositionRetrieverSe
     this.debtPositionResponseDTOMapper = debtPositionResponseDTOMapper;
     this.printPaymentNoticeService = printPaymentNoticeService;
     this.zipFileService = zipFileService;
+    this.organizationRetrieverService = organizationRetrieverService;
   }
 
   @Override
@@ -62,11 +65,12 @@ public class DebtPositionRetrieverServiceImpl implements DebtPositionRetrieverSe
   }
 
   @Override
-  public Resource getDebtPositionNoticesZip(String fiscalCode, Long debtPositionId, String accessToken) {
+  public Resource getDebtPositionNoticesZip(Long brokerId, String fiscalCode, Long debtPositionId, String accessToken) {
     DebtPositionDTO debtPosition = debtPositionService.getDebtPosition(debtPositionId, accessToken);
     if (debtPosition == null) {
       return null;
     }
+    organizationRetrieverService.validateOrganization(debtPosition.getOrganizationId(),brokerId,accessToken);
     validateDebtPositionDebtor(fiscalCode, debtPosition);
 
     List<FileResourceDTO> pdfResources = debtPosition

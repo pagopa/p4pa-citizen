@@ -247,12 +247,93 @@
         } ]
       }
     },
-    "/debt-positions/{debtPositionId}/notice/zip" : {
+    "/brokers/{brokerId}/organizations/spontaneous" : {
+      "get" : {
+        "tags" : [ "Organization" ],
+        "summary" : "Retrieves the list of organizations with at least one dpto with flagSpontaneous and flagActive set to true",
+        "operationId" : "getOrganizationsWithSpontaneous",
+        "parameters" : [ {
+          "name" : "brokerId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/OrganizationsWithSpontaneousDTO"
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid token",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/OrganizationsWithSpontaneousDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden - Access denied",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/OrganizationsWithSpontaneousDTO"
+                  }
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/OrganizationsWithSpontaneousDTO"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/brokers/{brokerId}/debt-positions/{debtPositionId}/notice/zip" : {
       "get" : {
         "tags" : [ "DebtPosition" ],
         "summary" : "Retrieve and generate a ZIP file containing the payment notices of a specific DebtPosition",
         "operationId" : "getUnpaidPaymentNoticeZip",
         "parameters" : [ {
+          "name" : "brokerId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
           "name" : "X-fiscal-code",
           "in" : "header",
           "required" : true,
@@ -331,79 +412,6 @@
                 "schema" : {
                   "type" : "string",
                   "format" : "binary"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "BearerAuth" : [ ]
-        } ]
-      }
-    },
-    "/brokers/{brokerId}/organizations/spontaneous" : {
-      "get" : {
-        "tags" : [ "Organization" ],
-        "summary" : "Retrieves the list of organizations with at least one dpto with flagSpontaneous and flagActive set to true",
-        "operationId" : "getOrganizationsWithSpontaneous",
-        "parameters" : [ {
-          "name" : "brokerId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/OrganizationsWithSpontaneousDTO"
-                  }
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized - Missing or invalid token",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/OrganizationsWithSpontaneousDTO"
-                  }
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Forbidden - Access denied",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/OrganizationsWithSpontaneousDTO"
-                  }
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Internal Server Error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/OrganizationsWithSpontaneousDTO"
-                  }
                 }
               }
             }

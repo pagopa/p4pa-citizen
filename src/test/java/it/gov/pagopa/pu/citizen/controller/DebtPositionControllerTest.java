@@ -74,15 +74,16 @@ class DebtPositionControllerTest {
 
   @Test
   void whenGetUnpaidPaymentNoticeZipThenOk() {
+    Long brokerId = 1L;
     Long debtPositionId = 2L;
     String fiscalCode = "fiscalCode";
 
     Resource resource = new ByteArrayResource("PDF-DATA".getBytes());
 
-    Mockito.when(debtPositionRetrieverServiceMock.getDebtPositionNoticesZip(fiscalCode, debtPositionId, accessToken))
+    Mockito.when(debtPositionRetrieverServiceMock.getDebtPositionNoticesZip(brokerId, fiscalCode, debtPositionId, accessToken))
         .thenReturn(resource);
 
-    ResponseEntity<Resource> response = debtPositionController.getUnpaidPaymentNoticeZip(fiscalCode, debtPositionId);
+    ResponseEntity<Resource> response = debtPositionController.getUnpaidPaymentNoticeZip(brokerId, fiscalCode, debtPositionId);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertNotNull(response.getBody());
@@ -92,13 +93,14 @@ class DebtPositionControllerTest {
 
   @Test
   void givenNullResourceWhenGetUnpaidPaymentNoticeZipThenNoContent() {
+    Long brokerId = 1L;
     Long debtPositionId = 2L;
     String fiscalCode = "fiscalCode";
 
-    Mockito.when(debtPositionRetrieverServiceMock.getDebtPositionNoticesZip(fiscalCode, debtPositionId, accessToken))
+    Mockito.when(debtPositionRetrieverServiceMock.getDebtPositionNoticesZip(brokerId, fiscalCode, debtPositionId, accessToken))
         .thenReturn(null);
 
-    ResponseEntity<Resource> response = debtPositionController.getUnpaidPaymentNoticeZip(fiscalCode, debtPositionId);
+    ResponseEntity<Resource> response = debtPositionController.getUnpaidPaymentNoticeZip(brokerId, fiscalCode, debtPositionId);
 
     assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     assertNull(response.getBody());
