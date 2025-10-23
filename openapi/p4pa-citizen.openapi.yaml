@@ -7,31 +7,6 @@ servers:
   - url: "http://localhost:8080"
     description: Generated server url
 paths:
-  /api/v1/greet:
-    get:
-      summary: "Hello World"
-      description: "Sample endpoint that return greetings"
-      responses:
-        '200':
-          description: "Success"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Hello, World!"
-        '500':
-          description: "Internal Server Error"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Internal Server Error"
   /brokers/{brokerId}/organizations/spontaneous:
     get:
       tags:
@@ -88,13 +63,19 @@ paths:
           description: Forbidden - Access denied
         '500':
           description: Internal Server Error
-  /spontaneous/organizations/{organizationId}/debt-position-type-orgs/{debtPositionTypeOrgId}:
+  /brokers/{brokerId}/spontaneous/organizations/{organizationId}/debt-position-type-orgs/{debtPositionTypeOrgId}:
     get:
       tags:
         - DebtPositionTypeOrg
       summary: "Retrieves the detail of debtPositionTypeOrg with flagSpontaneous and flagActive set to true"
       operationId: getDebtPositionTypeOrgsWithSpontaneousDetail
       parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
         - name: organizationId
           in: path
           required: true
@@ -118,6 +99,75 @@ paths:
           description: Unauthorized - Missing or invalid token
         '403':
           description: Forbidden - Access denied
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /spontaneous/debt-positions:
+    post:
+      tags:
+        - DebtPosition
+      summary: "Create spontaneous debt positions"
+      operationId: createSpontaneousDebtPosition
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DebtPositionRequestDTO"
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DebtPositionResponseDTO"
+        '400':
+          description: Invalid request
+        '403':
+          description: Forbidden
+        '409':
+          description: Conflict
+        '500':
+          description: Internal server error
+  /brokers/{brokerId}/debt-positions/{debtPositionId}/notice/zip:
+    get:
+      tags:
+        - DebtPosition
+      summary: "Retrieve and generate a ZIP file containing the payment notices of a specific DebtPosition"
+      operationId: getUnpaidPaymentNoticeZip
+      parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: X-fiscal-code
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: debtPositionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: ZIP file containing the payment notices
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '204':
+          description: No Content - No installments found
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden
         '404':
           description: Not Found
         '500':
@@ -203,6 +253,100 @@ components:
           type: string
         formCustom:
           type: 'FormCustom'
+    DebtPositionRequestDTO:
+      type: object
+      properties:
+        organizationId:
+          type: integer
+          format: int64
+        debtPositionTypeOrgId:
+          type: integer
+          format: int64
+        paymentOptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentOptionRequestDTO'
+      required:
+        - debtPositionTypeOrgId
+        - organizationId
+        - paymentOptions
+    InstallmentRequestDTO:
+      type: object
+      properties:
+        notificationFeeCents:
+          type: integer
+          format: int64
+        amountCents:
+          type: integer
+          format: int64
+        remittanceInformation:
+          type: string
+        debtor:
+          type: 'PersonDTO'
+      required:
+        - amountCents
+        - debtor
+        - remittanceInformation
+    PaymentOptionRequestDTO:
+      type: object
+      properties:
+        totalAmountCents:
+          type: integer
+          format: int64
+        installments:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstallmentRequestDTO'
+      required:
+        - installments
+        - totalAmountCents
+    DebtPositionResponseDTO:
+      type: object
+      required:
+        - debtPositionId
+        - organizationId
+        - orgFiscalCode
+        - orgName
+        - paymentDetails
+      properties:
+        debtPositionId:
+          type: integer
+          format: int64
+        organizationId:
+          type: integer
+          format: int64
+        orgFiscalCode:
+          type: string
+        orgName:
+          type: string
+        paymentDetails:
+          $ref: '#/components/schemas/PaymentDetailsDTO'
+    PaymentDetailsDTO:
+      type: object
+      required:
+        - amountCents
+        - debtor
+        - remittanceInformation
+      properties:
+        iupdPagopa:
+          type: string
+        iud:
+          type: string
+        iuv:
+          type: string
+        nav:
+          type: string
+        dueDate:
+          type: string
+          format: date
+        notificationFeeCents:
+          type: integer
+          format: int64
+        amountCents:
+          type: integer
+          format: int64
+        remittanceInformation:
+          type: string
     ErrorDTO:
       type: object
       required:
@@ -215,5 +359,6 @@ components:
             - NOT_FOUND
             - BAD_REQUEST
             - GENERIC_ERROR
+            - FORBIDDEN
         message:
           type: string

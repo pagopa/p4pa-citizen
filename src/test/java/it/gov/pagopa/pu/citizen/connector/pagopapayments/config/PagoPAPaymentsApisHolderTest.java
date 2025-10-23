@@ -1,6 +1,7 @@
-package it.gov.pagopa.pu.citizen.connector.organization.config;
+package it.gov.pagopa.pu.citizen.connector.pagopapayments.config;
 
 import it.gov.pagopa.pu.citizen.connector.BaseApiHolderTest;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,24 +13,21 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
-import java.util.ArrayList;
-
 @ExtendWith(MockitoExtension.class)
-class OrganizationApisHolderTest extends BaseApiHolderTest {
-
+class PagoPAPaymentsApisHolderTest extends BaseApiHolderTest {
   @Mock
   private RestTemplateBuilder restTemplateBuilderMock;
 
-  OrganizationApisHolder apisHolder;
+  private PagoPAPaymentsApisHolder pagoPAPaymentsApisHolder;
 
   @BeforeEach
   void setUp() {
     Mockito.when(restTemplateBuilderMock.build()).thenReturn(restTemplateMock);
     Mockito.when(restTemplateMock.getUriTemplateHandler()).thenReturn(new DefaultUriBuilderFactory());
-    OrganizationApiClientConfig clientConfig = OrganizationApiClientConfig.builder()
+    PagoPAPaymentsApiClientConfig clientConfig = PagoPAPaymentsApiClientConfig.builder()
       .baseUrl("http://example.com")
       .build();
-    apisHolder = new OrganizationApisHolder(clientConfig, restTemplateBuilderMock);
+    pagoPAPaymentsApisHolder = new PagoPAPaymentsApisHolder(clientConfig, restTemplateBuilderMock);
   }
 
   @AfterEach
@@ -41,20 +39,13 @@ class OrganizationApisHolderTest extends BaseApiHolderTest {
   }
 
   @Test
-  void whenGetOrganizationSearchControllerApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
+  void whenGetPrintPaymentNoticeControllerApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
     assertAuthenticationShouldBeSetInThreadSafeMode(
-      accessToken -> apisHolder.getOrganizationSearchControllerApi(accessToken)
-        .crudOrganizationsFindByBrokerIdAndFilters(1L, null, null, null,1, 1, new ArrayList<>()),
+      accessToken -> pagoPAPaymentsApisHolder.getPrintPaymentNoticeControllerApi(accessToken)
+        .generateNotice("iuv",new DebtPositionDTO()),
       new ParameterizedTypeReference<>() {},
-      apisHolder::unload);
-  }
-
-  @Test
-  void whenGetOrganizationEntityControllerApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
-    assertAuthenticationShouldBeSetInThreadSafeMode(
-      accessToken -> apisHolder.getOrganizationEntityControllerApi(accessToken)
-        .crudGetOrganization("1"),
-      new ParameterizedTypeReference<>() {},
-      apisHolder::unload);
+      pagoPAPaymentsApisHolder::unload
+    );
   }
 }
+

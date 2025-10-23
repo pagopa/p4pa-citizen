@@ -7,6 +7,7 @@ import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionTypeOrgsWithSpontaneou
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionTypeOrgsWithSpontaneousDTOMapper;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionTypeOrgsWithSpontaneousDetailsDTOMapper;
+import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrg;
 import it.gov.pagopa.pu.debtpositions.dto.generated.SpontaneousForm;
 import lombok.extern.slf4j.Slf4j;
@@ -23,12 +24,14 @@ public class DebtPositionTypeOrgRetrieverServiceImpl implements DebtPositionType
   private final SpontaneousFormService spontaneousFormService;
   private final DebtPositionTypeOrgsWithSpontaneousDTOMapper debtPositionTypeOrgsListWithSpontaneousDTOMapper;
   private final DebtPositionTypeOrgsWithSpontaneousDetailsDTOMapper debtPositionTypeOrgsWithSpontaneousDetailsDTOMapper;
+  private final OrganizationRetrieverService organizationRetrieverService;
 
-  public DebtPositionTypeOrgRetrieverServiceImpl(DebtPositionTypeOrgService debtPositionTypeOrgService, SpontaneousFormService spontaneousFormService, DebtPositionTypeOrgsWithSpontaneousDTOMapper debtPositionTypeOrgsListWithSpontaneousDTOMapper, DebtPositionTypeOrgsWithSpontaneousDetailsDTOMapper debtPositionTypeOrgsWithSpontaneousDetailsDTOMapper) {
+  public DebtPositionTypeOrgRetrieverServiceImpl(DebtPositionTypeOrgService debtPositionTypeOrgService, SpontaneousFormService spontaneousFormService, DebtPositionTypeOrgsWithSpontaneousDTOMapper debtPositionTypeOrgsListWithSpontaneousDTOMapper, DebtPositionTypeOrgsWithSpontaneousDetailsDTOMapper debtPositionTypeOrgsWithSpontaneousDetailsDTOMapper, OrganizationRetrieverService organizationRetrieverService) {
     this.debtPositionTypeOrgService = debtPositionTypeOrgService;
     this.spontaneousFormService = spontaneousFormService;
     this.debtPositionTypeOrgsListWithSpontaneousDTOMapper = debtPositionTypeOrgsListWithSpontaneousDTOMapper;
     this.debtPositionTypeOrgsWithSpontaneousDetailsDTOMapper = debtPositionTypeOrgsWithSpontaneousDetailsDTOMapper;
+    this.organizationRetrieverService = organizationRetrieverService;
   }
 
   @Override
@@ -37,7 +40,8 @@ public class DebtPositionTypeOrgRetrieverServiceImpl implements DebtPositionType
   }
 
   @Override
-  public DebtPositionTypeOrgsWithSpontaneousDetailsDTO getDebtPositionTypeOrgsWithSpontaneousDetailsDTO(Long organizationId, Long debtPositionTypeOrgId, String accessToken) {
+  public DebtPositionTypeOrgsWithSpontaneousDetailsDTO getDebtPositionTypeOrgsWithSpontaneousDetailsDTO(Long brokerId, Long organizationId, Long debtPositionTypeOrgId, String accessToken) {
+    organizationRetrieverService.validateOrganization(organizationId, brokerId, accessToken);
     DebtPositionTypeOrg debtPositionTypeOrg = debtPositionTypeOrgService.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken);
 
     if (debtPositionTypeOrg == null || !Objects.equals(organizationId, debtPositionTypeOrg.getOrganizationId())){

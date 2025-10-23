@@ -64,6 +64,9 @@ logging:
 springdoc:
   writer-with-default-pretty-printer: true
 
+spontaneous:
+  expiration-days: "\${SPONTANEOUS_EXPIRATION_DAYS:1}"
+
 rest:
   page:
     request-max-page-size: "\${REST_PAGE_REQUEST_MAX_PAGE_SIZE:100}"
@@ -90,3 +93,8 @@ rest:
     max-attempts: "\${ORGANIZATION_MAX_ATTEMPTS:3}" # It's counting also the first attempt
     wait-time-millis: "\${ORGANIZATION_WAIT_TIME_MILLIS:500}"
     print-body-when-error: "\${ORGANIZATION_PRINT_BODY_WHEN_ERROR:true}"
+  pagopa-payments:
+    base-url: "\${PAGOPA_PAYMENTS_BASE_URL:}"
+    max-attempts: "\${PAGOPA_PAYMENTS_MAX_ATTEMPTS:3}" # It's counting also the first attempt
+    wait-time-millis: "\${PAGOPA_PAYMENTS_WAIT_TIME_MILLIS:500}"
+    print-body-when-error: "\${PAGOPA_PAYMENTS_PRINT_BODY_WHEN_ERROR:true}"
