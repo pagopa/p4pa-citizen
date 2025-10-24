@@ -23,11 +23,20 @@
     "description" : "the DebtPosition API"
   } ],
   "paths" : {
-    "/spontaneous/debt-positions" : {
+    "/brokers/{brokerId}/spontaneous/debt-positions" : {
       "post" : {
         "tags" : [ "DebtPosition" ],
         "summary" : "Create spontaneous debt positions",
         "operationId" : "createSpontaneousDebtPosition",
+        "parameters" : [ {
+          "name" : "brokerId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -61,6 +70,16 @@
           },
           "403" : {
             "description" : "Forbidden",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DebtPositionResponseDTO"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "not found",
             "content" : {
               "application/json" : {
                 "schema" : {

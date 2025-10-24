@@ -103,12 +103,19 @@ paths:
           description: Not Found
         '500':
           description: Internal Server Error
-  /spontaneous/debt-positions:
+  /brokers/{brokerId}/spontaneous/debt-positions:
     post:
       tags:
         - DebtPosition
       summary: "Create spontaneous debt positions"
       operationId: createSpontaneousDebtPosition
+      parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
@@ -126,6 +133,8 @@ paths:
           description: Invalid request
         '403':
           description: Forbidden
+        '404':
+          description: not found
         '409':
           description: Conflict
         '500':

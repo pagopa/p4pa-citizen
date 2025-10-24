@@ -82,7 +82,7 @@ class DebtPositionTypeOrgRetrieverServiceImplTest {
     DebtPositionTypeOrg debtPostionTypeOrg = podamFactory.manufacturePojo(DebtPositionTypeOrg.class);
     debtPostionTypeOrg.setSpontaneousFormId(spontaneousFormId);
     debtPostionTypeOrg.setOrganizationId(organizationId);
-    Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
+    Mockito.when(organizationRetrieverServiceMock.validateOrganization(organizationId, brokerId, accessToken)).thenReturn(null);
     Mockito.when(debtPositionTypeOrgServiceMock.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken)).thenReturn(debtPostionTypeOrg);
 
     SpontaneousForm spontaneousForm = podamFactory.manufacturePojo(SpontaneousForm.class);
@@ -106,7 +106,7 @@ class DebtPositionTypeOrgRetrieverServiceImplTest {
     Long brokerId = 1L;
     String accessToken = "accessToken";
 
-    Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
+    Mockito.when(organizationRetrieverServiceMock.validateOrganization(organizationId, brokerId, accessToken)).thenReturn(null);
     Mockito.when(debtPositionTypeOrgServiceMock.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken)).thenReturn(null);
 
     ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class, () ->
@@ -126,7 +126,7 @@ class DebtPositionTypeOrgRetrieverServiceImplTest {
     org.setOrganizationId(organizationId);
     org.setSpontaneousFormId(null);
 
-    Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
+    Mockito.when(organizationRetrieverServiceMock.validateOrganization(organizationId, brokerId, accessToken)).thenReturn(null);
     Mockito.when(debtPositionTypeOrgServiceMock.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken))
       .thenReturn(org);
 
@@ -154,7 +154,7 @@ class DebtPositionTypeOrgRetrieverServiceImplTest {
 
     DebtPositionTypeOrg org = podamFactory.manufacturePojo(DebtPositionTypeOrg.class);
     org.setOrganizationId(99L);
-    Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
+    Mockito.when(organizationRetrieverServiceMock.validateOrganization(organizationId, brokerId, accessToken)).thenReturn(null);
     Mockito.when(debtPositionTypeOrgServiceMock.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken))
       .thenReturn(org);
 
