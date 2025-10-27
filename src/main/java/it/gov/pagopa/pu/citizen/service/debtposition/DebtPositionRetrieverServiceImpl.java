@@ -49,7 +49,7 @@ public class DebtPositionRetrieverServiceImpl implements DebtPositionRetrieverSe
   @Override
   public DebtPositionResponseDTO createSpontaneousDebtPosition(Long brokerId, DebtPositionRequestDTO debtPositionRequestDTO, String accessToken) {
     DebtPositionDTO debtPosition = debtPositionService.createDebtPosition(debtPositionDTOMapper.mapSpontaneousDebtPositionDTO(debtPositionRequestDTO, expirationDays), false, accessToken);
-    Organization organization = organizationRetrieverService.validateOrganization(debtPositionRequestDTO.getOrganizationId(),brokerId,accessToken);
+    Organization organization = organizationRetrieverService.getValidOrganization(debtPositionRequestDTO.getOrganizationId(),brokerId,accessToken);
     return debtPositionResponseDTOMapper.map(debtPosition, organization);
   }
 

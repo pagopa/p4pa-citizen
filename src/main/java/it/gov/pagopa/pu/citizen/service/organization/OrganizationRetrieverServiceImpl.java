@@ -65,11 +65,16 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
       .toList();
   }
 
-  public Organization validateOrganization(Long organizationId, Long brokerId, String accessToken) {
+  public void validateOrganization(Long organizationId, Long brokerId, String accessToken) {
+    getValidOrganization(organizationId   , brokerId, accessToken);
+  }
+
+  public Organization getValidOrganization(Long organizationId, Long brokerId, String accessToken){
     Organization organization = organizationService.getOrganizationByOrganizationId(organizationId, accessToken);
     if(organization==null || !brokerId.equals(organization.getBrokerId())){
       throw new ResourceNotFoundException("Organization having id "+organizationId+" and brokerId "+brokerId+" not found");
     }
     return organization;
   }
+
 }

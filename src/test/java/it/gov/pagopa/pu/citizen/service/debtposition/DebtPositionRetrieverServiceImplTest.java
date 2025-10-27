@@ -83,7 +83,7 @@ class DebtPositionRetrieverServiceImplTest {
     Organization organization = podamFactory.manufacturePojo(Organization.class);
     DebtPositionResponseDTO expectedResult = podamFactory.manufacturePojo(DebtPositionResponseDTO.class);
 
-    Mockito.when(organizationRetrieverServiceMock.validateOrganization(requestDTO.getOrganizationId(), brokerId, accessToken)).thenReturn(organization);
+    Mockito.when(organizationRetrieverServiceMock.getValidOrganization(requestDTO.getOrganizationId(), brokerId, accessToken)).thenReturn(organization);
     Mockito.when(debtPositionDTOMapperMock.mapSpontaneousDebtPositionDTO(requestDTO, 1)).thenReturn(debtPosition);
     Mockito.when(debtPositionServiceMock.createDebtPosition(debtPosition, false, accessToken))
         .thenReturn(debtPosition);
@@ -103,7 +103,7 @@ class DebtPositionRetrieverServiceImplTest {
     loggedUser.setMappedExternalUserId("mappedExternalUserId");
     DebtPositionDTO debtPosition = podamFactory.manufacturePojo(DebtPositionDTO.class);
 
-    Mockito.when(organizationRetrieverServiceMock.validateOrganization(requestDTO.getOrganizationId(), brokerId, accessToken)).thenThrow(ResourceNotFoundException.class);
+    Mockito.when(organizationRetrieverServiceMock.getValidOrganization(requestDTO.getOrganizationId(), brokerId, accessToken)).thenThrow(ResourceNotFoundException.class);
     Mockito.when(debtPositionDTOMapperMock.mapSpontaneousDebtPositionDTO(requestDTO, 1)).thenReturn(debtPosition);
     Mockito.when(debtPositionServiceMock.createDebtPosition(debtPosition, false, accessToken))
       .thenReturn(debtPosition);
@@ -147,7 +147,7 @@ class DebtPositionRetrieverServiceImplTest {
 
     FileResourceDTO fileResourceDTO = new FileResourceDTO(expectedResult, "filename");
 
-    Mockito.when(organizationRetrieverServiceMock.validateOrganization(organizationId, brokerId, accessToken)).thenReturn(null);
+    Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPosition(debtPositionId, accessToken)).thenReturn(debtPositionDTO);
     Mockito.when(printPaymentNoticeServiceMock.generateNotice(iuv, debtPositionDTO, accessToken)).thenReturn(fileResourceDTO);
 
@@ -175,7 +175,7 @@ class DebtPositionRetrieverServiceImplTest {
     paymentOptionDTO.setInstallments(List.of(installment));
     debtPositionDTO.setPaymentOptions(List.of(paymentOptionDTO));
 
-    Mockito.when(organizationRetrieverServiceMock.validateOrganization(organizationId, brokerId, accessToken)).thenReturn(null);
+    Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPosition(debtPositionId, accessToken)).thenReturn(debtPositionDTO);
 
     Resource result = debtPositionRetrieverService.getDebtPositionNoticesZip(brokerId, fiscalCode, debtPositionId, accessToken);
@@ -195,7 +195,7 @@ class DebtPositionRetrieverServiceImplTest {
     DebtPositionDTO debtPositionDTO = new DebtPositionDTO();
     debtPositionDTO.setOrganizationId(organizationId);
 
-    Mockito.when(organizationRetrieverServiceMock.validateOrganization(organizationId, brokerId, accessToken)).thenReturn(null);
+    Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPosition(debtPositionId, accessToken)).thenReturn(debtPositionDTO);
 
     assertThrows(AuthorizationDeniedException.class,()->debtPositionRetrieverService.getDebtPositionNoticesZip(brokerId, fiscalCode, debtPositionId, accessToken));
