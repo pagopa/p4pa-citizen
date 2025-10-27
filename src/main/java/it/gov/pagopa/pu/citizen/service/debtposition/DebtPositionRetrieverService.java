@@ -5,6 +5,6 @@ import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
 import org.springframework.core.io.Resource;
 
 public interface DebtPositionRetrieverService {
-  DebtPositionResponseDTO createSpontaneousDebtPosition(DebtPositionRequestDTO debtPositionRequestDTO, String accessToken);
+  DebtPositionResponseDTO createSpontaneousDebtPosition(Long brokerId, DebtPositionRequestDTO debtPositionRequestDTO, String accessToken);
   Resource getDebtPositionNoticesZip(Long brokerId, String fiscalCode, Long debtPositionId, String accessToken);
 }

@@ -175,4 +175,21 @@ class OrganizationRetrieverServiceImplTest {
 
     Assertions.assertThrows(ResourceNotFoundException.class,() -> organizationRetrieverService.validateOrganization(organizationId,brokerId,accessToken));
   }
+
+  @Test
+  void whenGetValidOrganizationThenOk(){
+    String accessToken = "ACCESS_TOKEN";
+    long brokerId = 1L;
+    long organizationId = 2L;
+
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    organization.setBrokerId(brokerId);
+    organization.setOrganizationId(organizationId);
+
+    Mockito.when(organizationServiceMock.getOrganizationByOrganizationId(organizationId,accessToken)).thenReturn(organization);
+
+    Organization result = organizationRetrieverService.getValidOrganization(organizationId, brokerId, accessToken);
+
+    assertEquals(organization, result);
+  }
 }
