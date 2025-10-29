@@ -181,6 +181,45 @@ paths:
           description: Not Found
         '500':
           description: Internal Server Error
+  /brokers/{brokerId}/debt-positions/{debtPositionId}:
+    get:
+      tags:
+        - DebtPosition
+      summary: "Retrieve a specific DebtPosition"
+      operationId: getDebtPositionDetail
+      parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: debtPositionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: X-fiscal-code
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: 'DebtPositionDTO'
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden - Access denied
+        '404':
+          description: Not Found - DebtPosition not found
+        '500':
+          description: Internal Server Error
 security:
   - BearerAuth: [ ]
 components:

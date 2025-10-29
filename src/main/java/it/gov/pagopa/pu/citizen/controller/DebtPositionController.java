@@ -5,6 +5,7 @@ import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
 import it.gov.pagopa.pu.citizen.security.SecurityUtils;
 import it.gov.pagopa.pu.citizen.service.debtposition.DebtPositionRetrieverService;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
@@ -48,5 +49,11 @@ public class DebtPositionController implements DebtPositionApi {
     } else {
       return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+  }
+
+  @Override
+  public ResponseEntity<DebtPositionDTO> getDebtPositionDetail(Long brokerId, Long debtPositionId, String xFiscalCode) {
+    log.info("User requested getDebtPositionDetail having brokerId {} and debtPositionId {} ", brokerId, debtPositionId);
+    return ResponseEntity.ok(debtPositionRetrieverService.getDebtPositionDetail(brokerId, xFiscalCode, debtPositionId, SecurityUtils.getAccessToken()));
   }
 }

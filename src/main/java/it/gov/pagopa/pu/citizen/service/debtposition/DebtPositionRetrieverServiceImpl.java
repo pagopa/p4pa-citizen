@@ -5,6 +5,7 @@ import it.gov.pagopa.pu.citizen.connector.pagopapayments.PrintPaymentNoticeServi
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
+import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionDTOMapper;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionResponseDTOMapper;
 import it.gov.pagopa.pu.citizen.service.ZipFileService;
@@ -82,6 +83,17 @@ public class DebtPositionRetrieverServiceImpl implements DebtPositionRetrieverSe
     }
 
     return zipFileService.zipper(pdfResources);
+  }
+
+  @Override
+  public DebtPositionDTO getDebtPositionDetail(Long brokerId, String fiscalCode, Long debtPositionId, String accessToken) {
+    DebtPositionDTO debtPosition = debtPositionService.getDebtPosition(debtPositionId, accessToken);
+    if (debtPosition == null){
+      throw new ResourceNotFoundException("DebtPosition with debtPositionId %s not found".formatted(debtPositionId));
+    }
+    organizationRetrieverService.validateOrganization(debtPosition.getOrganizationId(), brokerId, accessToken);
+    validateDebtPositionDebtor(fiscalCode, debtPosition);
+    return debtPosition;
   }
 
   private static void validateDebtPositionDebtor(String fiscalCode, DebtPositionDTO debtPosition) {

@@ -66,7 +66,7 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
   }
 
   public void validateOrganization(Long organizationId, Long brokerId, String accessToken) {
-    getValidOrganization(organizationId   , brokerId, accessToken);
+    getValidOrganization(organizationId, brokerId, accessToken);
   }
 
   public Organization getValidOrganization(Long organizationId, Long brokerId, String accessToken){
