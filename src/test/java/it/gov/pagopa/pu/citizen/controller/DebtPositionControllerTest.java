@@ -10,6 +10,7 @@ import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
 import it.gov.pagopa.pu.citizen.security.SecurityUtilsTest;
 import it.gov.pagopa.pu.citizen.service.debtposition.DebtPositionRetrieverService;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -104,5 +105,23 @@ class DebtPositionControllerTest {
 
     assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     assertNull(response.getBody());
+  }
+
+  @Test
+  void whenGetDebtPositionDetailThenOk() {
+    //given
+    Long brokerId = 1L;
+    Long debtPositionId = 2L;
+    String fiscalCode = "fiscalCode";
+
+    DebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTO.class);
+    Mockito.when(debtPositionRetrieverServiceMock.getDebtPositionDetail(brokerId, fiscalCode, debtPositionId, accessToken)).thenReturn(debtPositionDTO);
+    //when
+    ResponseEntity<DebtPositionDTO> response = debtPositionController.getDebtPositionDetail(brokerId, debtPositionId, fiscalCode);
+    //then
+
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    Assertions.assertNotNull(response.getBody());
+    Assertions.assertSame(debtPositionDTO, response.getBody());
   }
 }
