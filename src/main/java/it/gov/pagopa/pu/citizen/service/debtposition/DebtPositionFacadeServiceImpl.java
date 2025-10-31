@@ -12,7 +12,6 @@ import it.gov.pagopa.pu.citizen.mapper.DebtPositionResponseDTOMapper;
 import it.gov.pagopa.pu.citizen.service.ZipFileService;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import jakarta.validation.ValidationException;
 import org.apache.commons.lang3.StringUtils;
@@ -21,9 +20,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static it.gov.pagopa.pu.citizen.utils.DebtPositionConstants.ORDINARY_DEBTPOSITION_ORIGINS;
 import static it.gov.pagopa.pu.citizen.utils.DebtPositionConstants.PAYABLE_STATUSES;
@@ -68,21 +67,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
       return null;
     }
 
-    List<FileResourceDTO> pdfResources = getPaymentNoticeFileResources(debtPosition, accessToken);
-
-    if (pdfResources.isEmpty()) {
-      return null;
-    }
-
-    return zipFileService.zipper(pdfResources);
-  }
-
-  private List<FileResourceDTO> getPaymentNoticeFileResources(DebtPositionDTO debtPosition, String accessToken){
-    return getPaymentNoticeFileResources(debtPosition, PAYABLE_STATUSES, null, null, null, accessToken);
-  }
-
-  private List<FileResourceDTO> getPaymentNoticeFileResources(DebtPositionDTO debtPosition, List<InstallmentStatus> payableStatuses, String iuv, String iud, Long installmentId, String accessToken) {
-    return debtPosition
+    List<FileResourceDTO> paymentNoticeFileResources = debtPosition
       .getPaymentOptions()
       .stream()
       .flatMap(po ->
@@ -90,14 +75,18 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
           .stream()
           .filter(
             i ->
-              (payableStatuses.isEmpty() || (i.getStatus()!=null && payableStatuses.contains(i.getStatus())))
-              && (StringUtils.isBlank(iuv) || iuv.equals(i.getIuv()))
-              && (StringUtils.isBlank(iud) || iud.equals(i.getIud()))
-              && (installmentId==null || installmentId.equals(i.getInstallmentId())))
+              i.getStatus()!=null && PAYABLE_STATUSES.contains(i.getStatus())
+          )
       )
       .map(i ->
         printPaymentNoticeService.generateNotice(i.getIuv(), debtPosition, accessToken))
       .toList();
+
+    if (paymentNoticeFileResources.isEmpty()) {
+      return null;
+    }
+
+    return zipFileService.zipper(paymentNoticeFileResources);
   }
 
   @Override
@@ -125,11 +114,22 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
       return null;
     }
     validateDebtPosition(organizationId, fiscalCode, debtPosition);
-    List<FileResourceDTO> pdfResources = getPaymentNoticeFileResources(debtPosition, Collections.emptyList(), iuv, iud, installmentId, accessToken);
-    if (pdfResources.isEmpty()) {
-      return null;
-    }
-    return pdfResources.getFirst();
+    Optional<FileResourceDTO> paymentNoticeFileResource = debtPosition
+      .getPaymentOptions()
+      .stream()
+      .flatMap(po ->
+        po.getInstallments()
+          .stream()
+          .filter(
+            i ->
+              (StringUtils.isBlank(iuv) || iuv.equals(i.getIuv()))
+                && (StringUtils.isBlank(iud) || iud.equals(i.getIud()))
+                && (installmentId==null || installmentId.equals(i.getInstallmentId())))
+      )
+      .map(i ->
+        printPaymentNoticeService.generateNotice(i.getIuv(), debtPosition, accessToken))
+      .findAny();
+    return paymentNoticeFileResource.orElse(null);
   }
 
   private static void validateDebtPosition(Long organizationId, String fiscalCode, DebtPositionDTO debtPosition) {
