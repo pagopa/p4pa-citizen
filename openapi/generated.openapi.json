@@ -277,7 +277,7 @@
     "/brokers/{brokerId}/organizations/{organizationId}/debt-positions/notice" : {
       "get" : {
         "tags" : [ "DebtPosition" ],
-        "operationId" : "getUnpaidPaymentNotice",
+        "operationId" : "getPaymentNotice",
         "parameters" : [ {
           "name" : "X-fiscal-code",
           "in" : "header",

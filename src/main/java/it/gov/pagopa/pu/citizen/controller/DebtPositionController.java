@@ -55,10 +55,10 @@ public class DebtPositionController implements DebtPositionApi {
   }
 
   @Override
-  public ResponseEntity<Resource> getUnpaidPaymentNotice(String fiscalCode, Long brokerId, Long organizationId, Long installmentId, String iuv, String iud) {
-    log.info("User requested getUnpaidPaymentNotice having brokerId {} and organizationId {}", brokerId, organizationId);
+  public ResponseEntity<Resource> getPaymentNotice(String fiscalCode, Long brokerId, Long organizationId, Long installmentId, String iuv, String iud) {
+    log.info("User requested getPaymentNotice having brokerId {} and organizationId {}", brokerId, organizationId);
 
-    FileResourceDTO fileResourceDTO = debtPositionFacadeService.getUnpaidPaymentNotice(
+    FileResourceDTO fileResourceDTO = debtPositionFacadeService.getPaymentNotice(
       fiscalCode, brokerId, organizationId, installmentId, iuv, iud, SecurityUtils.getAccessToken());
     if(fileResourceDTO!=null) {
       HttpHeaders headers = new HttpHeaders();

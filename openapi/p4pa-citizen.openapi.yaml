@@ -224,7 +224,7 @@ paths:
     get:
       tags:
         - DebtPosition
-      operationId: getUnpaidPaymentNotice
+      operationId: getPaymentNotice
       parameters:
         - name: X-fiscal-code
           in: header

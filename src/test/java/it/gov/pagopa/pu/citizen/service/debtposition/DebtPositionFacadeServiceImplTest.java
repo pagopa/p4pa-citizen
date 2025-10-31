@@ -130,17 +130,17 @@ class DebtPositionFacadeServiceImplTest {
     InstallmentDTO installmentDTOUNPAID = podamFactory.manufacturePojo(InstallmentDTO.class);
     installmentDTOUNPAID.setIuv(iuv);
     installmentDTOUNPAID.setStatus(InstallmentStatus.UNPAID);
-    InstallmentDTO installmentDTOUNPAYABLE = podamFactory.manufacturePojo(InstallmentDTO.class);
-    installmentDTOUNPAYABLE.setIuv(iuv);
-    installmentDTOUNPAYABLE.setStatus(InstallmentStatus.UNPAYABLE);
-    installmentDTOUNPAYABLE.getDebtor().setFiscalCode(fiscalCode);
+    InstallmentDTO installmentDTOEXPIRED = podamFactory.manufacturePojo(InstallmentDTO.class);
+    installmentDTOEXPIRED.setIuv(iuv);
+    installmentDTOEXPIRED.setStatus(InstallmentStatus.EXPIRED);
+    installmentDTOEXPIRED.getDebtor().setFiscalCode(fiscalCode);
     InstallmentDTO installmentDTOPAID = podamFactory.manufacturePojo(InstallmentDTO.class);
     installmentDTOPAID.setIuv(iuv);
     installmentDTOPAID.setStatus(InstallmentStatus.PAID);
     InstallmentDTO installmentDTOWithNullStatus = podamFactory.manufacturePojo(InstallmentDTO.class);
     installmentDTOWithNullStatus.setIuv(iuv);
     installmentDTOWithNullStatus.setStatus(null);
-    paymentOptionDTO.setInstallments(List.of(installmentDTOUNPAID, installmentDTOUNPAYABLE));
+    paymentOptionDTO.setInstallments(List.of(installmentDTOUNPAID, installmentDTOEXPIRED));
     paymentOptionDTO1.setInstallments(List.of(installmentDTOPAID, installmentDTOWithNullStatus));
     debtPositionDTO.setPaymentOptions(List.of(paymentOptionDTO, paymentOptionDTO1));
 
@@ -273,7 +273,7 @@ class DebtPositionFacadeServiceImplTest {
   }
 
   @Test
-  void givenInstallmentIdWhenGetUnpaidPaymentNoticeThenOk() {
+  void givenInstallmentIdWhenGetPaymentNoticeThenOk() {
     UserInfo loggedUser = new UserInfo();
     loggedUser.setMappedExternalUserId("mappedExternalUserId");
     String fiscalCode = "fiscalCode";
@@ -309,14 +309,14 @@ class DebtPositionFacadeServiceImplTest {
     Mockito.when(printPaymentNoticeServiceMock.generateNotice(installmentDTOUNPAID.getIuv(), debtPositionDTO, accessToken))
       .thenReturn(expectedResult);
 
-    FileResourceDTO result = debtPositionFacadeService.getUnpaidPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, null, null, accessToken);
+    FileResourceDTO result = debtPositionFacadeService.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, null, null, accessToken);
 
     assertNotNull(result);
     assertEquals(expectedResult, result);
   }
 
   @Test
-  void givenIuvWhenGetUnpaidPaymentNoticeThenOk() {
+  void givenIuvWhenGetPaymentNoticeThenOk() {
     UserInfo loggedUser = new UserInfo();
     loggedUser.setMappedExternalUserId("mappedExternalUserId");
     String fiscalCode = "fiscalCode";
@@ -357,14 +357,14 @@ class DebtPositionFacadeServiceImplTest {
     Mockito.when(printPaymentNoticeServiceMock.generateNotice(installmentDTOUNPAID.getIuv(), debtPositionDTO, accessToken))
       .thenReturn(expectedResult);
 
-    FileResourceDTO result = debtPositionFacadeService.getUnpaidPaymentNotice(fiscalCode, brokerId, organizationId, null, iuv, null, accessToken);
+    FileResourceDTO result = debtPositionFacadeService.getPaymentNotice(fiscalCode, brokerId, organizationId, null, iuv, null, accessToken);
 
     assertNotNull(result);
     assertEquals(expectedResult, result);
   }
 
   @Test
-  void givenIudWhenGetUnpaidPaymentNoticeThenOk() {
+  void givenIudWhenGetPaymentNoticeThenOk() {
     UserInfo loggedUser = new UserInfo();
     loggedUser.setMappedExternalUserId("mappedExternalUserId");
     String fiscalCode = "fiscalCode";
@@ -405,44 +405,14 @@ class DebtPositionFacadeServiceImplTest {
     Mockito.when(printPaymentNoticeServiceMock.generateNotice(installmentDTOUNPAID.getIuv(), debtPositionDTO, accessToken))
       .thenReturn(expectedResult);
 
-    FileResourceDTO result = debtPositionFacadeService.getUnpaidPaymentNotice(fiscalCode, brokerId, organizationId, null, null, iud, accessToken);
+    FileResourceDTO result = debtPositionFacadeService.getPaymentNotice(fiscalCode, brokerId, organizationId, null, null, iud, accessToken);
 
     assertNotNull(result);
     assertEquals(expectedResult, result);
   }
 
   @Test
-  void givenDebtPositionWithNoUnpayedOrUnpayableInstallmentsWhenGetUnpaidPaymentNoticeThenReturnNull() {
-    UserInfo loggedUser = new UserInfo();
-    loggedUser.setMappedExternalUserId("mappedExternalUserId");
-    String fiscalCode = "fiscalCode";
-    Long brokerId = 1L;
-    Long organizationId = 2L;
-    Long installmentId = 3L;
-
-    DebtPositionDTO debtPositionDTO = new DebtPositionDTO();
-    debtPositionDTO.setOrganizationId(organizationId);
-    debtPositionDTO.setDebtPositionOrigin(DebtPositionOrigin.ORDINARY);
-    PaymentOptionDTO paymentOptionDTO = new PaymentOptionDTO();
-    InstallmentDTO installment = podamFactory.manufacturePojo(InstallmentDTO.class);
-    installment.setInstallmentId(installmentId);
-    installment.setStatus(InstallmentStatus.PAID);
-    installment.getDebtor().setFiscalCode(fiscalCode);
-    paymentOptionDTO.setInstallments(List.of(installment));
-    debtPositionDTO.setPaymentOptions(List.of(paymentOptionDTO));
-
-    Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
-    Mockito.when(debtPositionServiceMock.getDebtPositionByInstallmentId(installmentId, accessToken)).thenReturn(debtPositionDTO);
-
-    FileResourceDTO result = debtPositionFacadeService.getUnpaidPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, null, null, accessToken);
-
-    assertNull(result);
-
-    Mockito.verifyNoInteractions(printPaymentNoticeServiceMock);
-  }
-
-  @Test
-  void givenNoInstallmentWithMatchingFiscalCodeWhenGetUnpaidPaymentNoticeThenAuthorizationDeniedException() {
+  void givenNoInstallmentWithMatchingFiscalCodeWhenGetPaymentNoticeThenAuthorizationDeniedException() {
     UserInfo loggedUser = new UserInfo();
     loggedUser.setMappedExternalUserId("mappedExternalUserId");
     String fiscalCode = "fiscalCode";
@@ -457,13 +427,13 @@ class DebtPositionFacadeServiceImplTest {
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPositionByInstallmentId(installmentId, accessToken)).thenReturn(debtPositionDTO);
 
-    assertThrows(AuthorizationDeniedException.class,()-> debtPositionFacadeService.getUnpaidPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, null, null, accessToken));
+    assertThrows(AuthorizationDeniedException.class,()-> debtPositionFacadeService.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, null, null, accessToken));
 
     Mockito.verifyNoInteractions(printPaymentNoticeServiceMock);
   }
 
   @Test
-  void givenInvalidDebtPositionOriginWhenGetUnpaidPaymentNoticeThenValidationException() {
+  void givenInvalidDebtPositionOriginWhenGetPaymentNoticeThenValidationException() {
     UserInfo loggedUser = new UserInfo();
     loggedUser.setMappedExternalUserId("mappedExternalUserId");
     String fiscalCode = "fiscalCode";
@@ -478,13 +448,13 @@ class DebtPositionFacadeServiceImplTest {
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPositionByInstallmentId(installmentId, accessToken)).thenReturn(debtPositionDTO);
 
-    assertThrows(ValidationException.class,()-> debtPositionFacadeService.getUnpaidPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, null, null, accessToken));
+    assertThrows(ValidationException.class,()-> debtPositionFacadeService.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, null, null, accessToken));
 
     Mockito.verifyNoInteractions(printPaymentNoticeServiceMock);
   }
 
   @Test
-  void givenNoMatchingOrganizationIdWhenGetUnpaidPaymentNoticeThenConflictException() {
+  void givenNoMatchingOrganizationIdWhenGetPaymentNoticeThenConflictException() {
     UserInfo loggedUser = new UserInfo();
     loggedUser.setMappedExternalUserId("mappedExternalUserId");
     String fiscalCode = "fiscalCode";
@@ -498,13 +468,13 @@ class DebtPositionFacadeServiceImplTest {
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPositionByInstallmentId(installmentId, accessToken)).thenReturn(debtPositionDTO);
 
-    assertThrows(ConflictException.class,()-> debtPositionFacadeService.getUnpaidPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, null, null, accessToken));
+    assertThrows(ConflictException.class,()-> debtPositionFacadeService.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, null, null, accessToken));
 
     Mockito.verifyNoInteractions(printPaymentNoticeServiceMock);
   }
 
   @Test
-  void givenNoDebtPositionWhenGetUnpaidPaymentNoticeThenReturnNull() {
+  void givenNoDebtPositionWhenGetPaymentNoticeThenReturnNull() {
     UserInfo loggedUser = new UserInfo();
     loggedUser.setMappedExternalUserId("mappedExternalUserId");
     String fiscalCode = "fiscalCode";
@@ -515,14 +485,14 @@ class DebtPositionFacadeServiceImplTest {
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPositionByInstallmentId(installmentId, accessToken)).thenReturn(null);
 
-    FileResourceDTO result = debtPositionFacadeService.getUnpaidPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, null, null, accessToken);
+    FileResourceDTO result = debtPositionFacadeService.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, null, null, accessToken);
 
     Assertions.assertNull(result);
     Mockito.verifyNoInteractions(printPaymentNoticeServiceMock);
   }
 
   @Test
-  void givenNoFiltersWhenGetUnpaidPaymentNoticeThenInvalidParamException() {
+  void givenNoFiltersWhenGetPaymentNoticeThenInvalidParamException() {
     UserInfo loggedUser = new UserInfo();
     loggedUser.setMappedExternalUserId("mappedExternalUserId");
     String fiscalCode = "fiscalCode";
@@ -531,13 +501,13 @@ class DebtPositionFacadeServiceImplTest {
 
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
 
-    assertThrows(InvalidParamException.class,() -> debtPositionFacadeService.getUnpaidPaymentNotice(fiscalCode, brokerId, organizationId, null, null, null, accessToken));
+    assertThrows(InvalidParamException.class,() -> debtPositionFacadeService.getPaymentNotice(fiscalCode, brokerId, organizationId, null, null, null, accessToken));
 
     Mockito.verifyNoInteractions(debtPositionServiceMock, printPaymentNoticeServiceMock);
   }
 
   @Test
-  void givenMoreThanOneFilterWhenGetUnpaidPaymentNoticeThenInvalidParamException() {
+  void givenMoreThanOneFilterWhenGetPaymentNoticeThenInvalidParamException() {
     UserInfo loggedUser = new UserInfo();
     loggedUser.setMappedExternalUserId("mappedExternalUserId");
     String fiscalCode = "fiscalCode";
@@ -548,7 +518,7 @@ class DebtPositionFacadeServiceImplTest {
 
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
 
-    assertThrows(InvalidParamException.class,() -> debtPositionFacadeService.getUnpaidPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, iuv, null, accessToken));
+    assertThrows(InvalidParamException.class,() -> debtPositionFacadeService.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, iuv, null, accessToken));
 
     Mockito.verifyNoInteractions(debtPositionServiceMock, printPaymentNoticeServiceMock);
   }
