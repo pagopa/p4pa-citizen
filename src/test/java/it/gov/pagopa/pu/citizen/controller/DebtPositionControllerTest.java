@@ -1,10 +1,7 @@
 package it.gov.pagopa.pu.citizen.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
+import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
 import it.gov.pagopa.pu.citizen.security.SecurityUtilsTest;
@@ -25,6 +22,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.co.jemos.podam.api.PodamFactory;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class DebtPositionControllerTest {
@@ -140,4 +139,47 @@ class DebtPositionControllerTest {
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     assertNull(response.getBody());
   }
+
+  @Test
+  void whenGetPaymentNoticeThenOk() {
+    Long brokerId = 1L;
+    Long organizationId = 2L;
+    String iuv = "iuv";
+    String iud = "iud";
+    Long installmentId = 3L;
+    String fiscalCode = "fiscalCode";
+
+    String fileName = "fileName";
+    Resource resource = new ByteArrayResource("PDF-DATA".getBytes());
+    FileResourceDTO fileResourceDTO = new FileResourceDTO(resource, fileName);
+
+    Mockito.when(debtPositionFacadeServiceMock.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, iuv, iud, accessToken))
+      .thenReturn(fileResourceDTO);
+
+    ResponseEntity<Resource> response = debtPositionController.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, iuv, iud);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(resource, response.getBody());
+    assertEquals(fileName, response.getHeaders().getContentDisposition().getFilename());
+  }
+
+  @Test
+  void givenNullResourceWhenGetPaymentNoticeThenNoContent() {
+    Long brokerId = 1L;
+    Long organizationId = 2L;
+    String iuv = "iuv";
+    String iud = "iud";
+    Long installmentId = 3L;
+    String fiscalCode = "fiscalCode";
+
+    Mockito.when(debtPositionFacadeServiceMock.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, iuv, iud, accessToken))
+      .thenReturn(null);
+
+    ResponseEntity<Resource> response = debtPositionController.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, iuv, iud);
+
+    assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    assertNull(response.getBody());
+  }
+
 }

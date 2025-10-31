@@ -220,6 +220,63 @@ paths:
           description: Not Found - DebtPosition not found
         '500':
           description: Internal Server Error
+  /brokers/{brokerId}/organizations/{organizationId}/debt-positions/notice:
+    get:
+      tags:
+        - DebtPosition
+      operationId: getPaymentNotice
+      parameters:
+        - name: X-fiscal-code
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: installmentId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: iuv
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: iud
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Invalid request
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        "500":
+          description: Internal server error
 security:
   - BearerAuth: [ ]
 components:
@@ -408,5 +465,6 @@ components:
             - BAD_REQUEST
             - GENERIC_ERROR
             - FORBIDDEN
+            - CONFLICT
         message:
           type: string

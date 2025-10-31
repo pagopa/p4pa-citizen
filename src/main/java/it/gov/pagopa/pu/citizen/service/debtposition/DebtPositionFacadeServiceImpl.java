@@ -5,13 +5,16 @@ import it.gov.pagopa.pu.citizen.connector.pagopapayments.PrintPaymentNoticeServi
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
+import it.gov.pagopa.pu.citizen.exception.ConflictException;
+import it.gov.pagopa.pu.citizen.exception.InvalidParamException;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionDTOMapper;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionResponseDTOMapper;
 import it.gov.pagopa.pu.citizen.service.ZipFileService;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
+import jakarta.validation.ValidationException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -19,6 +22,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+
+import static it.gov.pagopa.pu.citizen.utils.DebtPositionConstants.ORDINARY_DEBTPOSITION_ORIGINS;
+import static it.gov.pagopa.pu.citizen.utils.DebtPositionConstants.PAYABLE_STATUSES;
 
 @Service
 public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService {
@@ -60,26 +67,26 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
       return null;
     }
 
-    List<FileResourceDTO> pdfResources = debtPosition
-        .getPaymentOptions()
-        .stream()
-        .flatMap(po ->
-            po.getInstallments()
-                .stream()
-                .filter(
-                    i ->
-                        (InstallmentStatus.UNPAID.equals(i.getStatus()) ||
-                            InstallmentStatus.UNPAYABLE.equals(i.getStatus())))
-        )
-        .map(i ->
-            printPaymentNoticeService.generateNotice(i.getIuv(), debtPosition, accessToken))
-        .toList();
+    List<FileResourceDTO> paymentNoticeFileResources = debtPosition
+      .getPaymentOptions()
+      .stream()
+      .flatMap(po ->
+        po.getInstallments()
+          .stream()
+          .filter(
+            i ->
+              i.getStatus()!=null && PAYABLE_STATUSES.contains(i.getStatus())
+          )
+      )
+      .map(i ->
+        printPaymentNoticeService.generateNotice(i.getIuv(), debtPosition, accessToken))
+      .toList();
 
-    if (pdfResources.isEmpty()) {
+    if (paymentNoticeFileResources.isEmpty()) {
       return null;
     }
 
-    return zipFileService.zipper(pdfResources);
+    return zipFileService.zipper(paymentNoticeFileResources);
   }
 
   @Override
@@ -97,5 +104,56 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
     Objects.requireNonNull(debtPosition).getPaymentOptions().stream().flatMap(po->po.getInstallments().stream())
         .filter(i-> fiscalCode.equals(i.getDebtor().getFiscalCode())).findAny()
         .orElseThrow(() -> new AuthorizationDeniedException("User cannot access DebtPosition having id "+ debtPosition.getDebtPositionId()));
+  }
+
+  @Override
+  public FileResourceDTO getPaymentNotice(String fiscalCode, Long brokerId, Long organizationId, Long installmentId, String iuv, String iud, String accessToken) {
+    organizationRetrieverService.validateOrganization(organizationId,brokerId,accessToken);
+    DebtPositionDTO debtPosition = retrieveDebtPosition(organizationId,iuv,iud,installmentId, accessToken);
+    if (debtPosition == null) {
+      return null;
+    }
+    validateDebtPosition(organizationId, fiscalCode, debtPosition);
+    Optional<FileResourceDTO> paymentNoticeFileResource = debtPosition
+      .getPaymentOptions()
+      .stream()
+      .flatMap(po ->
+        po.getInstallments()
+          .stream()
+          .filter(
+            i ->
+              (StringUtils.isBlank(iuv) || iuv.equals(i.getIuv()))
+                && (StringUtils.isBlank(iud) || iud.equals(i.getIud()))
+                && (installmentId==null || installmentId.equals(i.getInstallmentId())))
+      )
+      .map(i ->
+        printPaymentNoticeService.generateNotice(i.getIuv(), debtPosition, accessToken))
+      .findAny();
+    return paymentNoticeFileResource.orElse(null);
+  }
+
+  private static void validateDebtPosition(Long organizationId, String fiscalCode, DebtPositionDTO debtPosition) {
+    if(!debtPosition.getOrganizationId().equals(organizationId)){
+      throw new ConflictException("DebtPosition's organizationId does not match the given organizationId "+ organizationId);
+    }
+    if(!ORDINARY_DEBTPOSITION_ORIGINS.contains(debtPosition.getDebtPositionOrigin())){
+      throw new ValidationException("Invalid debtPositionOrigin "+debtPosition.getDebtPositionOrigin());
+    }
+    validateDebtPositionDebtor(fiscalCode, debtPosition);
+  }
+
+  private DebtPositionDTO retrieveDebtPosition(Long organizationId, String iuv, String iud, Long installmentId, String accessToken) {
+    int filterCount = (StringUtils.isNotBlank(iuv)?1:0) + (StringUtils.isNotBlank(iud)?1:0) + (installmentId!=null?1:0);
+    if(filterCount!=1){
+      throw new InvalidParamException("Exactly one of the following parameters must be provided: iuv, iud, or installmentId");
+    }
+
+    if(StringUtils.isNotBlank(iuv)){
+      return debtPositionService.getDebtPositionsByOrganizationIdAndIuv(organizationId, iuv, ORDINARY_DEBTPOSITION_ORIGINS, accessToken).stream().findFirst().orElse(null);
+    }else if(StringUtils.isNotBlank(iud)){
+      return debtPositionService.getDebtPositionsByOrganizationIdAndIud(organizationId, iud, ORDINARY_DEBTPOSITION_ORIGINS, accessToken).stream().findFirst().orElse(null);
+    }else{
+      return debtPositionService.getDebtPositionByInstallmentId(installmentId, accessToken);
+    }
   }
 }

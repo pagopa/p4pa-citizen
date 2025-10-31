@@ -2,9 +2,12 @@ package it.gov.pagopa.pu.citizen.connector.debtpositions.client;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.config.DebtPositionsApisHolder;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionOrigin;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -29,5 +32,23 @@ public class DebtPositionClient {
       log.warn("DebtPosition with debtPositionId {} not found", debtPositionId);
       return null;
     }
+  }
+
+  public DebtPositionDTO getDebtPositionByInstallmentId(Long installmentId, String accessToken){
+    try{
+      return debtPositionsApisHolder.getDebtPositionApi(accessToken).getDebtPositionByInstallmentId(installmentId);
+
+    } catch (HttpClientErrorException.NotFound e) {
+      log.warn("DebtPosition having installment with Id {} not found", installmentId);
+      return null;
+    }
+  }
+
+  public List<DebtPositionDTO> getDebtPositionsByOrganizationIdAndIuv(Long organizationId, String iuv, List<DebtPositionOrigin> debtPositionOrigins, String accessToken){
+    return debtPositionsApisHolder.getDebtPositionApi(accessToken).getDebtPositionsByOrganizationIdAndIuv(organizationId, iuv, debtPositionOrigins);
+  }
+
+  public List<DebtPositionDTO> getDebtPositionsByOrganizationIdAndIud(Long organizationId, String iud, List<DebtPositionOrigin> debtPositionOrigins, String accessToken){
+    return debtPositionsApisHolder.getDebtPositionApi(accessToken).getDebtPositionsByOrganizationIdAndIud(organizationId, iud, debtPositionOrigins);
   }
 }
