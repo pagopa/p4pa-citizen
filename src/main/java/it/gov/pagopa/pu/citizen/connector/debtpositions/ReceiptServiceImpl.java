@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class ReceiptNoPiiViewSearchServiceImpl implements ReceiptNoPiiViewSearchService {
+public class ReceiptServiceImpl implements ReceiptService {
 
   private final ReceiptNoPiiViewSearchClient receiptNoPiiViewSearchClient;
 
-  public ReceiptNoPiiViewSearchServiceImpl(ReceiptNoPiiViewSearchClient receiptNoPiiViewSearchClient) {
+  public ReceiptServiceImpl(ReceiptNoPiiViewSearchClient receiptNoPiiViewSearchClient) {
     this.receiptNoPiiViewSearchClient = receiptNoPiiViewSearchClient;
   }
 

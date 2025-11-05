@@ -21,7 +21,7 @@ public class ReceiptController implements ReceiptApi {
 
   @Override
   public ResponseEntity<PagedDebtorReceiptsDTO> getPagedDebtorReceipts(Long brokerId, String xFiscalCode, String orgName, Pageable pageable) {
-    log.info("Requested getReceipts on brokerId {} and orgName {}", brokerId, orgName);
+    log.info("Requested getPagedDebtorReceipts on brokerId {} and orgName {}", brokerId, orgName);
     return ResponseEntity.ok(receiptFacadeService.getPagedDebtorReceipts(brokerId, orgName, xFiscalCode, SecurityUtils.getAccessToken(), pageable));
   }
 }

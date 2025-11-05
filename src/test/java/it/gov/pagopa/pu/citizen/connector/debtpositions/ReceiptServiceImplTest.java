@@ -20,18 +20,18 @@ import static it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptOriginType.REC
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class ReceiptNoPiiViewSearchServiceImplTest {
+class ReceiptServiceImplTest {
 
   private final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
   @Mock
   private ReceiptNoPiiViewSearchClient receiptNoPiiViewSearchClientMock;
 
-  ReceiptNoPiiViewSearchService receiptNoPiiViewSearchService;
+  ReceiptService receiptService;
 
   @BeforeEach
   void setUp() {
-    receiptNoPiiViewSearchService = new ReceiptNoPiiViewSearchServiceImpl(receiptNoPiiViewSearchClientMock);
+    receiptService = new ReceiptServiceImpl(receiptNoPiiViewSearchClientMock);
   }
 
   @AfterEach
@@ -51,7 +51,7 @@ class ReceiptNoPiiViewSearchServiceImplTest {
     PagedModelReceiptNoPIIView expectedResult = podamFactory.manufacturePojo(PagedModelReceiptNoPIIView.class);
     Mockito.when(receiptNoPiiViewSearchClientMock.getPagedModelReceiptNoPIIView(fiscalCode, orgsFiscalCode, receipts, pageRequest, accessToken)).thenReturn(expectedResult);
     //when
-    PagedModelReceiptNoPIIView result = receiptNoPiiViewSearchService.getPagedModelReceiptNoPIIView(fiscalCode, orgsFiscalCode, receipts, pageRequest, accessToken);
+    PagedModelReceiptNoPIIView result = receiptService.getPagedModelReceiptNoPIIView(fiscalCode, orgsFiscalCode, receipts, pageRequest, accessToken);
     //then
     assertNotNull(result);
     assertEquals(expectedResult, result);

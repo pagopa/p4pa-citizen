@@ -356,8 +356,8 @@
               }
             }
           },
-          "409" : {
-            "description" : "Debt position already exists",
+          "404" : {
+            "description" : "Not found",
             "content" : {
               "application/json" : {
                 "schema" : {

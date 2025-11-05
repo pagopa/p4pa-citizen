@@ -308,8 +308,8 @@ paths:
                 $ref: "#/components/schemas/PagedDebtorReceiptsDTO"
         "400":
           description: Invalid request
-        "409":
-          description: Debt position already exists
+        "404":
+          description: Not found
         "500":
           description: Internal server error
       x-spring-paginated: true

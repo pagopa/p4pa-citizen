@@ -9,32 +9,35 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper(componentModel = "spring")
 public interface PagedDebtorReceiptsDTOMapper{
 
-  @Mapping(target = "content", expression = "java(source.getEmbedded() != null ? mapReceiptNoPIIViewWithOrganization(organizations, source.getEmbedded().getReceiptNoPIIViews()) : java.util.Collections.emptyList())")
+  @Mapping(target = "content", expression = "java(source.getEmbedded() != null ? mapReceiptNoPIIViewWithOrganization(organizationsMap, source.getEmbedded().getReceiptNoPIIViews()) : java.util.Collections.emptyList())")
   @Mapping(target = "totalPages", source = "source.page.totalPages")
   @Mapping(target = "size", source = "source.page.size")
   @Mapping(target = "number", source = "source.page.number")
   @Mapping(target = "totalElements", source = "source.page.totalElements")
-  PagedDebtorReceiptsDTO map(List<Organization> organizations, PagedModelReceiptNoPIIView source);
+  PagedDebtorReceiptsDTO map(Map<String, Organization> organizationsMap, PagedModelReceiptNoPIIView source);
 
   @Mapping(target = "organizationId", source = "organization.organizationId")
   @Mapping(target = "orgName", source = "organization.orgName")
   @Mapping(target = "orgFiscalCode", source = "organization.orgFiscalCode")
   DebtorReceiptDTO map(Organization organization, ReceiptNoPIIView receiptNoPIIView);
 
-  default List<DebtorReceiptDTO> mapReceiptNoPIIViewWithOrganization(List<Organization> organizations, List<ReceiptNoPIIView> receiptNoPIIViewList){
+  default List<DebtorReceiptDTO> mapReceiptNoPIIViewWithOrganization(Map<String, Organization> organizationsMap, List<ReceiptNoPIIView> receiptNoPIIViewList){
+
     return receiptNoPIIViewList.stream()
-      .map(personalReceiptNoPIIView -> map(retrieveOrganization(organizations, personalReceiptNoPIIView), personalReceiptNoPIIView)).toList();
+      .map(personalReceiptNoPIIView -> map(retrieveOrganization(organizationsMap, personalReceiptNoPIIView), personalReceiptNoPIIView)).toList();
   }
 
-  default Organization retrieveOrganization(List<Organization> organizations, ReceiptNoPIIView receiptNoPIIView){
-    return organizations.stream()
-      .filter(org -> org.getOrgFiscalCode().equals(receiptNoPIIView.getOrgFiscalCode()))
-      .findAny()
-      .orElseThrow(() -> new IllegalStateException("No Organization found for receipt with Id %d".formatted(receiptNoPIIView.getReceiptId())));
+  default Organization retrieveOrganization(Map<String, Organization> organizationsMap, ReceiptNoPIIView receiptNoPIIView){
+    Organization organization = organizationsMap.get(receiptNoPIIView.getOrgFiscalCode());
+    if (organization == null){
+      throw new IllegalStateException("No Organization found for receipt with Id %d".formatted(receiptNoPIIView.getReceiptId()));
+    }
+   return organization;
   }
 
 }
