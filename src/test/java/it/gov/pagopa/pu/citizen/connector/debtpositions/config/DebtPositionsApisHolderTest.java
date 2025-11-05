@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions.config;
 
 import it.gov.pagopa.pu.citizen.connector.BaseApiHolderTest;
+import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptOriginType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -81,6 +82,21 @@ class DebtPositionsApisHolderTest extends BaseApiHolderTest {
       accessToken -> apisHolder.getDebtPositionApi(accessToken)
         .getDebtPosition(
           1L),
+      new ParameterizedTypeReference<>() {
+      },
+      apisHolder::unload);
+  }
+
+  @Test
+  void whenGetReceiptNoPiiViewSearchControllerApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
+    assertAuthenticationShouldBeSetInThreadSafeMode(
+      accessToken -> apisHolder.getReceiptNoPiiViewSearchControllerApi(accessToken)
+        .crudReceiptNoPiiViewGetPagedPrimaryReceiptByFilters(
+          "debtorFiscalCode",
+          List.of("orgFiscalCode"),
+          List.of(ReceiptOriginType.RECEIPT_FILE),
+          0,1,null
+        ),
       new ParameterizedTypeReference<>() {
       },
       apisHolder::unload);

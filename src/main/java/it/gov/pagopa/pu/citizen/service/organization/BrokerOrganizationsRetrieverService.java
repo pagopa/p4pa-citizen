@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
 @Service
@@ -27,19 +28,24 @@ public class BrokerOrganizationsRetrieverService {
     this.organizationService = organizationService;
   }
 
-  public List<Organization> getAllActiveOrganizationsByBrokerId(
-    Long brokerId,
-    String accessToken) {
-
+  public List<Organization> getAllActiveOrganizationsByBrokerId(Long brokerId,String accessToken) {
     AtomicInteger pageNumber = new AtomicInteger(0);
+    return getOrganizationList( page -> getPage(brokerId, OrganizationStatus.ACTIVE, accessToken, page), pageNumber);
+  }
 
+  public List<Organization> getAllOrganizationsByBrokerIdAndOrgName(Long brokerId, String orgName, String accessToken) {
+    AtomicInteger pageNumber = new AtomicInteger(0);
+    return getOrganizationList( page -> getPage(brokerId, orgName, accessToken, page), pageNumber);
+  }
+
+  private List<Organization> getOrganizationList(IntFunction<PagedModelOrganization> function, AtomicInteger pageNumber) {
     return Stream.iterate(
-        getPage(brokerId, OrganizationStatus.ACTIVE, accessToken, pageNumber.get()),
+        function.apply(pageNumber.get()),
         Objects::nonNull,
         p -> {
           int nextPage = pageNumber.incrementAndGet();
           if (p.getPage() != null && p.getPage().getTotalPages() != null && nextPage < p.getPage().getTotalPages()) {
-            return getPage(brokerId, OrganizationStatus.ACTIVE, accessToken, nextPage);
+            return function.apply(nextPage);
           }
           return null;
         })
@@ -52,5 +58,11 @@ public class BrokerOrganizationsRetrieverService {
     Pageable pageable = PageRequest.of(pageNumber, pageMaxSize);
     return organizationService.getPagedOrganizationsByBrokerIdAndStatus(brokerId, status, pageable, accessToken);
   }
+
+  private PagedModelOrganization getPage(Long brokerId, String orgName, String accessToken, int pageNumber) {
+  Pageable pageable = PageRequest.of(pageNumber, pageMaxSize);
+  return organizationService.getOrganizationsListByBrokerIdAndOrgName(brokerId, orgName, pageable, accessToken);
+  }
+
 }
 

@@ -277,6 +277,42 @@ paths:
           description: Not Found
         "500":
           description: Internal server error
+  /brokers/{brokerId}/receipts:
+    get:
+      tags:
+        - receipt
+      operationId: getPagedDebtorReceipts
+      parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: X-fiscal-code
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: orgName
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedDebtorReceiptsDTO"
+        "400":
+          description: Invalid request
+        "404":
+          description: Not found
+        "500":
+          description: Internal server error
+      x-spring-paginated: true
 security:
   - BearerAuth: [ ]
 components:
@@ -451,6 +487,76 @@ components:
           type: integer
           format: int64
         remittanceInformation:
+          type: string
+    PagedDebtorReceiptsDTO:
+      type: object
+      required:
+        - content
+        - size
+        - totalElements
+        - totalPages
+        - number
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/DebtorReceiptDTO'
+        size:
+          type: integer
+          format: int64
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int64
+        number:
+          type: integer
+          format: int64
+    DebtorReceiptDTO:
+      type: object
+      required:
+        - receiptId
+        - organizationId
+        - orgFiscalCode
+        - orgName
+        - paymentAmountCents
+        - paymentDateTime
+        - receiptOrigin
+        - installmentId
+        - remittanceInformation
+        - debtPositionTypeOrgDescription
+        - debtPositionTypeDescription
+        - serviceType
+      properties:
+        receiptId:
+          type: integer
+          format: int64
+        organizationId:
+          type: integer
+          format: int64
+        orgFiscalCode:
+          type: string
+        orgName:
+          type: string
+        paymentAmountCents:
+          type: integer
+          format: int64
+        paymentDateTime:
+          type: string
+          format: date-time
+        receiptOrigin:
+          type: ReceiptOrigin
+        installmentId:
+          type: integer
+          format: int64
+        remittanceInformation:
+          type: string
+        debtPositionTypeOrgDescription:
+          type: string
+        debtPositionTypeDescription:
+          type: string
+        serviceType:
           type: string
     ErrorDTO:
       type: object
