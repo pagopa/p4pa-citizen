@@ -73,4 +73,22 @@ class OrganizationServiceImplTest {
 
     assertSame(expected, result);
   }
+
+  @Test
+  void givenBrokerIdAndOrgNameWhenGetOrganizationsListByBrokerIdAndOrgNameThenReturnPagedModelOrganization() {
+    String accessToken = "ACCESS_TOKEN";
+    Long brokerId = 1L;
+    String orgName = "orgName";
+    PagedModelOrganization expectedResult = podamFactory.manufacturePojo(PagedModelOrganization.class);
+
+    PageRequest pageable = PageRequest.of(0, 10);
+
+    Mockito.when(organizationSearchClientMock.getOrganizationsListByBrokerIdAndOrgName(brokerId, orgName, pageable, accessToken)).thenReturn(expectedResult);
+    //when
+    PagedModelOrganization result = organizationService.getOrganizationsListByBrokerIdAndOrgName(brokerId, orgName, pageable, accessToken);
+
+    //then
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(expectedResult, result);
+  }
 }
