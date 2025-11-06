@@ -5,10 +5,13 @@ import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.PagedDebtorReceiptsDTOMapper;
 import it.gov.pagopa.pu.citizen.service.organization.BrokerOrganizationsRetrieverService;
+import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import it.gov.pagopa.pu.debtpositions.dto.generated.PagedModelReceiptNoPIIView;
+import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptDetailDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptOriginType;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,11 +25,13 @@ public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
   private final ReceiptService receiptService;
   private final BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverService;
   private final PagedDebtorReceiptsDTOMapper pagedDebtorReceiptsDTOMapper;
+  private final OrganizationRetrieverService organizationRetrieverService;
 
-  public ReceiptFacadeServiceImpl(ReceiptService receiptService, BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverService, PagedDebtorReceiptsDTOMapper pagedDebtorReceiptsDTOMapper) {
+  public ReceiptFacadeServiceImpl(ReceiptService receiptService, BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverService, PagedDebtorReceiptsDTOMapper pagedDebtorReceiptsDTOMapper, OrganizationRetrieverService organizationRetrieverService) {
     this.receiptService = receiptService;
     this.brokerOrganizationsRetrieverService = brokerOrganizationsRetrieverService;
     this.pagedDebtorReceiptsDTOMapper = pagedDebtorReceiptsDTOMapper;
+    this.organizationRetrieverService = organizationRetrieverService;
   }
 
   @Override
@@ -47,4 +52,19 @@ public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
       .collect(Collectors.toMap(Organization::getOrgFiscalCode, org -> org));
   }
 
+  @Override
+  public ReceiptDetailDTO getReceiptDetail(String fiscalCode, Long brokerId, Long organizationId, Long receiptId, String accessToken) {
+    organizationRetrieverService.validateOrganization(organizationId,brokerId,accessToken);
+    ReceiptDetailDTO receiptDetailDTO = receiptService.getReceiptDetail(receiptId, organizationId, accessToken);
+    if(receiptDetailDTO!=null){
+      validateReceiptDebtor(fiscalCode,receiptDetailDTO);
+    }
+    return receiptDetailDTO;
+  }
+
+  private static void validateReceiptDebtor(String fiscalCode, ReceiptDetailDTO receipt) {
+    if(!fiscalCode.equals(receipt.getDebtor().getFiscalCode())){
+      throw new AuthorizationDeniedException("User cannot access Receipt having id "+ receipt.getReceiptId());
+    }
+  }
 }
