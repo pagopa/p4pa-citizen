@@ -5,6 +5,7 @@ import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
 import it.gov.pagopa.pu.citizen.security.SecurityUtilsTest;
 import it.gov.pagopa.pu.citizen.service.receipt.ReceiptFacadeService;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
+import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptDetailDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.co.jemos.podam.api.PodamFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class ReceiptControllerTest {
@@ -59,5 +59,40 @@ class ReceiptControllerTest {
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertNotNull(result);
     assertEquals(expectedResult, result.getBody());
+  }
+
+  @Test
+  void whenGetReceiptDetailThenOk() {
+    //given
+    String fiscalCode = "fiscalCode";
+    Long brokerId = 1L;
+    Long organizationId = 2L;
+    Long receiptId = 3L;
+    ReceiptDetailDTO expectedResult = podamFactory.manufacturePojo(ReceiptDetailDTO.class);
+
+    Mockito.when(receiptFacadeServiceMock.getReceiptDetail(fiscalCode, brokerId, organizationId, receiptId, accessToken)).thenReturn(expectedResult);
+    //when
+    ResponseEntity<ReceiptDetailDTO> result = receiptController.getReceiptDetail(fiscalCode, brokerId, organizationId, receiptId);
+    //then
+    assertNotNull(result);
+    assertEquals(HttpStatus.OK, result.getStatusCode());
+    assertEquals(expectedResult, result.getBody());
+  }
+
+  @Test
+  void givenNoReceiptWhenGetReceiptDetailThenNotFound() {
+    //given
+    String fiscalCode = "fiscalCode";
+    Long brokerId = 1L;
+    Long organizationId = 2L;
+    Long receiptId = 3L;
+
+    Mockito.when(receiptFacadeServiceMock.getReceiptDetail(fiscalCode, brokerId, organizationId, receiptId, accessToken)).thenReturn(null);
+    //when
+    ResponseEntity<ReceiptDetailDTO> result = receiptController.getReceiptDetail(fiscalCode, brokerId, organizationId, receiptId);
+    //then
+    assertNotNull(result);
+    assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+    assertNull(result.getBody());
   }
 }

@@ -313,6 +313,56 @@ paths:
         "500":
           description: Internal server error
       x-spring-paginated: true
+  /brokers/{brokerId}/organizations/{organizationId}/receipts/{receiptId}:
+    get:
+      tags:
+        - Receipt
+      summary: "Retrieve a specific receipt"
+      operationId: getReceiptDetail
+      parameters:
+        - name: X-fiscal-code
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: receiptId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The unique identifier of the receipt
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: 'ReceiptDetailDTO'
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden - Access denied
+        '404':
+          description: Not Found - Receipt not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
 security:
   - BearerAuth: [ ]
 components:

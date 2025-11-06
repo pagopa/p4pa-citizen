@@ -101,4 +101,15 @@ class DebtPositionsApisHolderTest extends BaseApiHolderTest {
       },
       apisHolder::unload);
   }
+
+  @Test
+  void whenGetReceiptApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
+    assertAuthenticationShouldBeSetInThreadSafeMode(
+      accessToken -> apisHolder.getReceiptApi(accessToken)
+        .getReceiptDetail(
+          1L,1L,null),
+      new ParameterizedTypeReference<>() {
+      },
+      apisHolder::unload);
+  }
 }

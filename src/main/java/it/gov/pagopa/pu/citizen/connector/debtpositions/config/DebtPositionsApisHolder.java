@@ -18,6 +18,7 @@ public class DebtPositionsApisHolder {
   private final SpontaneousFormEntityControllerApi spontaneousFormEntityControllerApi;
   private final DebtPositionApi debtPositionApi;
   private final ReceiptNoPiiViewSearchControllerApi receiptNoPiiViewSearchControllerApi;
+  private final ReceiptApi receiptApi;
 
   private final ThreadLocal<String> bearerTokenHolder = new ThreadLocal<>();
 
@@ -41,6 +42,7 @@ public class DebtPositionsApisHolder {
     this.spontaneousFormEntityControllerApi = new SpontaneousFormEntityControllerApi(apiClient);
     this.debtPositionApi = new DebtPositionApi(apiClient);
     this.receiptNoPiiViewSearchControllerApi = new ReceiptNoPiiViewSearchControllerApi(apiClient);
+    this.receiptApi = new ReceiptApi(apiClient);
   }
 
   @PreDestroy
@@ -84,6 +86,13 @@ public class DebtPositionsApisHolder {
    */
   public ReceiptNoPiiViewSearchControllerApi getReceiptNoPiiViewSearchControllerApi(String accessToken){
     return getApi(accessToken, receiptNoPiiViewSearchControllerApi);
+  }
+
+  /**
+   * It will return a {@link ReceiptApi} instrumented with the provided accessToken. Use null if auth is not required
+   */
+  public ReceiptApi getReceiptApi(String accessToken) {
+    return getApi(accessToken, receiptApi);
   }
 
   private <T extends BaseApi> T getApi(String accessToken, T api) {
