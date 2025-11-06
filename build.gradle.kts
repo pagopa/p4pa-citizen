@@ -169,7 +169,10 @@ openApiGenerate {
   typeMappings.set(mapOf(
     "FormCustom" to "it.gov.pagopa.pu.debtpositions.dto.generated.SpontaneousForm",
     "DebtPositionDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO",
-    "PersonDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.PersonDTO"
+    "PersonDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.PersonDTO",
+    "DebtPositionDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO",
+    "ReceiptOrigin" to "it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptOriginType",
+    "ReceiptDetailDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptDetailDTO"
   ))
 }
 

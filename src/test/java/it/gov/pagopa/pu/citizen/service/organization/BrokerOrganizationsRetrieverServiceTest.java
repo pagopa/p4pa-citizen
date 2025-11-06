@@ -163,4 +163,48 @@ class BrokerOrganizationsRetrieverServiceTest {
     assertThat(result).isEmpty();
   }
 
+  @Test
+  void givenMultiplePagesWhenGetAllOrganizationsByBrokerIdAndStatusThenReturnAllOrganizations() {
+    // given
+    Long brokerId = 1L;
+    String accessToken = "ACCESS_TOKEN";
+    String orgName = "orgName";
+
+
+    Organization org1 = podamFactory.manufacturePojo(Organization.class);
+    Organization org2 = podamFactory.manufacturePojo(Organization.class);
+    List<Organization> organizationsPage0 = new ArrayList<>();
+    organizationsPage0.add(org1);
+    organizationsPage0.add(org2);
+
+    PagedModelOrganization page0 = new PagedModelOrganization();
+    page0.setPage(new PageMetadata(1L, 2L, 2L, 0L));
+    page0.setEmbedded(new PagedModelOrganizationEmbedded(organizationsPage0));
+
+    Organization org3 = podamFactory.manufacturePojo(Organization.class);
+    List<Organization> organizationsPage1 = new ArrayList<>();
+    organizationsPage0.add(org3);
+
+    PagedModelOrganization page1 = new PagedModelOrganization();
+    page1.setPage(new PageMetadata(1L, 2L, 2L, 1L));
+    page1.setEmbedded(new PagedModelOrganizationEmbedded(organizationsPage1));
+
+    Mockito.when(organizationServiceMock.getOrganizationsListByBrokerIdAndOrgName(
+        eq(brokerId), eq(orgName), any(Pageable.class), eq(accessToken)))
+      .thenReturn(page0, page1);
+
+    // when
+    List<Organization> result = brokerOrganizationsRetrieverService.getAllOrganizationsByBrokerIdAndOrgName(
+      brokerId, orgName,accessToken);
+
+    // then
+    assertThat(result)
+      .hasSize(3)
+      .extracting(organization -> organization )
+      .containsExactly(org1, org2, org3);
+
+    verify(organizationServiceMock, Mockito.times(2))
+      .getOrganizationsListByBrokerIdAndOrgName(eq(brokerId),eq(orgName), any(Pageable.class), eq(accessToken));
+  }
+
 }

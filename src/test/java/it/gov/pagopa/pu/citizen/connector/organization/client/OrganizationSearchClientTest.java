@@ -59,4 +59,23 @@ class OrganizationSearchClientTest {
     Assertions.assertEquals(expectedResult, result);
   }
 
+  @Test
+  void givenBrokerIdAndOrgNameWhenGetOrganizationsListByBrokerIdAndOrgNameThenReturnPagedModelOrganization() {
+    //given
+    String accessToken = "ACCESS_TOKEN";
+    Long brokerId = 1L;
+    String orgName = "orgName";
+    PagedModelOrganization expectedResult = podamFactory.manufacturePojo(PagedModelOrganization.class);
+
+    PageRequest pageable = PageRequest.of(0, 10);
+
+    Mockito.when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken)).thenReturn(organizationSearchControllerApiMock);
+
+    Mockito.when(organizationSearchControllerApiMock.crudOrganizationsFindByBrokerIdAndOrgName(brokerId.toString(), orgName, pageable.getPageNumber(), pageable.getPageSize(), new ArrayList<>())).thenReturn(expectedResult);
+    //when
+    PagedModelOrganization result = organizationSearchClient.getOrganizationsListByBrokerIdAndOrgName(brokerId, orgName, pageable, accessToken);
+    //then
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(expectedResult, result);
+  }
 }
