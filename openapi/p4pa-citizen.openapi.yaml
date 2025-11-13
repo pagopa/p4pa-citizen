@@ -7,7 +7,7 @@ servers:
   - url: "http://localhost:8080"
     description: Generated server url
 paths:
-  /brokers/{brokerId}/organizations/spontaneous:
+  /brokers/{brokerId}/spontaneous/organizations:
     get:
       tags:
         - Organization
@@ -35,13 +35,19 @@ paths:
           description: Forbidden - Access denied
         '500':
           description: Internal Server Error
-  /spontaneous/organizations/{organizationId}/debt-position-type-orgs:
+  /brokers/{brokerId}/spontaneous/organizations/{organizationId}/debt-position-type-orgs:
     get:
       tags:
         - DebtPositionTypeOrg
       summary: "Retrieves the list of debtPositionTypeOrg with flagSpontaneous and flagActive set to true"
       operationId: getDebtPositionTypeOrgsWithSpontaneous
       parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
         - name: organizationId
           in: path
           required: true

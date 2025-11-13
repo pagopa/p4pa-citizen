@@ -35,7 +35,8 @@ public class DebtPositionTypeOrgRetrieverServiceImpl implements DebtPositionType
   }
 
   @Override
-  public List<DebtPositionTypeOrgsWithSpontaneousDTO> getDebtPositionTypeOrgsWithSpontaneous(Long organizationId, String accessToken) {
+  public List<DebtPositionTypeOrgsWithSpontaneousDTO> getDebtPositionTypeOrgsWithSpontaneous(Long brokerId, Long organizationId, String accessToken) {
+    organizationRetrieverService.validateOrganization(organizationId, brokerId, accessToken);
     return debtPositionTypeOrgsListWithSpontaneousDTOMapper.map(debtPositionTypeOrgService.getDebtPositionTypeOrgsFindActiveDebtPositionTypeOrg(organizationId, accessToken));
   }
 

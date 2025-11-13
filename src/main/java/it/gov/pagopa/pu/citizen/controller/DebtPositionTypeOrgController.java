@@ -22,9 +22,9 @@ public class DebtPositionTypeOrgController implements DebtPositionTypeOrgApi {
   }
 
   @Override
-  public ResponseEntity<List<DebtPositionTypeOrgsWithSpontaneousDTO>> getDebtPositionTypeOrgsWithSpontaneous(Long organizationId) {
-    log.info("Requested getDebtPositionTypeOrgsWithSpontaneous on organizationId {}", organizationId);
-    return ResponseEntity.ok(debtPositionTypeOrgRetrieverService.getDebtPositionTypeOrgsWithSpontaneous(organizationId, SecurityUtils.getAccessToken()));
+  public ResponseEntity<List<DebtPositionTypeOrgsWithSpontaneousDTO>> getDebtPositionTypeOrgsWithSpontaneous(Long brokerId, Long organizationId) {
+    log.info("Requested getDebtPositionTypeOrgsWithSpontaneous on brokerId {} and organizationId {}", brokerId, organizationId);
+    return ResponseEntity.ok(debtPositionTypeOrgRetrieverService.getDebtPositionTypeOrgsWithSpontaneous(brokerId, organizationId, SecurityUtils.getAccessToken()));
   }
 
   @Override
