@@ -107,7 +107,7 @@ class DebtPositionsApisHolderTest extends BaseApiHolderTest {
     assertAuthenticationShouldBeSetInThreadSafeMode(
       accessToken -> apisHolder.getReceiptApi(accessToken)
         .getReceiptDetail(
-          1L,1L,null),
+          1L,1L,null, null),
       new ParameterizedTypeReference<>() {
       },
       apisHolder::unload);

@@ -19,7 +19,7 @@ public class ReceiptClient {
   public ReceiptDetailDTO getReceiptDetail(Long receiptId, Long organizationId, String accessToken) {
     try {
       return debtPositionsApisHolder.getReceiptApi(accessToken)
-        .getReceiptDetail(receiptId,organizationId,null);
+        .getReceiptDetail(receiptId,organizationId,null, null);
     } catch (HttpClientErrorException.NotFound e) {
       log.warn("ReceiptDetail with receiptId {} and organizationId {} not found", receiptId, organizationId);
       return null;
