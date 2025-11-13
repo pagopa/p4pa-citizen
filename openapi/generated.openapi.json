@@ -1311,9 +1311,6 @@
           },
           "amountFieldName" : {
             "type" : "string"
-          },
-          "hasAmountInForm" : {
-            "type" : "boolean"
           }
         }
       },
