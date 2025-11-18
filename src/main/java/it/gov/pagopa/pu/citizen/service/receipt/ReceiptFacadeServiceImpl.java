@@ -11,7 +11,6 @@ import it.gov.pagopa.pu.debtpositions.dto.generated.PagedModelReceiptNoPIIView;
 import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptDetailDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptOriginType;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
 
