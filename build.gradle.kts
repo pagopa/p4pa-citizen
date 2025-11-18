@@ -1,6 +1,6 @@
-import java.util.Objects
-import com.github.jk1.license.render.*
-import com.github.jk1.license.filter.*
+import com.github.jk1.license.filter.SpdxLicenseBundleNormalizer
+import com.github.jk1.license.render.XmlReportRenderer
+import java.util.*
 
 plugins {
   java
@@ -233,7 +233,8 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("ope
   apiPackage.set("it.gov.pagopa.pu.debtpositions.controller.generated")
   modelPackage.set("it.gov.pagopa.pu.debtpositions.dto.generated")
   typeMappings.set(mapOf(
-    "LocalDateTime" to "java.time.LocalDateTime"
+    "LocalDateTime" to "java.time.LocalDateTime",
+    "string+binary" to "Resource"
   ))
   configOptions.set(mapOf(
     "swaggerAnnotations" to "false",
@@ -250,6 +251,9 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("ope
     "generatedConstructorWithRequiredArgs" to "true",
     "enumPropertyNaming" to "original",
     "additionalModelTypeAnnotations" to "@lombok.experimental.SuperBuilder(toBuilder = true)"
+  ))
+  importMappings.set(mapOf(
+    "Resource" to "org.springframework.core.io.Resource"
   ))
   library.set("resttemplate")
 }
