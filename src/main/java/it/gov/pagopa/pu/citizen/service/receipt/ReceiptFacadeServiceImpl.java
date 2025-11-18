@@ -73,7 +73,7 @@ public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
   public FileResourceDTO getReceiptPdf(String debtorFiscalCode, Long brokerId, Long organizationId, Long receiptId, String accessToken) {
     organizationRetrieverService.validateOrganization(organizationId,brokerId,accessToken);
     if(!receiptService.isReceiptDebtorValid(receiptId, organizationId, debtorFiscalCode, accessToken)){
-      throw new AuthorizationDeniedException("User cannot access Receipt having id "+ receiptId);
+      return null;
     }
     return receiptService.getReceiptPdf(receiptId, organizationId, accessToken);
   }
