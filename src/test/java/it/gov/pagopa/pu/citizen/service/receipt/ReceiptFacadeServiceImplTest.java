@@ -183,7 +183,7 @@ class ReceiptFacadeServiceImplTest {
   }
 
   @Test
-  void givenInvalidReceiptDebtorWhenGetReceiptPdfThenAuthorizationDeniedException() {
+  void givenInvalidReceiptDebtorWhenGetReceiptPdfThenNull() {
     UserInfo loggedUser = new UserInfo();
     loggedUser.setMappedExternalUserId("mappedExternalUserId");
     String accessToken = "accessToken";
@@ -196,6 +196,8 @@ class ReceiptFacadeServiceImplTest {
     Mockito.when(receiptServiceMock.isReceiptDebtorValid(receiptId,organizationId,debtorFiscalCode,accessToken))
       .thenReturn(false);
 
-    assertThrows(AuthorizationDeniedException.class,() -> receiptFacadeService.getReceiptPdf(debtorFiscalCode,brokerId,organizationId,receiptId,accessToken));
+    FileResourceDTO result = receiptFacadeService.getReceiptPdf(debtorFiscalCode,brokerId,organizationId,receiptId,accessToken);
+
+    assertNull(result);
   }
 }
