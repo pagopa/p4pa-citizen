@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.service.receipt;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.ReceiptService;
+import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.PagedDebtorReceiptsDTOMapper;
@@ -10,6 +11,7 @@ import it.gov.pagopa.pu.debtpositions.dto.generated.PagedModelReceiptNoPIIView;
 import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptDetailDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptOriginType;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
 
@@ -66,5 +69,14 @@ public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
     if(!fiscalCode.equals(receipt.getDebtor().getFiscalCode())){
       throw new AuthorizationDeniedException("User cannot access Receipt having id "+ receipt.getReceiptId());
     }
+  }
+
+  @Override
+  public FileResourceDTO getReceiptPdf(String debtorFiscalCode, Long brokerId, Long organizationId, Long receiptId, String accessToken) {
+    organizationRetrieverService.validateOrganization(organizationId,brokerId,accessToken);
+    if(!receiptService.isReceiptDebtorValid(receiptId, organizationId, debtorFiscalCode, accessToken)){
+      throw new AuthorizationDeniedException("User cannot access Receipt having id "+ receiptId);
+    }
+    return receiptService.getReceiptPdf(receiptId, organizationId, accessToken);
   }
 }

@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.controller;
 
 import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
+import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
 import it.gov.pagopa.pu.citizen.security.SecurityUtilsTest;
 import it.gov.pagopa.pu.citizen.service.receipt.ReceiptFacadeService;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -94,5 +97,43 @@ class ReceiptControllerTest {
     assertNotNull(result);
     assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
     assertNull(result.getBody());
+  }
+
+  @Test
+  void whenGetReceiptPdfThenOk() {
+    Long brokerId = 1L;
+    Long organizationId = 2L;
+    Long receiptId = 3L;
+    String fiscalCode = "fiscalCode";
+
+    String fileName = "fileName";
+    Resource resource = new ByteArrayResource("PDF-DATA".getBytes());
+    FileResourceDTO fileResourceDTO = new FileResourceDTO(resource, fileName);
+
+    Mockito.when(receiptFacadeServiceMock.getReceiptPdf(fiscalCode, brokerId, organizationId, receiptId, accessToken))
+      .thenReturn(fileResourceDTO);
+
+    ResponseEntity<Resource> response = receiptController.getReceiptPdf(fiscalCode, brokerId, organizationId, receiptId);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(resource, response.getBody());
+    assertEquals(fileName, response.getHeaders().getContentDisposition().getFilename());
+  }
+
+  @Test
+  void givenNullResourceWhenGetReceiptPdfThenNoContent() {
+    Long brokerId = 1L;
+    Long organizationId = 2L;
+    Long receiptId = 3L;
+    String fiscalCode = "fiscalCode";
+
+    Mockito.when(receiptFacadeServiceMock.getReceiptPdf(fiscalCode, brokerId, organizationId, receiptId, accessToken))
+      .thenReturn(null);
+
+    ResponseEntity<Resource> response = receiptController.getReceiptPdf(fiscalCode, brokerId, organizationId, receiptId);
+
+    assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    assertNull(response.getBody());
   }
 }

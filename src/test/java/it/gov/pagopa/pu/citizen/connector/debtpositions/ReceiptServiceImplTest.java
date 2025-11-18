@@ -1,7 +1,9 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptClient;
+import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiSearchClient;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiViewSearchClient;
+import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.PagedModelReceiptNoPIIView;
 import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptDetailDTO;
@@ -10,6 +12,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -31,12 +35,14 @@ class ReceiptServiceImplTest {
   private ReceiptNoPiiViewSearchClient receiptNoPiiViewSearchClientMock;
   @Mock
   private ReceiptClient clientMock;
+  @Mock
+  private ReceiptNoPiiSearchClient receiptNoPiiSearchClientMock;
 
   ReceiptService receiptService;
 
   @BeforeEach
   void setUp() {
-    receiptService = new ReceiptServiceImpl(receiptNoPiiViewSearchClientMock, clientMock);
+    receiptService = new ReceiptServiceImpl(receiptNoPiiViewSearchClientMock, clientMock, receiptNoPiiSearchClientMock);
   }
 
   @AfterEach
@@ -73,6 +79,52 @@ class ReceiptServiceImplTest {
       .thenReturn(expectedResult);
 
     ReceiptDetailDTO result = receiptService.getReceiptDetail(receiptId, organizationId, accessToken);
+
+    assertSame(expectedResult, result);
+  }
+
+  @ParameterizedTest
+  @ValueSource(longs = {1L,2L})
+  void givenValidReceiptDebtorWhenIsReceiptDebtorValidThenTrue(Long receiptCount) {
+    String accessToken = "ACCESSTOKEN";
+    Long receiptId = 1L;
+    Long organizationId = 2L;
+    String debtorFiscalCode = "debtorFiscalCode";
+
+    when(receiptNoPiiSearchClientMock.validateReceiptDebtor(receiptId, organizationId, debtorFiscalCode, accessToken))
+      .thenReturn(receiptCount);
+
+    boolean result = receiptService.isReceiptDebtorValid(receiptId, organizationId, debtorFiscalCode, accessToken);
+
+    assertTrue(result);
+  }
+
+  @Test
+  void givenInvalidReceiptDebtorWhenIsReceiptDebtorValidThenFalse() {
+    String accessToken = "ACCESSTOKEN";
+    Long receiptId = 1L;
+    Long organizationId = 2L;
+    String debtorFiscalCode = "debtorFiscalCode";
+
+    when(receiptNoPiiSearchClientMock.validateReceiptDebtor(receiptId, organizationId, debtorFiscalCode, accessToken))
+      .thenReturn(0L);
+
+    boolean result = receiptService.isReceiptDebtorValid(receiptId, organizationId, debtorFiscalCode, accessToken);
+
+    assertFalse(result);
+  }
+
+  @Test
+  void whenGetReceiptPdfThenInvokeClient() {
+    String accessToken = "ACCESSTOKEN";
+    Long receiptId = 1L;
+    Long organizationId = 1L;
+    FileResourceDTO expectedResult = new FileResourceDTO();
+
+    when(clientMock.getReceiptPdf(receiptId, organizationId, accessToken))
+      .thenReturn(expectedResult);
+
+    FileResourceDTO result = receiptService.getReceiptPdf(receiptId, organizationId, accessToken);
 
     assertSame(expectedResult, result);
   }
