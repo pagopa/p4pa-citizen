@@ -79,7 +79,7 @@ class ReceiptClientTest {
   }
 
   @Test
-  void whenReceiptPdfThenOk() {
+  void whenReceiptPdfThenInvokeWithAccessToken() {
     Long receiptId = 123L;
     Long organizationId = 1L;
     String accessToken = "ACCESSTOKEN";
