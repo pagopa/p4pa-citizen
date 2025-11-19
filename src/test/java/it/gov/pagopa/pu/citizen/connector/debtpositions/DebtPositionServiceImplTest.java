@@ -1,9 +1,11 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionClient;
+import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionViewSearchClient;
+import it.gov.pagopa.pu.citizen.connector.debtpositions.client.InstallmentNoPiiSearchClient;
+import it.gov.pagopa.pu.citizen.connector.debtpositions.client.PaymentOptionSearchClient;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
-import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionOrigin;
+import it.gov.pagopa.pu.debtpositions.dto.generated.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.util.List;
@@ -21,6 +25,12 @@ class DebtPositionServiceImplTest {
 
   @Mock
   private DebtPositionClient debtPositionClientMock;
+  @Mock
+  private DebtPositionViewSearchClient debtPositionViewSearchClientMock;
+  @Mock
+  private PaymentOptionSearchClient paymentOptionSearchClientMock;
+  @Mock
+  private InstallmentNoPiiSearchClient installmentNoPiiSearchClientMock;
 
   private final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
@@ -28,7 +38,7 @@ class DebtPositionServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    debtPositionService = new DebtPositionServiceImpl(debtPositionClientMock);
+    debtPositionService = new DebtPositionServiceImpl(debtPositionClientMock, debtPositionViewSearchClientMock, paymentOptionSearchClientMock, installmentNoPiiSearchClientMock);
   }
 
   @AfterEach
@@ -112,4 +122,70 @@ class DebtPositionServiceImplTest {
     Assertions.assertNotNull(result);
     Assertions.assertSame(expectedResult, result);
   }
+
+  @Test
+  void whenGetPagedModelDebtPositionViewThenInvokeClient() {
+    // given
+    String accessToken = "ACCESS_TOKEN";
+    List<Long> organizationIds = List.of(1L, 2L);
+    String debtorFiscalCode = "RSSMRA80A01F205X";
+    Pageable pageable = PageRequest.of(0, 10);
+
+    PagedModelDebtPositionView expectedResult = podamFactory.manufacturePojo(PagedModelDebtPositionView.class);
+
+    Mockito.when(debtPositionViewSearchClientMock.getPagedModelDebtPositionView(
+      organizationIds, debtorFiscalCode, accessToken, pageable
+    )).thenReturn(expectedResult);
+
+    // when
+    PagedModelDebtPositionView result =
+      debtPositionService.getPagedModelDebtPositionView(organizationIds, debtorFiscalCode, accessToken, pageable);
+
+    // then
+    Assertions.assertNotNull(result);
+    Assertions.assertSame(expectedResult, result);
+  }
+
+  @Test
+  void whenGetPaymentOptionsThenInvokeClient() {
+    // given
+    String accessToken = "ACCESS_TOKEN";
+    Long debtPositionId = 100L;
+
+    List<PaymentOption> expectedResult = podamFactory.manufacturePojo(List.class, PaymentOption.class);
+
+    Mockito.when(paymentOptionSearchClientMock.getPaymentOptions(debtPositionId, accessToken))
+      .thenReturn(expectedResult);
+
+    // when
+    List<PaymentOption> result =
+      debtPositionService.getPaymentOptions(debtPositionId, accessToken);
+
+    // then
+    Assertions.assertNotNull(result);
+    Assertions.assertSame(expectedResult, result);
+  }
+
+  @Test
+  void whenGetInstallmentsThenInvokeClient() {
+    // given
+    String accessToken = "ACCESS_TOKEN";
+    Long debtPositionId = 100L;
+    String installmentStatuses = "PAID,UNPAID";
+
+    List<InstallmentNoPII> expectedResult = podamFactory.manufacturePojo(List.class, InstallmentNoPII.class);
+
+    Mockito.when(installmentNoPiiSearchClientMock.getInstallments(debtPositionId, installmentStatuses, accessToken))
+      .thenReturn(expectedResult);
+
+    // when
+    List<InstallmentNoPII> result =
+      debtPositionService.getInstallments(debtPositionId, installmentStatuses, accessToken);
+
+    // then
+    Assertions.assertNotNull(result);
+    Assertions.assertSame(expectedResult, result);
+  }
+
+
 }
