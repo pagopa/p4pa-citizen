@@ -128,7 +128,7 @@ class DebtPositionServiceImplTest {
     // given
     String accessToken = "ACCESS_TOKEN";
     List<Long> organizationIds = List.of(1L, 2L);
-    String debtorFiscalCode = "RSSMRA80A01F205X";
+    String debtorFiscalCode = "debtorFiscalCode";
     Pageable pageable = PageRequest.of(0, 10);
 
     PagedModelDebtPositionView expectedResult = podamFactory.manufacturePojo(PagedModelDebtPositionView.class);
