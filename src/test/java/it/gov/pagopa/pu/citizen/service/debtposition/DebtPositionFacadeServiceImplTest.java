@@ -6,12 +6,15 @@ import it.gov.pagopa.pu.citizen.connector.pagopapayments.PrintPaymentNoticeServi
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorDebtPositionDTO;
 import it.gov.pagopa.pu.citizen.exception.ConflictException;
 import it.gov.pagopa.pu.citizen.exception.InvalidParamException;
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionDTOMapper;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionResponseDTOMapper;
+import it.gov.pagopa.pu.citizen.mapper.PagedDebtorDebtPositionMapper;
 import it.gov.pagopa.pu.citizen.service.ZipFileService;
+import it.gov.pagopa.pu.citizen.service.organization.BrokerOrganizationsRetrieverService;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.*;
@@ -27,10 +30,14 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import uk.co.jemos.podam.api.PodamFactory;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,6 +56,10 @@ class DebtPositionFacadeServiceImplTest {
   private ZipFileService zipFileServiceMock;
   @Mock
   private OrganizationRetrieverService organizationRetrieverServiceMock;
+  @Mock
+  private BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverServiceMock;
+  @Mock
+  private PagedDebtorDebtPositionMapper pagedDebtorDebtPositionMapperMock;
 
   private DebtPositionFacadeService debtPositionFacadeService;
 
@@ -59,7 +70,7 @@ class DebtPositionFacadeServiceImplTest {
   @BeforeEach
   void setUp() {
     debtPositionFacadeService = new DebtPositionFacadeServiceImpl(debtPositionServiceMock, debtPositionDTOMapperMock, 1,
-        debtPositionResponseDTOMapperMock, printPaymentNoticeServiceMock, zipFileServiceMock, organizationRetrieverServiceMock);
+        debtPositionResponseDTOMapperMock, printPaymentNoticeServiceMock, zipFileServiceMock, organizationRetrieverServiceMock, brokerOrganizationsRetrieverServiceMock, pagedDebtorDebtPositionMapperMock);
   }
 
   @AfterEach
@@ -522,4 +533,73 @@ class DebtPositionFacadeServiceImplTest {
 
     Mockito.verifyNoInteractions(debtPositionServiceMock, printPaymentNoticeServiceMock);
   }
+
+  @Test
+  void givenValidParamsWhenGetPagedDebtPositionsThenReturnDTO() {
+    // given
+    Long brokerId = 1L;
+    String xFiscalCode = "debtorFiscalCode";
+    String orgName = "TestOrg";
+    String orgFiscalCode = "12345678901";
+
+    Pageable pageable = Mockito.mock(Pageable.class);
+
+    List<Organization> organizations = podamFactory.manufacturePojo(List.class, Organization.class);
+    Map<Long, Organization> orgMap = organizations.stream()
+      .collect(Collectors.toMap(Organization::getOrganizationId, o -> o));
+
+    PagedModelDebtPositionView pagedModelDebtPositionView =
+      podamFactory.manufacturePojo(PagedModelDebtPositionView.class);
+
+    PagedDebtorDebtPositionDTO expectedResult =
+      podamFactory.manufacturePojo(PagedDebtorDebtPositionDTO.class);
+
+    Mockito.when(brokerOrganizationsRetrieverServiceMock
+        .getAllOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(brokerId, orgName, orgFiscalCode, accessToken))
+      .thenReturn(organizations);
+
+    Mockito.when(debtPositionServiceMock.getPagedModelDebtPositionView(
+        new ArrayList<>(orgMap.keySet()), xFiscalCode, accessToken, pageable))
+      .thenReturn(pagedModelDebtPositionView);
+
+    if (pagedModelDebtPositionView != null
+      && pagedModelDebtPositionView.getEmbedded() != null
+      && pagedModelDebtPositionView.getEmbedded().getDebtPositionViews() != null) {
+
+      for (DebtPositionView dp : pagedModelDebtPositionView.getEmbedded().getDebtPositionViews()) {
+        List<PaymentOption> paymentOpts = podamFactory.manufacturePojo(List.class, PaymentOption.class);
+        List<InstallmentNoPII> inst = podamFactory.manufacturePojo(List.class, InstallmentNoPII.class);
+
+        Mockito.when(debtPositionServiceMock.getPaymentOptions(dp.getDebtPositionId(), accessToken))
+          .thenReturn(paymentOpts);
+        Mockito.when(debtPositionServiceMock.getInstallments(dp.getDebtPositionId(),
+            InstallmentStatus.UNPAID.getValue(), accessToken))
+          .thenReturn(inst);
+      }
+    }
+
+    Mockito.when(pagedDebtorDebtPositionMapperMock.map(
+        Mockito.eq(orgMap),
+        Mockito.eq(pagedModelDebtPositionView),
+        Mockito.anyMap(),
+        Mockito.anyMap()))
+      .thenReturn(expectedResult);
+
+    // when
+    PagedDebtorDebtPositionDTO result = debtPositionFacadeService.getPagedDebtPositions(
+      xFiscalCode, brokerId, orgName, orgFiscalCode, pageable, accessToken
+    );
+
+    // then
+    assertNotNull(result);
+    assertEquals(expectedResult, result);
+
+    Mockito.verify(brokerOrganizationsRetrieverServiceMock)
+      .getAllOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(brokerId, orgName, orgFiscalCode, accessToken);
+    Mockito.verify(debtPositionServiceMock)
+      .getPagedModelDebtPositionView(new ArrayList<>(orgMap.keySet()), xFiscalCode, accessToken, pageable);
+    Mockito.verify(pagedDebtorDebtPositionMapperMock)
+      .map(Mockito.eq(orgMap), Mockito.eq(pagedModelDebtPositionView), Mockito.anyMap(), Mockito.anyMap());
+  }
+
 }
