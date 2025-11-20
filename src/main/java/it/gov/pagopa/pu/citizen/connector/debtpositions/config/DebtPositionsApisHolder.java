@@ -20,6 +20,9 @@ public class DebtPositionsApisHolder {
   private final ReceiptNoPiiViewSearchControllerApi receiptNoPiiViewSearchControllerApi;
   private final ReceiptApi receiptApi;
   private final ReceiptNoPiiSearchControllerApi receiptNoPiiSearchControllerApi;
+  private final DebtPositionViewSearchControllerApi debtPositionViewSearchControllerApi;
+  private final PaymentOptionSearchControllerApi paymentOptionSearchControllerApi;
+  private final InstallmentNoPiiSearchControllerApi installmentNoPiiSearchControllerApi;
 
   private final ThreadLocal<String> bearerTokenHolder = new ThreadLocal<>();
 
@@ -45,6 +48,9 @@ public class DebtPositionsApisHolder {
     this.receiptNoPiiViewSearchControllerApi = new ReceiptNoPiiViewSearchControllerApi(apiClient);
     this.receiptApi = new ReceiptApi(apiClient);
     this.receiptNoPiiSearchControllerApi = new ReceiptNoPiiSearchControllerApi(apiClient);
+    this.debtPositionViewSearchControllerApi = new DebtPositionViewSearchControllerApi(apiClient);
+    this.paymentOptionSearchControllerApi = new PaymentOptionSearchControllerApi(apiClient);
+    this.installmentNoPiiSearchControllerApi = new InstallmentNoPiiSearchControllerApi(apiClient);
   }
 
   @PreDestroy
@@ -102,6 +108,27 @@ public class DebtPositionsApisHolder {
    */
   public ReceiptNoPiiSearchControllerApi getReceiptNoPiiSearchControllerApi(String accessToken) {
     return getApi(accessToken, receiptNoPiiSearchControllerApi);
+  }
+
+  /**
+   * It will return a {@link DebtPositionViewSearchControllerApi} instrumented with the provided accessToken. Use null if auth is not required
+   */
+  public DebtPositionViewSearchControllerApi getDebtPositionViewSearchControllerApi(String accessToken) {
+    return getApi(accessToken, debtPositionViewSearchControllerApi);
+  }
+
+  /**
+   * It will return a {@link PaymentOptionSearchControllerApi} instrumented with the provided accessToken. Use null if auth is not required
+   */
+  public PaymentOptionSearchControllerApi getPaymentOptionSearchControllerApi (String accessToken) {
+    return getApi(accessToken, paymentOptionSearchControllerApi);
+  }
+
+  /**
+   * It will return a {@link InstallmentNoPiiSearchControllerApi} instrumented with the provided accessToken. Use null if auth is not required
+   */
+  public InstallmentNoPiiSearchControllerApi getInstallmentNoPiiSearchControllerApi (String accessToken) {
+    return getApi(accessToken, installmentNoPiiSearchControllerApi);
   }
 
   private <T extends BaseApi> T getApi(String accessToken, T api) {
