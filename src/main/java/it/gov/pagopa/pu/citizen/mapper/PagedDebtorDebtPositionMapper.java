@@ -33,7 +33,7 @@ public interface PagedDebtorDebtPositionMapper {
   @Mapping(target = "paymentOptions", expression = "java(mapPaymentOptions(paymentOptions, installments))")
   DebtorDebtPositionDTO map(Organization organization, DebtPositionView debtPositionView, List<PaymentOption> paymentOptions, List<InstallmentNoPII> installments);
 
-  @Mapping(target = "dueDate", expression = "java(calculateOffsetDateTime(List.of(paymentOption), installments))")
+  @Mapping(target = "dueDate", expression = "java(calculateDueDate(List.of(paymentOption), installments))")
   @Mapping(target = "totalAmountCents", expression = "java(calculateTotalAmountCents(List.of(paymentOption), installments))")
   DebtorPaymentOptionDTO map(PaymentOption paymentOption, List<InstallmentNoPII> installments);
 
@@ -93,7 +93,7 @@ public interface PagedDebtorDebtPositionMapper {
       .toList();
   }
 
-  default LocalDate calculateDate(List<PaymentOption> paymentOptions, List<InstallmentNoPII> installments) {
+  default LocalDate calculateDueDate(List<PaymentOption> paymentOptions, List<InstallmentNoPII> installments) {
 
     if (installments == null || installments.isEmpty()) {
       return null;
