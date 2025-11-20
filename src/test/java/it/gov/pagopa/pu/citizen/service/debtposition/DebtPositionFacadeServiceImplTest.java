@@ -602,4 +602,21 @@ class DebtPositionFacadeServiceImplTest {
       .map(Mockito.eq(orgMap), Mockito.eq(pagedModelDebtPositionView), Mockito.anyMap(), Mockito.anyMap());
   }
 
+  @Test
+  void givenNullOrganizationsWhenGetPagedDebtPositionsThenThrowException() {
+    // given
+    Long brokerId = 1L;
+    String xFiscalCode = "debtorFiscalCode";
+
+    Pageable pageable = Mockito.mock(Pageable.class);
+
+    List<Organization> organizations = new ArrayList<>();
+
+    Mockito.when(brokerOrganizationsRetrieverServiceMock
+        .getAllOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(brokerId, null, null, accessToken))
+      .thenReturn(organizations);
+
+    assertThrows(ResourceNotFoundException.class, () -> debtPositionFacadeService.getPagedDebtPositions(xFiscalCode,brokerId, null, null, pageable, accessToken));
+  }
+
 }

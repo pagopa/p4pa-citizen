@@ -79,7 +79,7 @@ public class DebtPositionController implements DebtPositionApi {
 
   @Override
   public ResponseEntity<PagedDebtorDebtPositionDTO> getPagedDebtPositions(String xFiscalCode, Long brokerId, String orgName, String orgFiscalCode, Pageable pageable) {
-    log.info("User requested getPagedDebtPositions having brokerId {}, orgName {} and orgFiscalCode {}", brokerId, orgName, orgFiscalCode);
+    log.info("User requested getPagedDebtPositions having brokerId {}", brokerId);
     return ResponseEntity.ok(debtPositionFacadeService.getPagedDebtPositions(xFiscalCode, brokerId, orgName, orgFiscalCode, pageable, SecurityUtils.getAccessToken()));
   }
 }

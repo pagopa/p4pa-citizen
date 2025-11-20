@@ -149,6 +149,13 @@ class PagedDebtorDebtPositionMapperTest {
   }
 
   @Test
+  void givenNullPaymentOptionWhenCalculateTotalAmountThenReturnNull() {
+    Long result = mapper.calculateTotalAmountCents(null, null);
+
+    assertNull(result);
+  }
+
+  @Test
   void givenMultiplePaymentOptionsWithDifferentAmountsThenReturnNull() {
     PaymentOption p1 = new PaymentOption();
     PaymentOption p2 = new PaymentOption();
@@ -168,6 +175,13 @@ class PagedDebtorDebtPositionMapperTest {
     i2.setDueDate(LocalDate.parse("2025-01-05"));
 
     LocalDate result = mapper.calculateDueDate(List.of(), List.of(i1, i2));
+
+    assertEquals(LocalDate.parse("2025-01-05"), result);
+  }
+
+  @Test
+  void givenNullInstallmentsWhenCalculateDueDateThenReturnNull() {
+    LocalDate result = mapper.calculateDueDate(List.of(), null);
 
     assertEquals(LocalDate.parse("2025-01-05"), result);
   }
