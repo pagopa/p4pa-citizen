@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.connector.organization.client;
 
 import it.gov.pagopa.pu.citizen.connector.organization.config.OrganizationApisHolder;
+import it.gov.pagopa.pu.citizen.utils.PageUtils;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.organization.controller.generated.OrganizationSearchControllerApi;
 import it.gov.pagopa.pu.organization.dto.generated.OrganizationStatus;
@@ -14,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.util.ArrayList;
@@ -78,4 +80,41 @@ class OrganizationSearchClientTest {
     Assertions.assertNotNull(result);
     Assertions.assertEquals(expectedResult, result);
   }
+
+  @Test
+  void whenGetOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCodeThenInvokeClient() {
+    // given
+    String accessToken = "ACCESS_TOKEN";
+    Long brokerId = 10L;
+    String orgName = "Test Organization";
+    String orgFiscalCode = "12345678901";
+    Pageable pageable = PageRequest.of(0, 20);
+
+    PagedModelOrganization expectedResult = podamFactory.manufacturePojo(PagedModelOrganization.class);
+
+    Mockito.when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
+      .thenReturn(organizationSearchControllerApiMock);
+
+    Mockito.when(organizationSearchControllerApiMock
+        .crudOrganizationsFindByBrokerIdAndOrgNameAndOrgFiscalCode(
+          String.valueOf(brokerId),
+          orgName,
+          orgFiscalCode,
+          PageUtils.getPageNumber(pageable),
+          PageUtils.getPageSize(pageable),
+          PageUtils.getSortList(pageable)
+        ))
+      .thenReturn(expectedResult);
+
+    // when
+    PagedModelOrganization result =
+      organizationSearchClient.getOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(
+        brokerId, orgName, orgFiscalCode, pageable, accessToken
+      );
+
+    // then
+    Assertions.assertNotNull(result);
+    Assertions.assertSame(expectedResult, result);
+  }
+
 }

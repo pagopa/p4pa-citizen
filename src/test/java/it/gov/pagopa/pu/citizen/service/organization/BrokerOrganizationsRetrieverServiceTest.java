@@ -207,4 +207,62 @@ class BrokerOrganizationsRetrieverServiceTest {
       .getOrganizationsListByBrokerIdAndOrgName(eq(brokerId),eq(orgName), any(Pageable.class), eq(accessToken));
   }
 
+  @Test
+  void givenMultiplePagesWhenGetAllOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCodeThenReturnAllOrganizations() {
+    // given
+    Long brokerId = 1L;
+    String accessToken = "ACCESS_TOKEN";
+    String orgName = "orgName";
+    String orgFiscalCode = "orgFiscalCode";
+
+    // Page 0
+    Organization org1 = podamFactory.manufacturePojo(Organization.class);
+    Organization org2 = podamFactory.manufacturePojo(Organization.class);
+    List<Organization> page0Orgs = new ArrayList<>();
+    page0Orgs.add(org1);
+    page0Orgs.add(org2);
+
+    PagedModelOrganization page0 = new PagedModelOrganization();
+    page0.setPage(new PageMetadata(1L, 2L, 2L, 0L));
+    page0.setEmbedded(new PagedModelOrganizationEmbedded(page0Orgs));
+
+    Organization org3 = podamFactory.manufacturePojo(Organization.class);
+    List<Organization> page1Orgs = new ArrayList<>();
+    page1Orgs.add(org3);
+
+    PagedModelOrganization page1 = new PagedModelOrganization();
+    page1.setPage(new PageMetadata(1L, 2L, 2L, 1L));
+    page1.setEmbedded(new PagedModelOrganizationEmbedded(page1Orgs));
+
+    Mockito.when(organizationServiceMock.getOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(
+      eq(brokerId),
+      eq(orgName),
+      eq(orgFiscalCode),
+      any(Pageable.class),
+      eq(accessToken)
+    )).thenReturn(page0, page1);
+
+    // when
+    List<Organization> result = brokerOrganizationsRetrieverService
+      .getAllOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(
+        brokerId, orgName, orgFiscalCode, accessToken
+      );
+
+    // then
+    assertThat(result)
+      .hasSize(3)
+      .containsExactly(org1, org2, org3);
+
+    verify(organizationServiceMock, Mockito.times(2))
+      .getOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(
+        eq(brokerId),
+        eq(orgName),
+        eq(orgFiscalCode),
+        any(Pageable.class),
+        eq(accessToken)
+      );
+
+    verifyNoMoreInteractions(organizationServiceMock);
+  }
+
 }

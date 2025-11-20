@@ -7,7 +7,7 @@ servers:
   - url: "http://localhost:8080"
     description: Generated server url
 paths:
-  /brokers/{brokerId}/organizations/spontaneous:
+  /brokers/{brokerId}/spontaneous/organizations:
     get:
       tags:
         - Organization
@@ -35,13 +35,19 @@ paths:
           description: Forbidden - Access denied
         '500':
           description: Internal Server Error
-  /spontaneous/organizations/{organizationId}/debt-position-type-orgs:
+  /brokers/{brokerId}/spontaneous/organizations/{organizationId}/debt-position-type-orgs:
     get:
       tags:
         - DebtPositionTypeOrg
       summary: "Retrieves the list of debtPositionTypeOrg with flagSpontaneous and flagActive set to true"
       operationId: getDebtPositionTypeOrgsWithSpontaneous
       parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
         - name: organizationId
           in: path
           required: true
@@ -363,6 +369,56 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorDTO'
+  /brokers/{brokerId}/organizations/{organizationId}/receipts/{receiptId}/pdf:
+    get:
+      tags:
+        - Receipt
+      operationId: getReceiptPdf
+      parameters:
+        - name: X-fiscal-code
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: receiptId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The unique identifier of the receipt
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '204':
+          description: No Content
+        "400":
+          description: Invalid request
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        "500":
+          description: Internal server error
 security:
   - BearerAuth: [ ]
 components:
@@ -623,4 +679,6 @@ components:
             - FORBIDDEN
             - CONFLICT
         message:
+          type: string
+        traceId:
           type: string

@@ -107,9 +107,53 @@ class DebtPositionsApisHolderTest extends BaseApiHolderTest {
     assertAuthenticationShouldBeSetInThreadSafeMode(
       accessToken -> apisHolder.getReceiptApi(accessToken)
         .getReceiptDetail(
-          1L,1L,null),
+          1L,1L,null, null),
       new ParameterizedTypeReference<>() {
       },
       apisHolder::unload);
   }
+
+  @Test
+  void whenGetReceiptNoPiiSearchControllerApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
+    assertAuthenticationShouldBeSetInThreadSafeMode(
+      accessToken -> apisHolder.getReceiptNoPiiSearchControllerApi(accessToken)
+        .crudReceiptsValidateReceiptDebtor(
+          1L,2L,"debtorFiscalCode"),
+      new ParameterizedTypeReference<>() {
+      },
+      apisHolder::unload);
+  }
+
+  @Test
+  void whenGetDebtPositionViewSearchControllerApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
+    assertAuthenticationShouldBeSetInThreadSafeMode(
+      accessToken -> apisHolder.getDebtPositionViewSearchControllerApi(accessToken)
+        .crudDebtPositionsViewFindPagedPrimaryDebtPositionViewByFilters(
+          List.of(1L), "debtorFiscalCode", 0, 10, null
+        ),
+      new ParameterizedTypeReference<>() {},
+      apisHolder::unload
+    );
+  }
+
+  @Test
+  void whenGetPaymentOptionSearchControllerApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
+    assertAuthenticationShouldBeSetInThreadSafeMode(
+      accessToken -> apisHolder.getPaymentOptionSearchControllerApi(accessToken)
+        .crudPaymentOptionsFindPayablePaymentOptionsByDebtPositionId(100L),
+      new ParameterizedTypeReference<>() {},
+      apisHolder::unload
+    );
+  }
+
+  @Test
+  void whenGetInstallmentNoPiiSearchControllerApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
+    assertAuthenticationShouldBeSetInThreadSafeMode(
+      accessToken -> apisHolder.getInstallmentNoPiiSearchControllerApi(accessToken)
+        .crudInstallmentsFindByDebtPositionIdAndStatuses("100", "PAID"),
+      new ParameterizedTypeReference<>() {},
+      apisHolder::unload
+    );
+  }
+
 }

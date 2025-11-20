@@ -55,16 +55,18 @@ class DebtPositionTypeOrgRetrieverServiceImplTest {
   @Test
   void givenOrganizationIdWhenGetDebtPositionTypeOrgsWithSpontaneousThenReturnDebtPositionTypeOrgsWithSpontaneousDTOList() {
     //given
+    Long brokerId = 1L;
     Long organizationId = 3L;
     String accessToken = "accessToken";
 
+    Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     List<DebtPositionTypeOrg> debtPostionTypeOrgList = podamFactory.manufacturePojo(List.class, DebtPositionTypeOrg.class);
     Mockito.when(debtPositionTypeOrgServiceMock.getDebtPositionTypeOrgsFindActiveDebtPositionTypeOrg(organizationId, accessToken)).thenReturn(debtPostionTypeOrgList);
 
     List<DebtPositionTypeOrgsWithSpontaneousDTO> expectedResult = podamFactory.manufacturePojo(List.class, DebtPositionTypeOrgsWithSpontaneousDTO.class);
     Mockito.when(debtPositionTypeOrgsListWithSpontaneousDTOMapperMock.map(debtPostionTypeOrgList)).thenReturn(expectedResult);
     //when
-    List<DebtPositionTypeOrgsWithSpontaneousDTO> result = debtPositionTypeOrgRetrieverService.getDebtPositionTypeOrgsWithSpontaneous(organizationId, accessToken);
+    List<DebtPositionTypeOrgsWithSpontaneousDTO> result = debtPositionTypeOrgRetrieverService.getDebtPositionTypeOrgsWithSpontaneous(brokerId, organizationId, accessToken);
     //then
     assertNotNull(result);
     assertEquals(expectedResult, result);

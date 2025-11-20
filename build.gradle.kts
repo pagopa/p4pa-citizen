@@ -1,4 +1,6 @@
-import java.util.Objects
+import com.github.jk1.license.filter.SpdxLicenseBundleNormalizer
+import com.github.jk1.license.render.XmlReportRenderer
+import java.util.*
 
 plugins {
   java
@@ -10,6 +12,7 @@ plugins {
   id("org.openapi.generator") version "7.15.0"
   id("com.gorylenko.gradle-git-properties") version "2.5.3"
   id("org.ajoberstar.grgit") version "5.3.2"
+  id("com.github.jk1.dependency-license-report") version "3.0.1"
 }
 
 group = "it.gov.pagopa.payhub"
@@ -26,6 +29,18 @@ configurations {
   compileOnly {
     extendsFrom(configurations.annotationProcessor.get())
   }
+  compileClasspath {
+    resolutionStrategy.activateDependencyLocking()
+  }
+}
+
+licenseReport {
+  renderers = arrayOf(XmlReportRenderer("third-party-libs.xml", "Back-End Libraries"))
+  outputDir = "$projectDir/dependency-licenses"
+  filters = arrayOf(SpdxLicenseBundleNormalizer())
+}
+tasks.classes {
+  finalizedBy(tasks.generateLicenseReport)
 }
 
 repositories {
@@ -43,6 +58,7 @@ val jwksRsaVersion = "0.23.0"
 val bouncycastleVersion = "1.82"
 val nimbusVersion = "10.5"
 val mapStructVersion = "1.6.3"
+val commonsLang3Version = "3.19.0"
 
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter")
@@ -50,7 +66,10 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("org.springframework.boot:spring-boot-starter-security")
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocOpenApiVersion")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocOpenApiVersion") {
+    exclude(group = "org.apache.commons", module = "commons-lang3")
+  }
+  implementation("org.apache.commons:commons-lang3:${commonsLang3Version}")
   implementation("org.codehaus.janino:janino:$janinoVersion")
   implementation("io.micrometer:micrometer-tracing-bridge-otel:$micrometerVersion")
   implementation("io.micrometer:micrometer-registry-prometheus")
@@ -111,12 +130,6 @@ tasks {
     filesMatching("**/application.yml") {
       expand(projectInfo)
     }
-  }
-}
-
-configurations {
-  compileClasspath {
-    resolutionStrategy.activateDependencyLocking()
   }
 }
 
@@ -220,7 +233,8 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("ope
   apiPackage.set("it.gov.pagopa.pu.debtpositions.controller.generated")
   modelPackage.set("it.gov.pagopa.pu.debtpositions.dto.generated")
   typeMappings.set(mapOf(
-    "LocalDateTime" to "java.time.LocalDateTime"
+    "LocalDateTime" to "java.time.LocalDateTime",
+    "string+binary" to "Resource"
   ))
   configOptions.set(mapOf(
     "swaggerAnnotations" to "false",
@@ -237,6 +251,9 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("ope
     "generatedConstructorWithRequiredArgs" to "true",
     "enumPropertyNaming" to "original",
     "additionalModelTypeAnnotations" to "@lombok.experimental.SuperBuilder(toBuilder = true)"
+  ))
+  importMappings.set(mapOf(
+    "Resource" to "org.springframework.core.io.Resource"
   ))
   library.set("resttemplate")
 }

@@ -2,6 +2,7 @@ package it.gov.pagopa.pu.citizen.service.receipt;
 
 import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.ReceiptService;
+import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.PagedDebtorReceiptsDTOMapper;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import uk.co.jemos.podam.api.PodamFactory;
 
@@ -155,5 +157,47 @@ class ReceiptFacadeServiceImplTest {
     Mockito.when(receiptServiceMock.getReceiptDetail(receiptId,organizationId,accessToken)).thenReturn(expectedResult);
 
     assertThrows(AuthorizationDeniedException.class,() -> receiptFacadeService.getReceiptDetail(fiscalCode,brokerId,organizationId,receiptId, accessToken));
+  }
+
+  @Test
+  void whenGetReceiptPdfThenOk() {
+    UserInfo loggedUser = new UserInfo();
+    loggedUser.setMappedExternalUserId("mappedExternalUserId");
+    String accessToken = "accessToken";
+    Long brokerId = 1L;
+    Long organizationId = 2L;
+    Long receiptId = 3L;
+    String debtorFiscalCode = "debtorFiscalCode";
+    ByteArrayResource resource = new ByteArrayResource("PDF-DATA".getBytes());
+    FileResourceDTO expectedResult = new FileResourceDTO(resource, "filename");
+
+    Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
+    Mockito.when(receiptServiceMock.isReceiptDebtorValid(receiptId,organizationId,debtorFiscalCode,accessToken))
+      .thenReturn(true);
+    Mockito.when(receiptServiceMock.getReceiptPdf(receiptId,organizationId,accessToken)).thenReturn(expectedResult);
+
+    FileResourceDTO result = receiptFacadeService.getReceiptPdf(debtorFiscalCode,brokerId,organizationId,receiptId,accessToken);
+
+    assertNotNull(result);
+    assertEquals(expectedResult, result);
+  }
+
+  @Test
+  void givenInvalidReceiptDebtorWhenGetReceiptPdfThenNull() {
+    UserInfo loggedUser = new UserInfo();
+    loggedUser.setMappedExternalUserId("mappedExternalUserId");
+    String accessToken = "accessToken";
+    Long brokerId = 1L;
+    Long organizationId = 2L;
+    Long receiptId = 3L;
+    String debtorFiscalCode = "debtorFiscalCode";
+
+    Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
+    Mockito.when(receiptServiceMock.isReceiptDebtorValid(receiptId,organizationId,debtorFiscalCode,accessToken))
+      .thenReturn(false);
+
+    FileResourceDTO result = receiptFacadeService.getReceiptPdf(debtorFiscalCode,brokerId,organizationId,receiptId,accessToken);
+
+    assertNull(result);
   }
 }

@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.service.receipt;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.ReceiptService;
+import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.PagedDebtorReceiptsDTOMapper;
@@ -66,5 +67,14 @@ public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
     if(!fiscalCode.equals(receipt.getDebtor().getFiscalCode())){
       throw new AuthorizationDeniedException("User cannot access Receipt having id "+ receipt.getReceiptId());
     }
+  }
+
+  @Override
+  public FileResourceDTO getReceiptPdf(String debtorFiscalCode, Long brokerId, Long organizationId, Long receiptId, String accessToken) {
+    organizationRetrieverService.validateOrganization(organizationId,brokerId,accessToken);
+    if(!receiptService.isReceiptDebtorValid(receiptId, organizationId, debtorFiscalCode, accessToken)){
+      return null;
+    }
+    return receiptService.getReceiptPdf(receiptId, organizationId, accessToken);
   }
 }
