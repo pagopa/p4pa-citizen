@@ -183,7 +183,7 @@ class PagedDebtorDebtPositionMapperTest {
   void givenNullInstallmentsWhenCalculateDueDateThenReturnNull() {
     LocalDate result = mapper.calculateDueDate(List.of(), null);
 
-    assertEquals(LocalDate.parse("2025-01-05"), result);
+    assertNull(result);
   }
 
 }
