@@ -4,11 +4,13 @@ import it.gov.pagopa.pu.citizen.controller.generated.DebtPositionApi;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorDebtPositionDTO;
 import it.gov.pagopa.pu.citizen.security.SecurityUtils;
 import it.gov.pagopa.pu.citizen.service.debtposition.DebtPositionFacadeService;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -73,5 +75,11 @@ public class DebtPositionController implements DebtPositionApi {
     } else {
       return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+  }
+
+  @Override
+  public ResponseEntity<PagedDebtorDebtPositionDTO> getPagedDebtPositions(String xFiscalCode, Long brokerId, String orgName, String orgFiscalCode, Pageable pageable) {
+    log.info("User requested getPagedDebtPositions having brokerId {}, orgName {} and orgFiscalCode {}", brokerId, orgName, orgFiscalCode);
+    return ResponseEntity.ok(debtPositionFacadeService.getPagedDebtPositions(xFiscalCode, brokerId, orgName, orgFiscalCode, pageable, SecurityUtils.getAccessToken()));
   }
 }

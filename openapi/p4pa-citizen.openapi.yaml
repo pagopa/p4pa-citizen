@@ -283,10 +283,51 @@ paths:
           description: Not Found
         "500":
           description: Internal server error
+  /brokers/{brokerId}/debt-positions:
+    get:
+      tags:
+        - DebtPosition
+      operationId: getPagedDebtPositions
+      parameters:
+        - name: X-fiscal-code
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: orgName
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: orgFiscalCode
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedDebtorDebtPositionDTO"
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden - Access denied
+        '500':
+          description: Internal Server Error
+      x-spring-paginated: true
   /brokers/{brokerId}/receipts:
     get:
       tags:
-        - receipt
+        - Receipt
       operationId: getPagedDebtorReceipts
       parameters:
         - name: brokerId
@@ -664,6 +705,80 @@ components:
           type: string
         serviceType:
           type: string
+    PagedDebtorDebtPositionDTO:
+      type: object
+      required:
+        - content
+        - size
+        - totalElements
+        - totalPages
+        - number
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/DebtorDebtPositionDTO'
+        size:
+          type: integer
+          format: int64
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int64
+        number:
+          type: integer
+          format: int64
+    DebtorDebtPositionDTO:
+      type: object
+      required:
+        - debtPositionId
+        - debtPositionDescription
+        - debtPositionTypeOrgDescription
+        - organizationId
+        - orgFiscalCode
+        - orgName
+        - paymentOptions
+      properties:
+        debtPositionId:
+          type: integer
+          format: int64
+        debtPositionDescription:
+          type: string
+        debtPositionTypeOrgDescription:
+          type: string
+        organizationId:
+          type: integer
+          format: int64
+        orgFiscalCode:
+          type: string
+        orgName:
+          type: string
+        paymentOptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DebtorPaymentOptionDTO'
+    DebtorPaymentOptionDTO:
+      type: object
+      required:
+        - paymentOptionId
+        - paymentOptionType
+        - status
+      properties:
+        paymentOptionId:
+          type: integer
+          format: int64
+        paymentOptionType:
+          type: 'PaymentOptionType'
+        status:
+          type: 'PaymentOptionStatus'
+        totalAmountCents:
+          type: integer
+          format: int64
+        dueDate:
+          type: string
+          format: date
     ErrorDTO:
       type: object
       required:
