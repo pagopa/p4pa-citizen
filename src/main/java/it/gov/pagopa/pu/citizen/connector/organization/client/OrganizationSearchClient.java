@@ -38,14 +38,4 @@ public class OrganizationSearchClient {
       );
   }
 
-  public PagedModelOrganization getOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(Long brokerId, String orgName, String orgFiscalCode, Pageable pageable, String accessToken){
-    return organizationApisHolder.getOrganizationSearchControllerApi(accessToken).
-      crudOrganizationsFindByBrokerIdAndOrgNameAndOrgFiscalCode(
-        String.valueOf(brokerId),
-        orgName,
-        orgFiscalCode,
-        PageUtils.getPageNumber(pageable),
-        PageUtils.getPageSize(pageable),
-        PageUtils.getSortList(pageable));
-  }
 }

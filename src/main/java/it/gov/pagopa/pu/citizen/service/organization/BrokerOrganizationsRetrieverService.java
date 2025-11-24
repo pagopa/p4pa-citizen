@@ -38,11 +38,6 @@ public class BrokerOrganizationsRetrieverService {
     return getOrganizationList( page -> getPage(brokerId, orgName, accessToken, page), pageNumber);
   }
 
-  public List<Organization> getAllOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(Long brokerId, String orgName, String orgFiscalCode, String accessToken) {
-    AtomicInteger pageNumber = new AtomicInteger(0);
-    return getOrganizationList( page -> getPage(brokerId, orgName,orgFiscalCode, accessToken, page), pageNumber);
-  }
-
   private List<Organization> getOrganizationList(IntFunction<PagedModelOrganization> function, AtomicInteger pageNumber) {
     return Stream.iterate(
         function.apply(pageNumber.get()),
@@ -67,11 +62,6 @@ public class BrokerOrganizationsRetrieverService {
   private PagedModelOrganization getPage(Long brokerId, String orgName, String accessToken, int pageNumber) {
   Pageable pageable = PageRequest.of(pageNumber, pageMaxSize);
   return organizationService.getOrganizationsListByBrokerIdAndOrgName(brokerId, orgName, pageable, accessToken);
-  }
-
-  private PagedModelOrganization getPage(Long brokerId, String orgName, String orgFiscalCode, String accessToken, int pageNumber) {
-    Pageable pageable = PageRequest.of(pageNumber, pageMaxSize);
-    return organizationService.getOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(brokerId, orgName, orgFiscalCode, pageable, accessToken);
   }
 
 }
