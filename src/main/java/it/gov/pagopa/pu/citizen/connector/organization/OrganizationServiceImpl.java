@@ -38,4 +38,9 @@ public class OrganizationServiceImpl implements OrganizationService {
   public PagedModelOrganization getOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(Long brokerId, String orgName, String orgFiscalCode, Pageable pageable, String accessToken) {
     return organizationSearchClient.getOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(brokerId, orgName, orgFiscalCode, pageable, accessToken);
   }
+
+  @Override
+  public Organization getBrokerOrganization(Long brokerId, String accessToken) {
+    return organizationSearchClient.getBrokerOrganization(brokerId,accessToken);
+  }
 }
