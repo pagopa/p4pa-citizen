@@ -9,4 +9,6 @@ public interface OrganizationService {
   Organization getOrganizationByOrganizationId(Long organizationId, String accessToken);
   PagedModelOrganization getPagedOrganizationsByBrokerIdAndStatus(Long brokerId, OrganizationStatus status, Pageable pageable, String accessToken);
   PagedModelOrganization getOrganizationsListByBrokerIdAndOrgName(Long brokerId, String orgName, Pageable pageable, String accessToken);
+  PagedModelOrganization getOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(Long brokerId, String orgName, String orgFiscalCode, Pageable pageable, String accessToken);
+  Organization getBrokerOrganization(Long brokerId, String accessToken);
 }

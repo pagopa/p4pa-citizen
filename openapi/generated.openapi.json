@@ -13,8 +13,8 @@
     "BearerAuth" : [ ]
   } ],
   "tags" : [ {
-    "name" : "Receipt",
-    "description" : "the Receipt API"
+    "name" : "Broker",
+    "description" : "the Broker API"
   }, {
     "name" : "DebtPositionTypeOrg",
     "description" : "the DebtPositionTypeOrg API"
@@ -24,6 +24,9 @@
   }, {
     "name" : "DebtPosition",
     "description" : "the DebtPosition API"
+  }, {
+    "name" : "receipt",
+    "description" : "the receipt API"
   } ],
   "paths" : {
     "/brokers/{brokerId}/spontaneous/debt-positions" : {
@@ -107,6 +110,76 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/DebtPositionResponseDTO"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/brokers/{brokerId}" : {
+      "get" : {
+        "tags" : [ "Broker" ],
+        "operationId" : "getBrokerInfo",
+        "parameters" : [ {
+          "name" : "brokerId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BrokerInfoDTO"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - Missing or invalid token",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BrokerInfoDTO"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden - Access denied",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BrokerInfoDTO"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BrokerInfoDTO"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BrokerInfoDTO"
                 }
               }
             }
@@ -360,7 +433,7 @@
     },
     "/brokers/{brokerId}/receipts" : {
       "get" : {
-        "tags" : [ "Receipt" ],
+        "tags" : [ "receipt" ],
         "operationId" : "getPagedDebtorReceipts",
         "parameters" : [ {
           "name" : "brokerId",
@@ -465,7 +538,7 @@
     },
     "/brokers/{brokerId}/organizations/{organizationId}/receipts/{receiptId}" : {
       "get" : {
-        "tags" : [ "Receipt" ],
+        "tags" : [ "Receipt", "receipt" ],
         "summary" : "Retrieve a specific receipt",
         "operationId" : "getReceiptDetail",
         "parameters" : [ {
@@ -560,7 +633,7 @@
     },
     "/brokers/{brokerId}/organizations/{organizationId}/receipts/{receiptId}/pdf" : {
       "get" : {
-        "tags" : [ "Receipt" ],
+        "tags" : [ "Receipt", "receipt" ],
         "operationId" : "getReceiptPdf",
         "parameters" : [ {
           "name" : "X-fiscal-code",
@@ -792,118 +865,6 @@
                 "schema" : {
                   "type" : "string",
                   "format" : "binary"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "BearerAuth" : [ ]
-        } ]
-      }
-    },
-    "/brokers/{brokerId}/debt-positions" : {
-      "get" : {
-        "tags" : [ "DebtPosition" ],
-        "operationId" : "getPagedDebtPositions",
-        "parameters" : [ {
-          "name" : "X-fiscal-code",
-          "in" : "header",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "brokerId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "name" : "orgName",
-          "in" : "query",
-          "required" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "orgFiscalCode",
-          "in" : "query",
-          "required" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "page",
-          "in" : "query",
-          "description" : "Zero-based page index (0..N)",
-          "required" : false,
-          "schema" : {
-            "type" : "integer",
-            "default" : 0,
-            "minimum" : 0
-          }
-        }, {
-          "name" : "size",
-          "in" : "query",
-          "description" : "The size of the page to be returned",
-          "required" : false,
-          "schema" : {
-            "type" : "integer",
-            "default" : 20,
-            "minimum" : 1
-          }
-        }, {
-          "name" : "sort",
-          "in" : "query",
-          "description" : "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
-          "required" : false,
-          "schema" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "OK",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PagedDebtorDebtPositionDTO"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized - Missing or invalid token",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PagedDebtorDebtPositionDTO"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Forbidden - Access denied",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PagedDebtorDebtPositionDTO"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Internal Server Error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PagedDebtorDebtPositionDTO"
                 }
               }
             }
@@ -1256,6 +1217,22 @@
       "PersonEntityType" : {
         "type" : "string",
         "enum" : [ "F", "G" ]
+      },
+      "BrokerInfoDTO" : {
+        "type" : "object",
+        "properties" : {
+          "brokerName" : {
+            "type" : "string"
+          },
+          "brokerFiscalCode" : {
+            "type" : "string"
+          },
+          "brokerLogo" : {
+            "type" : "string",
+            "description" : "Base64 encoded logo of the organization"
+          }
+        },
+        "required" : [ "brokerFiscalCode", "brokerName" ]
       },
       "OrganizationsWithSpontaneousDTO" : {
         "type" : "object",
@@ -1722,98 +1699,6 @@
         },
         "required" : [ "code", "message" ]
       },
-      "DebtorDebtPositionDTO" : {
-        "type" : "object",
-        "properties" : {
-          "debtPositionId" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "debtPositionDescription" : {
-            "type" : "string"
-          },
-          "debtPositionTypeOrgDescription" : {
-            "type" : "string"
-          },
-          "organizationId" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "orgFiscalCode" : {
-            "type" : "string"
-          },
-          "orgName" : {
-            "type" : "string"
-          },
-          "paymentOptions" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/DebtorPaymentOptionDTO"
-            }
-          }
-        },
-        "required" : [ "debtPositionDescription", "debtPositionId", "debtPositionTypeOrgDescription", "orgFiscalCode", "orgName", "organizationId", "paymentOptions" ]
-      },
-      "DebtorPaymentOptionDTO" : {
-        "type" : "object",
-        "properties" : {
-          "paymentOptionId" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "paymentOptionType" : {
-            "$ref" : "#/components/schemas/PaymentOptionType"
-          },
-          "status" : {
-            "$ref" : "#/components/schemas/PaymentOptionStatus"
-          },
-          "totalAmountCents" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "dueDate" : {
-            "type" : "string",
-            "format" : "date"
-          }
-        },
-        "required" : [ "paymentOptionId", "paymentOptionType", "status" ]
-      },
-      "PagedDebtorDebtPositionDTO" : {
-        "type" : "object",
-        "properties" : {
-          "content" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/DebtorDebtPositionDTO"
-            }
-          },
-          "size" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "totalElements" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "totalPages" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "number" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        },
-        "required" : [ "content", "number", "size", "totalElements", "totalPages" ]
-      },
-      "PaymentOptionStatus" : {
-        "type" : "string",
-        "enum" : [ "TO_SYNC", "REPORTED", "PAID", "PARTIALLY_PAID", "CANCELLED", "INVALID", "EXPIRED", "UNPAID", "UNPAYABLE", "DRAFT" ]
-      },
-      "PaymentOptionType" : {
-        "type" : "string",
-        "enum" : [ "SINGLE_INSTALLMENT", "INSTALLMENTS", "DOWN_PAYMENT", "REDUCED_SINGLE_INSTALLMENT" ]
-      },
       "Action" : {
         "type" : "string",
         "enum" : [ "I", "M", "A" ]
@@ -2071,6 +1956,10 @@
           }
         },
         "required" : [ "installments", "paymentOptionType", "totalAmountCents" ]
+      },
+      "PaymentOptionStatus" : {
+        "type" : "string",
+        "enum" : [ "TO_SYNC", "REPORTED", "PAID", "PARTIALLY_PAID", "CANCELLED", "INVALID", "EXPIRED", "UNPAID", "UNPAYABLE", "DRAFT" ]
       },
       "PaymentOptionTypeEnum" : {
         "type" : "string",

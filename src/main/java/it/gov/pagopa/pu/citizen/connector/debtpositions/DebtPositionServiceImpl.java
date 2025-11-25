@@ -40,4 +40,5 @@ public class DebtPositionServiceImpl implements DebtPositionService{
   public List<DebtPositionDTO> getDebtPositionsByOrganizationIdAndIuv(Long organizationId, String iuv, List<DebtPositionOrigin> debtPositionOrigins, String accessToken) {
     return debtPositionClient.getDebtPositionsByOrganizationIdAndIuv(organizationId, iuv, debtPositionOrigins, accessToken);
   }
+
 }

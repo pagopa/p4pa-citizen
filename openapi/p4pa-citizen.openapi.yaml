@@ -7,6 +7,33 @@ servers:
   - url: "http://localhost:8080"
     description: Generated server url
 paths:
+  /brokers/{brokerId}:
+    get:
+      tags:
+        - Broker
+      operationId: getBrokerInfo
+      parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BrokerInfoDTO"
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden - Access denied
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /brokers/{brokerId}/spontaneous/organizations:
     get:
       tags:
@@ -797,3 +824,17 @@ components:
           type: string
         traceId:
           type: string
+    BrokerInfoDTO:
+      type: object
+      required:
+        - brokerName
+        - brokerFiscalCode
+      properties:
+        brokerName:
+          type: string
+        brokerFiscalCode:
+          type: string
+        brokerLogo:
+          type: string
+          format: base64
+          description: Base64 encoded logo of the organization

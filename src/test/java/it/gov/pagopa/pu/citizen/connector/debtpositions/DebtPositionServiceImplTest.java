@@ -112,4 +112,5 @@ class DebtPositionServiceImplTest {
     Assertions.assertNotNull(result);
     Assertions.assertSame(expectedResult, result);
   }
+
 }

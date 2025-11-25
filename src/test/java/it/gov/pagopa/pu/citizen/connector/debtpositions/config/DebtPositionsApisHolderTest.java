@@ -123,4 +123,5 @@ class DebtPositionsApisHolderTest extends BaseApiHolderTest {
       },
       apisHolder::unload);
   }
+
 }

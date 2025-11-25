@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -90,5 +91,44 @@ class OrganizationServiceImplTest {
     //then
     Assertions.assertNotNull(result);
     Assertions.assertEquals(expectedResult, result);
+  }
+
+  @Test
+  void whenGetOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCodeThenInvokeClient() {
+    // given
+    String accessToken = "ACCESS_TOKEN";
+    Long brokerId = 10L;
+    String orgName = "Test Organization";
+    String orgFiscalCode = "12345678901";
+    Pageable pageable = PageRequest.of(0, 20);
+
+    PagedModelOrganization expectedResult = podamFactory.manufacturePojo(PagedModelOrganization.class);
+
+    Mockito.when(organizationSearchClientMock.getOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(
+      brokerId, orgName, orgFiscalCode, pageable, accessToken
+    )).thenReturn(expectedResult);
+
+    // when
+    PagedModelOrganization result = organizationService.getOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(
+      brokerId, orgName, orgFiscalCode, pageable, accessToken
+    );
+
+    // then
+    Assertions.assertNotNull(result);
+    Assertions.assertSame(expectedResult, result);
+  }
+
+  @Test
+  void whenGetBrokerOrganizationThenInvokeClient() {
+    Organization expectedResult = new Organization();
+    Long brokerId = 1L;
+    String accessToken = "accessToken";
+
+    when(organizationSearchClientMock.getBrokerOrganization(Mockito.same(brokerId), Mockito.same(accessToken)))
+      .thenReturn(expectedResult);
+
+    Organization result = organizationService.getBrokerOrganization(brokerId, accessToken);
+
+    assertSame(expectedResult, result);
   }
 }
