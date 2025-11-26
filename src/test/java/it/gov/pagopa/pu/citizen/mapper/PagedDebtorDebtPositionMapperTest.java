@@ -1,190 +1,187 @@
 package it.gov.pagopa.pu.citizen.mapper;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import it.gov.pagopa.pu.citizen.dto.generated.DebtorDebtPositionDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorPaymentOptionDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorDebtPositionDTO;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
-import it.gov.pagopa.pu.debtpositions.dto.generated.*;
+import it.gov.pagopa.pu.debtpositions.dto.generated.BaseInstallment;
+import it.gov.pagopa.pu.debtpositions.dto.generated.BasePaymentOption;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositionDTO;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 class PagedDebtorDebtPositionMapperTest {
 
   private final PagedDebtorDebtPositionMapper mapper = Mappers.getMapper(PagedDebtorDebtPositionMapper.class);
   private final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
+  private BasePaymentOption buildPaymentOption(long totalAmount, LocalDate... dueDates) {
+    BasePaymentOption po = podamFactory.manufacturePojo(BasePaymentOption.class);
+    po.setTotalAmountCents(totalAmount);
+    po.setInstallments(new java.util.ArrayList<>());
+
+    long installmentValue = totalAmount / dueDates.length;
+
+    for (LocalDate d : dueDates) {
+      BaseInstallment inst = podamFactory.manufacturePojo(BaseInstallment.class);
+      inst.setAmountCents(installmentValue);
+      inst.setDueDate(d);
+      po.getInstallments().add(inst);
+    }
+
+    return po;
+  }
+
   @Test
-  void givenPagedModelWhenMapThenReturnPagedDebtorDebtPositionDTO() {
+  void givenPagedDebtorUnpaidDebtPositionAndOrganizationsMapWhenMapThenReturnPagedDebtorDebtPositionDTO() {
     // given
-    List<Organization> organizations = podamFactory.manufacturePojo(List.class, Organization.class);
-    Map<Long, Organization> organizationsMap = organizations.stream()
-      .collect(Collectors.toMap(Organization::getOrganizationId, org -> org));
+    Organization o1 = podamFactory.manufacturePojo(Organization.class);
+    o1.setOrganizationId(1L);
+    Organization o2 = podamFactory.manufacturePojo(Organization.class);
+    o2.setOrganizationId(2L);
 
-    DebtPositionView dp1 = podamFactory.manufacturePojo(DebtPositionView.class);
-    DebtPositionView dp2 = podamFactory.manufacturePojo(DebtPositionView.class);
+    Map<Long, Organization> organizationsMap = new HashMap<>();
+    organizationsMap.put(o1.getOrganizationId(), o1);
+    organizationsMap.put(o2.getOrganizationId(), o2);
 
-    dp1.setOrganizationId(organizations.get(0).getOrganizationId());
-    dp2.setOrganizationId(organizations.get(1).getOrganizationId());
+    DebtorDebtPositionDTO dp1 = podamFactory.manufacturePojo(DebtorDebtPositionDTO.class);
+    DebtorDebtPositionDTO dp2 = podamFactory.manufacturePojo(DebtorDebtPositionDTO.class);
 
-    List<DebtPositionView> debtPositions = List.of(dp1, dp2);
+    dp1.setOrganizationId(1L);
+    dp2.setOrganizationId(2L);
 
-    Map<Long, List<PaymentOption>> paymentOptionsMap = new HashMap<>();
-    Map<Long, List<InstallmentNoPII>> installmentsMap = new HashMap<>();
-    paymentOptionsMap.put(dp1.getDebtPositionId(), podamFactory.manufacturePojo(List.class, PaymentOption.class));
-    paymentOptionsMap.put(dp2.getDebtPositionId(), podamFactory.manufacturePojo(List.class, PaymentOption.class));
-    installmentsMap.put(dp1.getDebtPositionId(), podamFactory.manufacturePojo(List.class, InstallmentNoPII.class));
-    installmentsMap.put(dp2.getDebtPositionId(), podamFactory.manufacturePojo(List.class, InstallmentNoPII.class));
+    BasePaymentOption po1 = buildPaymentOption(1500, LocalDate.of(2024, 3, 10));
+    BasePaymentOption po2 = buildPaymentOption(2500, LocalDate.of(2024, 2, 20));
 
-    PagedModelDebtPositionView page = podamFactory.manufacturePojo(PagedModelDebtPositionView.class);
-    page.getEmbedded().setDebtPositionViews(debtPositions);
+    dp1.setPaymentOptions(List.of(po1));
+    dp2.setPaymentOptions(List.of(po2));
+
+    PagedDebtorUnpaidDebtPositionDTO page =
+      podamFactory.manufacturePojo(PagedDebtorUnpaidDebtPositionDTO.class);
+
+    page.setContent(List.of(dp1, dp2));
 
     // when
-    PagedDebtorDebtPositionDTO result = mapper.map(organizationsMap, page, paymentOptionsMap, installmentsMap);
+    PagedDebtorDebtPositionDTO result = mapper.map(organizationsMap, page);
 
     // then
     assertNotNull(result);
+    assertNotNull(result.getContent());
     assertEquals(2, result.getContent().size());
-    assertEquals(page.getPage().getTotalPages(), result.getTotalPages());
-    assertEquals(page.getPage().getSize(), result.getSize());
-    assertEquals(page.getPage().getNumber(), result.getNumber());
-    assertEquals(page.getPage().getTotalElements(), result.getTotalElements());
+
+    DebtorUnpaidDebtPositionDTO first = result.getContent().get(0);
+    DebtorUnpaidDebtPositionDTO second = result.getContent().get(1);
+
+    assertEquals(o1.getOrganizationId(), first.getOrganizationId());
+    assertEquals(o2.getOrganizationId(), second.getOrganizationId());
+
+    assertEquals(page.getTotalPages(), result.getTotalPages());
+    assertEquals(page.getSize(), result.getSize());
+    assertEquals(page.getNumber(), result.getNumber());
+    assertEquals(page.getTotalElements(), result.getTotalElements());
+
+    result.getContent().forEach(item -> {
+      TestUtils.checkNotNullFields(item);
+      assertNotNull(item.getPaymentOptions());
+      assertFalse(item.getPaymentOptions().isEmpty());
+      item.getPaymentOptions().forEach(TestUtils::checkNotNullFields);
+    });
 
     TestUtils.checkNotNullFields(result);
   }
 
   @Test
-  void givenOrganizationDebtPositionAndPaymentDataWhenMapThenReturnDebtorDebtPositionDTO() {
-    // given
+  void givenMultiplePaymentOptionsWhenCalculateDueDateThenReturnEarliestInstallment() {
+    BasePaymentOption po1 = buildPaymentOption(1000, LocalDate.of(2024, 1, 10));
+    BasePaymentOption po2 = buildPaymentOption(1000, LocalDate.of(2024, 1, 5));
+
+    LocalDate result = mapper.calculateDueDate(List.of(po1, po2));
+
+    assertEquals(LocalDate.of(2024, 1, 5), result);
+  }
+
+  @Test
+  void givenSinglePaymentOptionWhenCalculateTotalAmountThenReturnSumOfInstallments() {
+    BasePaymentOption po = buildPaymentOption(
+      3000,
+      LocalDate.of(2024, 1, 10),
+      LocalDate.of(2024, 1, 20),
+      LocalDate.of(2024, 2, 10)
+    );
+
+    Long result = mapper.calculateTotalAmountCents(po);
+
+    assertEquals(3000L, result);
+  }
+
+  @Test
+  void givenMultiplePaymentOptionsWithSameTotalWhenCalculateTotalAmountThenReturnTotal() {
+    BasePaymentOption po1 = buildPaymentOption(2000, LocalDate.of(2024, 1, 15));
+    BasePaymentOption po2 = buildPaymentOption(2000, LocalDate.of(2024, 1, 20));
+
+    Long result = mapper.calculateTotalAmountCents(List.of(po1, po2));
+
+    assertEquals(2000L, result);
+  }
+
+  @Test
+  void givenMultiplePaymentOptionsWithDifferentTotalsWhenCalculateTotalAmountThenReturnNull() {
+    BasePaymentOption po1 = buildPaymentOption(2000, LocalDate.of(2024, 1, 15));
+    BasePaymentOption po2 = buildPaymentOption(3000, LocalDate.of(2024, 1, 20));
+
+    Long result = mapper.calculateTotalAmountCents(List.of(po1, po2));
+
+    assertNull(result);
+  }
+
+  @Test
+  void givenOrganizationAndDebtPositionWhenMapThenReturnMappedDTO() {
     Organization org = podamFactory.manufacturePojo(Organization.class);
-    DebtPositionView dp = podamFactory.manufacturePojo(DebtPositionView.class);
+    org.setOrganizationId(1L);
+    org.setOrgName("orgName");
+    org.setOrgFiscalCode("12345678901");
 
-    List<PaymentOption> paymentOptions = podamFactory.manufacturePojo(List.class, PaymentOption.class);
-    List<InstallmentNoPII> installments = podamFactory.manufacturePojo(List.class, InstallmentNoPII.class);
+    DebtorDebtPositionDTO dp = podamFactory.manufacturePojo(DebtorDebtPositionDTO.class);
+    dp.setOrganizationId(1L);
+    dp.setDebtPositionDescription("Test Position");
 
-    // when
-    DebtorDebtPositionDTO result = mapper.map(org, dp, paymentOptions, installments);
+    BasePaymentOption po1 = buildPaymentOption(2000, LocalDate.of(2024, 1, 10));
+    BasePaymentOption po2 = buildPaymentOption(2000, LocalDate.of(2024, 1, 5));
 
-    // then
-    assertNotNull(result);
-    assertEquals(org.getOrganizationId(), result.getOrganizationId());
-    assertEquals(org.getOrgName(), result.getOrgName());
-    assertEquals(org.getOrgFiscalCode(), result.getOrgFiscalCode());
+    dp.setPaymentOptions(List.of(po1, po2));
 
-    result.getPaymentOptions().forEach(TestUtils::checkNotNullFields);
+    DebtorUnpaidDebtPositionDTO result = mapper.map(org, dp);
+
+    assertThat(result.getOrgName()).isEqualTo("orgName");
+    assertThat(result.getOrgFiscalCode()).isEqualTo("12345678901");
+    assertThat(result.getPaymentOptions()).hasSize(2);
+
+    assertThat(result.getPaymentOptions().stream()
+      .map(DebtorPaymentOptionDTO::getDueDate))
+      .contains(LocalDate.of(2024, 1, 5));
     TestUtils.checkNotNullFields(result);
   }
 
   @Test
-  void givenPaymentOptionsWhenMapThenReturnMappedDTOList() {
-    // given
-    List<PaymentOption> paymentOptions = podamFactory.manufacturePojo(List.class, PaymentOption.class);
-    List<InstallmentNoPII> installments = podamFactory.manufacturePojo(List.class, InstallmentNoPII.class);
+  void givenMissingOrganizationWhenRetrieveOrganizationThenThrowIllegalStateException() {
+    Map<Long, Organization> organizations = Map.of();
 
-    // when
-    List<DebtorPaymentOptionDTO> result = mapper.mapPaymentOptions(paymentOptions, installments);
+    DebtorDebtPositionDTO dp = podamFactory.manufacturePojo(DebtorDebtPositionDTO.class);
+    dp.setDebtPositionId(77L);
+    dp.setOrganizationId(123L);
 
-    // then
-    assertEquals(paymentOptions.size(), result.size());
-    result.forEach(TestUtils::checkNotNullFields);
+    assertThrows(IllegalStateException.class, () -> mapper.retrieveOrganization(organizations, dp));
   }
-
-  @Test
-  void givenOrganizationNotFoundWhenRetrieveOrganizationThenThrow() {
-    // given
-    Map<Long, Organization> orgMap = new HashMap<>();
-    DebtPositionView dp = podamFactory.manufacturePojo(DebtPositionView.class);
-
-    // then
-    assertThrows(IllegalStateException.class,
-      () -> mapper.retrieveOrganization(orgMap, dp));
-  }
-
-  @Test
-  void givenPaymentOptionsNotFoundWhenRetrievePaymentOptionsThenThrow() {
-    // given
-    Map<Long, List<PaymentOption>> poMap = new HashMap<>();
-    DebtPositionView dp = podamFactory.manufacturePojo(DebtPositionView.class);
-
-    // then
-    assertThrows(IllegalStateException.class,
-      () -> mapper.retrievePaymentOptions(poMap, dp));
-  }
-
-  @Test
-  void givenInstallmentsNotFoundWhenRetrieveInstallmentsThenThrow() {
-    // given
-    Map<Long, List<InstallmentNoPII>> instMap = new HashMap<>();
-    DebtPositionView dp = podamFactory.manufacturePojo(DebtPositionView.class);
-
-    // then
-    assertThrows(IllegalStateException.class,
-      () -> mapper.retrieveInstallments(instMap, dp));
-  }
-
-  @Test
-  void givenInstallmentsWhenCalculateTotalAmountThenSumCorrectly() {
-    // given
-    InstallmentNoPII i1 = new InstallmentNoPII();
-    InstallmentNoPII i2 = new InstallmentNoPII();
-    i1.setAmountCents(100L);
-    i2.setAmountCents(300L);
-    List<InstallmentNoPII> inst = List.of(i1, i2);
-
-    PaymentOption po = new PaymentOption();
-    po.setTotalAmountCents(400L);
-
-    // when
-    Long result = mapper.calculateTotalAmountCents(List.of(po), inst);
-
-    // then
-    assertEquals(400L, result);
-  }
-
-  @Test
-  void givenNullPaymentOptionWhenCalculateTotalAmountThenReturnNull() {
-    Long result = mapper.calculateTotalAmountCents(null, null);
-
-    assertNull(result);
-  }
-
-  @Test
-  void givenMultiplePaymentOptionsWithDifferentAmountsThenReturnNull() {
-    PaymentOption p1 = new PaymentOption();
-    PaymentOption p2 = new PaymentOption();
-    p1.setTotalAmountCents(100L);
-    p2.setTotalAmountCents(200L);
-
-    Long result = mapper.calculateTotalAmountCents(List.of(p1, p2), List.of());
-
-    assertNull(result);
-  }
-
-  @Test
-  void givenInstallmentsWhenCalculateDueDateThenReturnEarliestOne() {
-    InstallmentNoPII i1 = new InstallmentNoPII();
-    InstallmentNoPII i2 = new InstallmentNoPII();
-    i1.setDueDate(LocalDate.parse("2025-01-10"));
-    i2.setDueDate(LocalDate.parse("2025-01-05"));
-
-    LocalDate result = mapper.calculateDueDate(List.of(), List.of(i1, i2));
-
-    assertEquals(LocalDate.parse("2025-01-05"), result);
-  }
-
-  @Test
-  void givenNullInstallmentsWhenCalculateDueDateThenReturnNull() {
-    LocalDate result = mapper.calculateDueDate(List.of(), null);
-
-    assertNull(result);
-  }
-
 }
-

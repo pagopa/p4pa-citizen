@@ -310,11 +310,11 @@ paths:
           description: Not Found
         "500":
           description: Internal server error
-  /brokers/{brokerId}/debt-positions:
+  /brokers/{brokerId}/unpaid/debt-positions:
     get:
       tags:
         - DebtPosition
-      operationId: getPagedDebtPositions
+      operationId: getPagedUnpaidDebtPositions
       parameters:
         - name: X-fiscal-code
           in: header
@@ -744,7 +744,7 @@ components:
         content:
           type: array
           items:
-            $ref: '#/components/schemas/DebtorDebtPositionDTO'
+            $ref: '#/components/schemas/DebtorUnpaidDebtPositionDTO'
         size:
           type: integer
           format: int64
@@ -757,7 +757,7 @@ components:
         number:
           type: integer
           format: int64
-    DebtorDebtPositionDTO:
+    DebtorUnpaidDebtPositionDTO:
       type: object
       required:
         - debtPositionId
@@ -775,6 +775,8 @@ components:
           type: string
         debtPositionTypeOrgDescription:
           type: string
+        status:
+          type: 'DebtPositionStatus'
         organizationId:
           type: integer
           format: int64

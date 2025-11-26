@@ -196,7 +196,7 @@ class DebtPositionControllerTest {
 
     PagedDebtorDebtPositionDTO expectedResult = podamFactory.manufacturePojo(PagedDebtorDebtPositionDTO.class);
 
-    Mockito.when(debtPositionFacadeServiceMock.getPagedDebtPositions(
+    Mockito.when(debtPositionFacadeServiceMock.getPagedUnpaidDebtPositions(
       xFiscalCode,
       brokerId,
       orgName,
@@ -207,7 +207,7 @@ class DebtPositionControllerTest {
 
     // when
     ResponseEntity<PagedDebtorDebtPositionDTO> response =
-      debtPositionController.getPagedDebtPositions(xFiscalCode, brokerId, orgName, orgFiscalCode, pageable);
+      debtPositionController.getPagedUnpaidDebtPositions(xFiscalCode, brokerId, orgName, orgFiscalCode, pageable);
 
     // then
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());

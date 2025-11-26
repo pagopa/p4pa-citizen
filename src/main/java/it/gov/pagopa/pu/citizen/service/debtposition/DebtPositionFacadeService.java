@@ -13,5 +13,5 @@ public interface DebtPositionFacadeService {
   Resource getDebtPositionNoticesZip(Long brokerId, String fiscalCode, Long debtPositionId, String accessToken);
   DebtPositionDTO getDebtPositionDetail(Long brokerId, String fiscalCode, Long debtPositionId, String accessToken);
   FileResourceDTO getPaymentNotice(String fiscalCode, Long brokerId, Long organizationId, Long installmentId, String iuv, String iud, String accessToken);
-  PagedDebtorDebtPositionDTO getPagedDebtPositions(String xFiscalCode, Long brokerId, String orgName, String orgFiscalCode, Pageable pageable, String accessToken);
+  PagedDebtorDebtPositionDTO getPagedUnpaidDebtPositions(String xFiscalCode, Long brokerId, String orgName, String orgFiscalCode, Pageable pageable, String accessToken);
 }

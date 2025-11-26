@@ -166,45 +166,21 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
   }
 
   @Override
-  public PagedDebtorDebtPositionDTO getPagedDebtPositions(String xFiscalCode,
-                                                          Long brokerId,
-                                                          String orgName,
-                                                          String orgFiscalCode,
-                                                          Pageable pageable,
-                                                          String accessToken) {
+  public PagedDebtorDebtPositionDTO getPagedUnpaidDebtPositions(String xFiscalCode,
+                                                                Long brokerId,
+                                                                String orgName,
+                                                                String orgFiscalCode,
+                                                                Pageable pageable,
+                                                                String accessToken) {
 
     Map<Long, Organization> organizations = retrieveOrganizations(brokerId, orgName, orgFiscalCode, accessToken);
     List<Long> organizationsIds = new ArrayList<>(organizations.keySet());
 
-    PagedModelDebtPositionView pagedModelDebtPositionView =
-      debtPositionService.getPagedModelDebtPositionView(organizationsIds, xFiscalCode, accessToken, pageable);
-
-    Map<Long, List<PaymentOption>> paymentOptionsByDp = new HashMap<>();
-    Map<Long, List<InstallmentNoPII>> installmentsByDp = new HashMap<>();
-
-    if (pagedModelDebtPositionView != null
-      &&  pagedModelDebtPositionView.getEmbedded() != null
-      && pagedModelDebtPositionView.getEmbedded().getDebtPositionViews() != null){
-
-      pagedModelDebtPositionView.getEmbedded().getDebtPositionViews().forEach(dp -> {
-        Long dpId = dp.getDebtPositionId();
-
-        List<PaymentOption> paymentOptions =
-          debtPositionService.getPaymentOptions(dpId, accessToken);
-
-        List<InstallmentNoPII> installments =
-          debtPositionService.getInstallments(dpId, InstallmentStatus.UNPAID.getValue(), accessToken);
-
-        paymentOptionsByDp.put(dpId, paymentOptions);
-        installmentsByDp.put(dpId, installments);
-      });
-    }
+    PagedDebtorUnpaidDebtPositionDTO pagedDebtorUnpaidDebtPosition = debtPositionService.getPagedDebtorUnpaidDebtPosition(xFiscalCode, organizationsIds, pageable, accessToken);
 
     return pagedDebtorDebtPositionMapper.map(
       organizations,
-      pagedModelDebtPositionView,
-      paymentOptionsByDp,
-      installmentsByDp
+      pagedDebtorUnpaidDebtPosition
     );
   }
 

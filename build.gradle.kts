@@ -187,7 +187,8 @@ openApiGenerate {
     "ReceiptOrigin" to "it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptOriginType",
     "ReceiptDetailDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptDetailDTO",
     "PaymentOptionType" to "it.gov.pagopa.pu.debtpositions.dto.generated.PaymentOptionType",
-    "PaymentOptionStatus" to "it.gov.pagopa.pu.debtpositions.dto.generated.PaymentOptionStatus"
+    "PaymentOptionStatus" to "it.gov.pagopa.pu.debtpositions.dto.generated.PaymentOptionStatus",
+    "DebtPositionStatus" to "it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionStatus"
   ))
 }
 

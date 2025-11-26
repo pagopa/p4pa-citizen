@@ -1,12 +1,12 @@
 package it.gov.pagopa.pu.citizen.mapper;
 
-import it.gov.pagopa.pu.citizen.dto.generated.DebtorDebtPositionDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorPaymentOptionDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorDebtPositionDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionView;
-import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentNoPII;
-import it.gov.pagopa.pu.debtpositions.dto.generated.PagedModelDebtPositionView;
-import it.gov.pagopa.pu.debtpositions.dto.generated.PaymentOption;
+import it.gov.pagopa.pu.debtpositions.dto.generated.BaseInstallment;
+import it.gov.pagopa.pu.debtpositions.dto.generated.BasePaymentOption;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositionDTO;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,62 +19,59 @@ import java.util.Objects;
 @Mapper(componentModel = "spring")
 public interface PagedDebtorDebtPositionMapper {
 
-  @Mapping(target = "content", expression = "java(pagedModelDebtPositionView.getEmbedded() != null ? mapDebtorDebtPositionDTOWithOrganizationAndPaymentOptions(organizationsMap, pagedModelDebtPositionView.getEmbedded().getDebtPositionViews(), paymentOptionsMap, installmentsMap) : java.util.Collections.emptyList())")
-  @Mapping(target = "totalPages", source = "pagedModelDebtPositionView.page.totalPages")
-  @Mapping(target = "size", source = "pagedModelDebtPositionView.page.size")
-  @Mapping(target = "number", source = "pagedModelDebtPositionView.page.number")
-  @Mapping(target = "totalElements", source = "pagedModelDebtPositionView.page.totalElements")
-  PagedDebtorDebtPositionDTO map(Map<Long, Organization> organizationsMap, PagedModelDebtPositionView pagedModelDebtPositionView, Map<Long, List<PaymentOption>> paymentOptionsMap, Map<Long,List<InstallmentNoPII>> installmentsMap);
+  @Mapping(target = "content", expression = "java(source.getContent() != null ? mapDebtorDebtPositionDTOWithOrganizationAndPagedDebtorUnpaidDebtPositionDTO(organizationsMap, source) : java.util.Collections.emptyList())")
+  @Mapping(target = "totalPages", source = "source.totalPages")
+  @Mapping(target = "size", source = "source.size")
+  @Mapping(target = "number", source = "source.number")
+  @Mapping(target = "totalElements", source = "source.totalElements")
+  PagedDebtorDebtPositionDTO map(Map<Long, Organization> organizationsMap, PagedDebtorUnpaidDebtPositionDTO source);
 
   @Mapping(target = "organizationId", source = "organization.organizationId")
   @Mapping(target = "orgName", source = "organization.orgName")
   @Mapping(target = "orgFiscalCode", source = "organization.orgFiscalCode")
-  @Mapping(target = "debtPositionDescription", source = "debtPositionView.description")
-  @Mapping(target = "paymentOptions", expression = "java(mapPaymentOptions(paymentOptions, installments))")
-  DebtorDebtPositionDTO map(Organization organization, DebtPositionView debtPositionView, List<PaymentOption> paymentOptions, List<InstallmentNoPII> installments);
+  @Mapping(target = "status", source = "debtorDebtPosition.status")
+  @Mapping(target = "debtPositionDescription", source = "debtorDebtPosition.debtPositionDescription")
+  @Mapping(target = "paymentOptions", expression = "java(mapPaymentOptions(debtorDebtPosition.getPaymentOptions()))")
+  DebtorUnpaidDebtPositionDTO map(Organization organization, DebtorDebtPositionDTO debtorDebtPosition);
 
-  @Mapping(target = "dueDate", expression = "java(calculateDueDate(List.of(paymentOption), installments))")
-  @Mapping(target = "totalAmountCents", expression = "java(calculateTotalAmountCents(List.of(paymentOption), installments))")
-  DebtorPaymentOptionDTO map(PaymentOption paymentOption, List<InstallmentNoPII> installments);
+  @Mapping(target = "paymentOptionType", source = "paymentOptionType")
+  @Mapping(target = "dueDate", expression = "java(calculateDueDate(paymentOption))")
+  @Mapping(target = "totalAmountCents", expression = "java(calculateTotalAmountCents(paymentOption))")
+  DebtorPaymentOptionDTO map(BasePaymentOption paymentOption);
 
-  default List<DebtorDebtPositionDTO> mapDebtorDebtPositionDTOWithOrganizationAndPaymentOptions(Map<Long, Organization> organizationsMap, List<DebtPositionView> debtPositionViews, Map<Long, List<PaymentOption>> paymentOptionsMap, Map<Long,List<InstallmentNoPII>> installmentsMap){
-    return debtPositionViews.stream()
-      .map(debtPositionView -> map(retrieveOrganization(organizationsMap, debtPositionView), debtPositionView, retrievePaymentOptions(paymentOptionsMap,debtPositionView), retrieveInstallments(installmentsMap,debtPositionView))).toList();
+
+  default List<DebtorUnpaidDebtPositionDTO> mapDebtorDebtPositionDTOWithOrganizationAndPagedDebtorUnpaidDebtPositionDTO(Map<Long, Organization> organizationsMap, PagedDebtorUnpaidDebtPositionDTO source){
+    List<DebtorDebtPositionDTO> debtorDebtPositionDTOList = source.getContent();
+    return debtorDebtPositionDTOList.stream()
+      .map(debtPosition -> map(retrieveOrganization(organizationsMap, debtPosition), debtPosition)).toList();
   }
 
-  default Organization retrieveOrganization(Map<Long, Organization> organizationsMap, DebtPositionView debtPositionView){
-    Organization organization = organizationsMap.get(debtPositionView.getOrganizationId());
+  default Organization retrieveOrganization(Map<Long, Organization> organizationsMap, DebtorDebtPositionDTO debtorDebtPositionDTO){
+    Organization organization = organizationsMap.get(debtorDebtPositionDTO.getOrganizationId());
     if (organization == null){
-      throw new IllegalStateException("No Organization found for debtPosition with Id %d".formatted(debtPositionView.getDebtPositionId()));
+      throw new IllegalStateException("No Organization found for debtPosition with Id %d".formatted(debtorDebtPositionDTO.getDebtPositionId()));
     }
     return organization;
   }
 
-  default List<PaymentOption> retrievePaymentOptions( Map<Long, List<PaymentOption>> paymentOptionsMap, DebtPositionView debtPositionView){
-    List<PaymentOption> paymentOptions = paymentOptionsMap.get(debtPositionView.getDebtPositionId());
-    if (paymentOptions == null){
-      throw new IllegalStateException("No PaymentOptions found for debtPosition with Id %d".formatted(debtPositionView.getDebtPositionId()));
-    }
-    return paymentOptions;
+  default LocalDate calculateDueDate(BasePaymentOption paymentOption) {
+    return calculateDueDate(List.of(paymentOption));
   }
 
-  default List<InstallmentNoPII> retrieveInstallments( Map<Long, List<InstallmentNoPII>> installmentsMap, DebtPositionView debtPositionView){
-    List<InstallmentNoPII> installments = installmentsMap.get(debtPositionView.getDebtPositionId());
-    if (installments == null){
-      throw new IllegalStateException("No Installments found for debtPosition with Id %d".formatted(debtPositionView.getDebtPositionId()));
-    }
-    return installments;
+  default Long calculateTotalAmountCents(BasePaymentOption paymentOption) {
+    return calculateTotalAmountCents(List.of(paymentOption));
   }
 
-  default Long calculateTotalAmountCents(List<PaymentOption> paymentOptions, List<InstallmentNoPII> installments) {
 
+  default Long calculateTotalAmountCents(List<BasePaymentOption> paymentOptions) {
     if (paymentOptions == null || paymentOptions.isEmpty()) {
       return null;
     }
 
     if (paymentOptions.size() == 1) {
-      return installments.stream()
-        .mapToLong(InstallmentNoPII::getAmountCents)
+      return paymentOptions.getFirst().getInstallments()
+        .stream()
+        .mapToLong(BaseInstallment::getAmountCents)
         .sum();
     }
 
@@ -86,21 +83,20 @@ public interface PagedDebtorDebtPositionMapper {
     return allSameAmount ? firstAmount : null;
   }
 
-  default List<DebtorPaymentOptionDTO> mapPaymentOptions(List<PaymentOption> paymentOptions,
-                                                         List<InstallmentNoPII> installments) {
+  default List<DebtorPaymentOptionDTO> mapPaymentOptions(List<BasePaymentOption> paymentOptions) {
     return paymentOptions.stream()
-      .map(po -> map(po, installments))
+      .map(this::map)
       .toList();
   }
 
-  default LocalDate calculateDueDate(List<PaymentOption> paymentOptions, List<InstallmentNoPII> installments) {
-
-    if (installments == null || installments.isEmpty()) {
+  default LocalDate calculateDueDate(List<BasePaymentOption> paymentOptions) {
+    if (paymentOptions == null || paymentOptions.isEmpty()) {
       return null;
     }
 
-    return installments.stream()
-      .map(InstallmentNoPII::getDueDate)
+    return paymentOptions.stream()
+      .flatMap(po -> po.getInstallments().stream())
+      .map(BaseInstallment::getDueDate)
       .filter(Objects::nonNull)
       .min(LocalDate::compareTo)
       .orElse(null);

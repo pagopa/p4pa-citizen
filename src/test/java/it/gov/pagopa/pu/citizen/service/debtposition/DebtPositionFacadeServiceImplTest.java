@@ -535,7 +535,7 @@ class DebtPositionFacadeServiceImplTest {
   }
 
   @Test
-  void givenValidParamsWhenGetPagedDebtPositionsThenReturnDTO() {
+  void givenValidParamsWhenGetPagedUnpaidDebtPositionsThenReturnDTO() {
     // given
     Long brokerId = 1L;
     String xFiscalCode = "debtorFiscalCode";
@@ -548,8 +548,7 @@ class DebtPositionFacadeServiceImplTest {
     Map<Long, Organization> orgMap = organizations.stream()
       .collect(Collectors.toMap(Organization::getOrganizationId, o -> o));
 
-    PagedModelDebtPositionView pagedModelDebtPositionView =
-      podamFactory.manufacturePojo(PagedModelDebtPositionView.class);
+    PagedDebtorUnpaidDebtPositionDTO pagedDebtorUnpaidDebtPositionDTO = podamFactory.manufacturePojo(PagedDebtorUnpaidDebtPositionDTO.class);
 
     PagedDebtorDebtPositionDTO expectedResult =
       podamFactory.manufacturePojo(PagedDebtorDebtPositionDTO.class);
@@ -558,52 +557,28 @@ class DebtPositionFacadeServiceImplTest {
         .getAllOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(brokerId, orgName, orgFiscalCode, accessToken))
       .thenReturn(organizations);
 
-    Mockito.when(debtPositionServiceMock.getPagedModelDebtPositionView(
-        new ArrayList<>(orgMap.keySet()), xFiscalCode, accessToken, pageable))
-      .thenReturn(pagedModelDebtPositionView);
+    Mockito.when(debtPositionServiceMock.getPagedDebtorUnpaidDebtPosition(xFiscalCode,
+        new ArrayList<>(orgMap.keySet()), pageable, accessToken))
+      .thenReturn(pagedDebtorUnpaidDebtPositionDTO);
 
-    if (pagedModelDebtPositionView != null
-      && pagedModelDebtPositionView.getEmbedded() != null
-      && pagedModelDebtPositionView.getEmbedded().getDebtPositionViews() != null) {
-
-      for (DebtPositionView dp : pagedModelDebtPositionView.getEmbedded().getDebtPositionViews()) {
-        List<PaymentOption> paymentOpts = podamFactory.manufacturePojo(List.class, PaymentOption.class);
-        List<InstallmentNoPII> inst = podamFactory.manufacturePojo(List.class, InstallmentNoPII.class);
-
-        Mockito.when(debtPositionServiceMock.getPaymentOptions(dp.getDebtPositionId(), accessToken))
-          .thenReturn(paymentOpts);
-        Mockito.when(debtPositionServiceMock.getInstallments(dp.getDebtPositionId(),
-            InstallmentStatus.UNPAID.getValue(), accessToken))
-          .thenReturn(inst);
-      }
-    }
 
     Mockito.when(pagedDebtorDebtPositionMapperMock.map(
-        Mockito.eq(orgMap),
-        Mockito.eq(pagedModelDebtPositionView),
-        Mockito.anyMap(),
-        Mockito.anyMap()))
+       orgMap,
+      pagedDebtorUnpaidDebtPositionDTO))
       .thenReturn(expectedResult);
 
     // when
-    PagedDebtorDebtPositionDTO result = debtPositionFacadeService.getPagedDebtPositions(
+    PagedDebtorDebtPositionDTO result = debtPositionFacadeService.getPagedUnpaidDebtPositions(
       xFiscalCode, brokerId, orgName, orgFiscalCode, pageable, accessToken
     );
 
     // then
     assertNotNull(result);
     assertEquals(expectedResult, result);
-
-    Mockito.verify(brokerOrganizationsRetrieverServiceMock)
-      .getAllOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(brokerId, orgName, orgFiscalCode, accessToken);
-    Mockito.verify(debtPositionServiceMock)
-      .getPagedModelDebtPositionView(new ArrayList<>(orgMap.keySet()), xFiscalCode, accessToken, pageable);
-    Mockito.verify(pagedDebtorDebtPositionMapperMock)
-      .map(Mockito.eq(orgMap), Mockito.eq(pagedModelDebtPositionView), Mockito.anyMap(), Mockito.anyMap());
   }
 
   @Test
-  void givenNullOrganizationsWhenGetPagedDebtPositionsThenThrowException() {
+  void givenNullOrganizationsWhenGetPagedUnpaidDebtPositionsThenThrowException() {
     // given
     Long brokerId = 1L;
     String xFiscalCode = "debtorFiscalCode";
@@ -616,7 +591,7 @@ class DebtPositionFacadeServiceImplTest {
         .getAllOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(brokerId, null, null, accessToken))
       .thenReturn(organizations);
 
-    assertThrows(ResourceNotFoundException.class, () -> debtPositionFacadeService.getPagedDebtPositions(xFiscalCode,brokerId, null, null, pageable, accessToken));
+    assertThrows(ResourceNotFoundException.class, () -> debtPositionFacadeService.getPagedUnpaidDebtPositions(xFiscalCode,brokerId, null, null, pageable, accessToken));
   }
 
 }
