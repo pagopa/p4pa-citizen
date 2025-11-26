@@ -10,6 +10,8 @@ import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositionDTO;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mapstruct.factory.Mappers;
 import uk.co.jemos.podam.api.PodamFactory;
 
@@ -212,4 +214,18 @@ class PagedDebtorDebtPositionMapperTest {
     assertTrue(result.isEmpty());
   }
 
+  @ParameterizedTest
+  @NullAndEmptySource
+  void givenNullOrEmptyPaymentOptionsWhenCalculateDueDateThenReturnNull(List<BasePaymentOption> paymentOptions) {
+    LocalDate result = mapper.calculateDueDate(paymentOptions);
+    assertNull(result);
+  }
+
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  void givenNullOrEmptyPaymentOptionsWhenCalculateTotalAmountCentsThenReturnNull(List<BasePaymentOption> paymentOptions) {
+    Long result = mapper.calculateTotalAmountCents(paymentOptions);
+    assertNull(result);
+  }
 }
