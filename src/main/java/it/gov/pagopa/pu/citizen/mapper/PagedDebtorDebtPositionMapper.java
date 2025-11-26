@@ -12,6 +12,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -84,6 +85,10 @@ public interface PagedDebtorDebtPositionMapper {
   }
 
   default List<DebtorPaymentOptionDTO> mapPaymentOptions(List<BasePaymentOption> paymentOptions) {
+    if (paymentOptions == null) {
+      return Collections.emptyList();
+    }
+
     return paymentOptions.stream()
       .map(this::map)
       .toList();

@@ -14,6 +14,7 @@ import org.mapstruct.factory.Mappers;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -184,4 +185,31 @@ class PagedDebtorDebtPositionMapperTest {
 
     assertThrows(IllegalStateException.class, () -> mapper.retrieveOrganization(organizations, dp));
   }
+
+  @Test
+  void givenNullPaymentOptionsWhenMapPaymentOptionsThenReturnEmptyList() {
+    // given
+    List<BasePaymentOption> paymentOptions = null;
+
+    // when
+    List<DebtorPaymentOptionDTO> result = mapper.mapPaymentOptions(paymentOptions);
+
+    // then
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void givenEmptyPaymentOptionsWhenMapPaymentOptionsThenReturnEmptyList() {
+    // given
+    List<BasePaymentOption> paymentOptions = Collections.emptyList();
+
+    // when
+    List<DebtorPaymentOptionDTO> result = mapper.mapPaymentOptions(paymentOptions);
+
+    // then
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
+  }
+
 }
