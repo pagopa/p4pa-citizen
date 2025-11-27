@@ -4,6 +4,7 @@ import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorDebtPositionDTO;
 import it.gov.pagopa.pu.citizen.security.SecurityUtilsTest;
 import it.gov.pagopa.pu.citizen.service.debtposition.DebtPositionFacadeService;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
@@ -19,6 +20,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.co.jemos.podam.api.PodamFactory;
@@ -180,6 +183,36 @@ class DebtPositionControllerTest {
 
     assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     assertNull(response.getBody());
+  }
+
+  @Test
+  void whenGetPagedDebtPositionsThenOk() {
+    // given
+    String xFiscalCode = "debtorFiscalCode";
+    Long brokerId = 100L;
+    String orgName = "OrgName";
+    String orgFiscalCode = "12345678901";
+    Pageable pageable = PageRequest.of(0, 10);
+
+    PagedDebtorDebtPositionDTO expectedResult = podamFactory.manufacturePojo(PagedDebtorDebtPositionDTO.class);
+
+    Mockito.when(debtPositionFacadeServiceMock.getPagedUnpaidDebtPositions(
+      xFiscalCode,
+      brokerId,
+      orgName,
+      orgFiscalCode,
+      pageable,
+      accessToken
+    )).thenReturn(expectedResult);
+
+    // when
+    ResponseEntity<PagedDebtorDebtPositionDTO> response =
+      debtPositionController.getPagedUnpaidDebtPositions(xFiscalCode, brokerId, orgName, orgFiscalCode, pageable);
+
+    // then
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    Assertions.assertNotNull(response.getBody());
+    Assertions.assertSame(expectedResult, response.getBody());
   }
 
 }

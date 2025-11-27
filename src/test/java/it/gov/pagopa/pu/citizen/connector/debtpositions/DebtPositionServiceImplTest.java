@@ -4,6 +4,7 @@ import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionClien
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionOrigin;
+import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositionDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,9 +13,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.util.List;
+
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DebtPositionServiceImplTest {
@@ -109,6 +113,23 @@ class DebtPositionServiceImplTest {
     //when
     List<DebtPositionDTO> result = debtPositionService.getDebtPositionsByOrganizationIdAndIud(organizationId, iud, debtPositionOrigins,accessToken);
     //then
+    Assertions.assertNotNull(result);
+    Assertions.assertSame(expectedResult, result);
+  }
+
+  @Test
+  void whenGetPagedDebtorUnpaidDebtPositionThenInvokeClient() {
+    String accessToken = "ACCESSTOKEN";
+    String debtorFiscalCode = "debtorFiscalCode";
+    List<Long> organizationIds = List.of(1L);
+
+    PagedDebtorUnpaidDebtPositionDTO expectedResult = podamFactory.manufacturePojo(PagedDebtorUnpaidDebtPositionDTO.class);
+
+    when(debtPositionClientMock.getPagedDebtorUnpaidDebtPosition(debtorFiscalCode, organizationIds,  Pageable.ofSize(1), accessToken))
+      .thenReturn(expectedResult);
+
+    PagedDebtorUnpaidDebtPositionDTO result =debtPositionService.getPagedDebtorUnpaidDebtPosition(debtorFiscalCode, organizationIds, Pageable.ofSize(1), accessToken);
+
     Assertions.assertNotNull(result);
     Assertions.assertSame(expectedResult, result);
   }

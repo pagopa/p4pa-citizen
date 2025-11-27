@@ -35,7 +35,7 @@ class DebtPositionDTOMapperTest {
 
     result.getPaymentOptions().forEach(opt -> {
       assertEquals(PaymentOptionStatus.UNPAID, opt.getStatus());
-      assertEquals(PaymentOptionTypeEnum.SINGLE_INSTALLMENT, opt.getPaymentOptionType());
+      assertEquals(PaymentOptionType.SINGLE_INSTALLMENT, opt.getPaymentOptionType());
       assertEquals(1, opt.getPaymentOptionIndex());
       TestUtils.checkNotNullFields(opt, "paymentOptionId", "debtPositionId", "description","creationDate", "updateDate", "updateOperatorExternalId", "updateTraceId");
 
@@ -62,7 +62,7 @@ class DebtPositionDTOMapperTest {
 
     // then
     assertNotNull(result);
-    assertEquals(PaymentOptionTypeEnum.SINGLE_INSTALLMENT, result.getPaymentOptionType());
+    assertEquals(PaymentOptionType.SINGLE_INSTALLMENT, result.getPaymentOptionType());
     assertEquals(1, result.getPaymentOptionIndex());
     assertEquals(PaymentOptionStatus.UNPAID, result.getStatus());
     TestUtils.checkNotNullFields(result, "paymentOptionId", "debtPositionId", "description", "creationDate", "updateDate", "updateOperatorExternalId", "updateTraceId");

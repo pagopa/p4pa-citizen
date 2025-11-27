@@ -1,9 +1,12 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions.client;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.config.DebtPositionsApisHolder;
+import it.gov.pagopa.pu.citizen.utils.PageUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionOrigin;
+import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositionDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -50,5 +53,14 @@ public class DebtPositionClient {
 
   public List<DebtPositionDTO> getDebtPositionsByOrganizationIdAndIud(Long organizationId, String iud, List<DebtPositionOrigin> debtPositionOrigins, String accessToken){
     return debtPositionsApisHolder.getDebtPositionApi(accessToken).getDebtPositionsByOrganizationIdAndIud(organizationId, iud, debtPositionOrigins);
+  }
+
+  public PagedDebtorUnpaidDebtPositionDTO getPagedDebtorUnpaidDebtPosition(String debtorFiscalCode, List<Long> organizationIds, Pageable pageable, String accessToken){
+    return debtPositionsApisHolder.getDebtPositionApi(accessToken).getPagedDebtorUnpaidDebtPositions(
+      debtorFiscalCode,
+      organizationIds,
+      PageUtils.getPageNumber(pageable),
+      PageUtils.getPageSize(pageable),
+      PageUtils.getSortList(pageable));
   }
 }
