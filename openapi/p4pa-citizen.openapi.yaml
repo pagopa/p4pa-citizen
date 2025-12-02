@@ -310,7 +310,7 @@ paths:
           description: Not Found
         "500":
           description: Internal server error
-  /brokers/{brokerId}/unpaid/debt-positions:
+  /brokers/{brokerId}/debt-positions/unpaid:
     get:
       tags:
         - DebtPosition
