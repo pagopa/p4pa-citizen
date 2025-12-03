@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface DebtorUnpaidDebtPositionMapper {
+public interface DebtorUnpaidDebtPositionOverviewMapper {
 
   @Mapping(target = "organizationId", source = "organization.organizationId")
   @Mapping(target = "orgName", source = "organization.orgName")

@@ -208,4 +208,21 @@ class DebtPositionClientTest {
     Assertions.assertNotNull(result);
     Assertions.assertSame(expectedResult, result);
   }
+
+  @Test
+  void whenGetDebtorDebtPositionOverviewThenNullResult() {
+    String accessToken = "ACCESSTOKEN";
+    String debtorFiscalCode = "debtorFiscalCode";
+    Long organizationId = 1L;
+    Long debtPositionId = 1L;
+
+    when(debtPositionApisHolderMock.getDebtPositionApi(accessToken))
+      .thenReturn(debtPositionApiMock);
+    when(debtPositionApiMock.getDebtorUnpaidDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId))
+      .thenThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, "NotFound", null, null, null));
+
+    DebtorDebtPositionDTO result = debtPositionClient.getDebtorDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId, accessToken);
+
+    Assertions.assertNull(result);
+  }
 }

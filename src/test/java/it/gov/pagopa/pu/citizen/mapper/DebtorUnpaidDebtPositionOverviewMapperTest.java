@@ -18,9 +18,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DebtorUnpaidDebtPositionMapperTest {
+class DebtorUnpaidDebtPositionOverviewMapperTest {
 
-  private final DebtorUnpaidDebtPositionMapper mapper = Mappers.getMapper(DebtorUnpaidDebtPositionMapper.class);
+  private final DebtorUnpaidDebtPositionOverviewMapper mapper = Mappers.getMapper(DebtorUnpaidDebtPositionOverviewMapper.class);
   private final PodamFactory podam = TestUtils.getPodamFactory();
 
   private BasePaymentOption buildPaymentOption(long totalAmount, LocalDate... dueDates) {
@@ -144,4 +144,12 @@ class DebtorUnpaidDebtPositionMapperTest {
     assertNotNull(result);
     assertTrue(result.isEmpty());
   }
+
+  @Test
+  void givenNullInstallmentsWhenMapInstallmentsThenReturnEmptyList() {
+    List<DebtorInstallmentsOverviewDTO> result = mapper.mapInstallments(null);
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
+  }
+
 }
