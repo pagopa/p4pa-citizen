@@ -3,6 +3,7 @@ package it.gov.pagopa.pu.citizen.connector.debtpositions;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionClient;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionOrigin;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositionDTO;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -48,4 +49,8 @@ public class DebtPositionServiceImpl implements DebtPositionService{
     return debtPositionClient.getPagedDebtorUnpaidDebtPosition(debtorFiscalCode, organizationIds, pageable, accessToken);
   }
 
+  @Override
+  public DebtorDebtPositionDTO getDebtorDebtPositionOverview(Long debtPositionId, String debtorFiscalCode, Long organizationId, String accessToken) {
+    return debtPositionClient.getDebtorDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId, accessToken);
+  }
 }

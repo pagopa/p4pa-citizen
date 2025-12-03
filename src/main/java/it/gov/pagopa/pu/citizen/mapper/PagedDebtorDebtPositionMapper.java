@@ -35,10 +35,9 @@ public interface PagedDebtorDebtPositionMapper {
   @Mapping(target = "paymentOptions", expression = "java(mapPaymentOptions(debtorDebtPosition.getPaymentOptions()))")
   DebtorUnpaidDebtPositionDTO map(Organization organization, DebtorDebtPositionDTO debtorDebtPosition);
 
-  @Mapping(target = "paymentOptionType", source = "paymentOptionType")
   @Mapping(target = "dueDate", expression = "java(calculateDueDate(paymentOption))")
-  @Mapping(target = "totalAmountCents", expression = "java(calculateTotalAmountCents(paymentOption))")
-  DebtorPaymentOptionDTO map(BasePaymentOption paymentOption);
+  @Mapping(target = "totalAmountCents", source = "totalAmountCents")
+  DebtorPaymentOptionDTO map(BasePaymentOption paymentOption, Long totalAmountCents);
 
 
   default List<DebtorUnpaidDebtPositionDTO> mapDebtorDebtPositionDTOWithOrganizationAndPagedDebtorUnpaidDebtPositionDTO(Map<Long, Organization> organizationsMap, PagedDebtorUnpaidDebtPositionDTO source){
@@ -89,8 +88,9 @@ public interface PagedDebtorDebtPositionMapper {
       return Collections.emptyList();
     }
 
+    Long totalAmountCents = calculateTotalAmountCents(paymentOptions);
     return paymentOptions.stream()
-      .map(this::map)
+      .map(po-> map(po, totalAmountCents))
       .toList();
   }
 
