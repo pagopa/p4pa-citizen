@@ -210,7 +210,7 @@ class DebtPositionClientTest {
   }
 
   @Test
-  void whenGetDebtorDebtPositionOverviewThenNullResult() {
+  void givenNoDebtorDebtPositionDTOwhenGetDebtorDebtPositionOverviewThenNullResult() {
     String accessToken = "ACCESSTOKEN";
     String debtorFiscalCode = "debtorFiscalCode";
     Long organizationId = 1L;

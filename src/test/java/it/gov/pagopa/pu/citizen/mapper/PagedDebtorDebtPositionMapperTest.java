@@ -106,27 +106,12 @@ class PagedDebtorDebtPositionMapperTest {
   }
 
   @Test
-  void givenMultiplePaymentOptionsWhenCalculateDueDateThenReturnEarliestInstallment() {
-    BasePaymentOption po1 = buildPaymentOption(1000, LocalDate.of(2024, 1, 10));
-    BasePaymentOption po2 = buildPaymentOption(1000, LocalDate.of(2024, 1, 5));
+  void givenPaymentOptionsWhenCalculateDueDateThenReturnEarliestInstallment() {
+    BasePaymentOption po1 = buildPaymentOption(1000, LocalDate.of(2024, 1, 10), LocalDate.of(2023, 1, 10), LocalDate.of(2025, 1, 10));
 
-    LocalDate result = mapper.calculateDueDate(List.of(po1, po2));
+    LocalDate result = mapper.calculateDueDate(po1);
 
-    assertEquals(LocalDate.of(2024, 1, 5), result);
-  }
-
-  @Test
-  void givenSinglePaymentOptionWhenCalculateTotalAmountThenReturnSumOfInstallments() {
-    BasePaymentOption po = buildPaymentOption(
-      3000,
-      LocalDate.of(2024, 1, 10),
-      LocalDate.of(2024, 1, 20),
-      LocalDate.of(2024, 2, 10)
-    );
-
-    Long result = mapper.calculateTotalAmountCents(po);
-
-    assertEquals(3000L, result);
+    assertEquals(LocalDate.of(2023, 1, 10), result);
   }
 
   @Test
@@ -213,14 +198,6 @@ class PagedDebtorDebtPositionMapperTest {
     assertNotNull(result);
     assertTrue(result.isEmpty());
   }
-
-  @ParameterizedTest
-  @NullAndEmptySource
-  void givenNullOrEmptyPaymentOptionsWhenCalculateDueDateThenReturnNull(List<BasePaymentOption> paymentOptions) {
-    LocalDate result = mapper.calculateDueDate(paymentOptions);
-    assertNull(result);
-  }
-
 
   @ParameterizedTest
   @NullAndEmptySource
