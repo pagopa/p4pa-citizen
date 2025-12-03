@@ -11,6 +11,8 @@ import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositio
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mapstruct.factory.Mappers;
 import uk.co.jemos.podam.api.PodamFactory;
@@ -20,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -204,5 +207,23 @@ class PagedDebtorDebtPositionMapperTest {
   void givenNullOrEmptyPaymentOptionsWhenCalculateTotalAmountCentsThenReturnNull(List<BasePaymentOption> paymentOptions) {
     Long result = mapper.calculateTotalAmountCents(paymentOptions);
     assertNull(result);
+  }
+
+  @ParameterizedTest
+  @MethodSource("paymentOptionsSource")
+  void givenNullOrEmptyPaymentOptionsWhenCalculateDueDateThenReturnNull(BasePaymentOption paymentOption) {
+    LocalDate result = mapper.calculateDueDate(paymentOption);
+    assertNull(result);
+  }
+
+   static Stream<Arguments> paymentOptionsSource(){
+    BasePaymentOption basePaymentOption = new BasePaymentOption();
+    BasePaymentOption basePaymentOptionWithEmptyInstallments = new BasePaymentOption();
+    basePaymentOptionWithEmptyInstallments.setInstallments(Collections.emptyList());
+
+    return Stream.of(
+      Arguments.of(basePaymentOption),
+      Arguments.of(basePaymentOptionWithEmptyInstallments)
+    );
   }
 }
