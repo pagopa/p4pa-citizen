@@ -68,7 +68,7 @@ public interface PagedDebtorDebtPositionMapper {
       return null;
     }
 
-    if (paymentOptions.size() == 1) {
+    if (paymentOptions.size() == 1 && paymentOptions.getFirst().getInstallments() != null) {
       return paymentOptions.getFirst().getInstallments()
         .stream()
         .mapToLong(BaseInstallment::getAmountCents)
@@ -95,11 +95,12 @@ public interface PagedDebtorDebtPositionMapper {
   }
 
   default LocalDate calculateDueDate(List<BasePaymentOption> paymentOptions) {
-    if (paymentOptions == null || paymentOptions.isEmpty()) {
+    if (paymentOptions == null || paymentOptions.isEmpty() ) {
       return null;
     }
 
     return paymentOptions.stream()
+      .filter(po-> po.getInstallments() != null)
       .flatMap(po -> po.getInstallments().stream())
       .map(BaseInstallment::getDueDate)
       .filter(Objects::nonNull)

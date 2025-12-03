@@ -4,6 +4,7 @@ import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionClien
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionOrigin;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositionDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -134,4 +135,23 @@ class DebtPositionServiceImplTest {
     Assertions.assertSame(expectedResult, result);
   }
 
+  @Test
+  void whenGetDebtorDebtPositionOverviewThenInvokeClient() {
+    String accessToken = "ACCESSTOKEN";
+    String debtorFiscalCode = "debtorFiscalCode";
+    Long organizationId = 1L;
+    Long debtPositionId = 1L;
+
+    DebtorDebtPositionDTO expectedResult = podamFactory.manufacturePojo(DebtorDebtPositionDTO.class);
+
+
+    when(debtPositionClientMock.getDebtorDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId, accessToken))
+      .thenReturn(expectedResult);
+
+    DebtorDebtPositionDTO result = debtPositionService.getDebtorDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId, accessToken);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertSame(expectedResult, result);
+
+  }
 }
