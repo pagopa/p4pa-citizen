@@ -6,12 +6,14 @@ import it.gov.pagopa.pu.citizen.connector.pagopapayments.PrintPaymentNoticeServi
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionOverviewDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorDebtPositionDTO;
 import it.gov.pagopa.pu.citizen.exception.ConflictException;
 import it.gov.pagopa.pu.citizen.exception.InvalidParamException;
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionDTOMapper;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionResponseDTOMapper;
+import it.gov.pagopa.pu.citizen.mapper.DebtorUnpaidDebtPositionOverviewMapper;
 import it.gov.pagopa.pu.citizen.mapper.PagedDebtorDebtPositionMapper;
 import it.gov.pagopa.pu.citizen.service.ZipFileService;
 import it.gov.pagopa.pu.citizen.service.organization.BrokerOrganizationsRetrieverService;
@@ -60,6 +62,8 @@ class DebtPositionFacadeServiceImplTest {
   private BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverServiceMock;
   @Mock
   private PagedDebtorDebtPositionMapper pagedDebtorDebtPositionMapperMock;
+  @Mock
+  private DebtorUnpaidDebtPositionOverviewMapper debtorUnpaidDebtPositionOverviewMapperMock;
 
   private DebtPositionFacadeService debtPositionFacadeService;
 
@@ -70,7 +74,7 @@ class DebtPositionFacadeServiceImplTest {
   @BeforeEach
   void setUp() {
     debtPositionFacadeService = new DebtPositionFacadeServiceImpl(debtPositionServiceMock, debtPositionDTOMapperMock, 1,
-        debtPositionResponseDTOMapperMock, printPaymentNoticeServiceMock, zipFileServiceMock, organizationRetrieverServiceMock, brokerOrganizationsRetrieverServiceMock, pagedDebtorDebtPositionMapperMock);
+        debtPositionResponseDTOMapperMock, printPaymentNoticeServiceMock, zipFileServiceMock, organizationRetrieverServiceMock, brokerOrganizationsRetrieverServiceMock, pagedDebtorDebtPositionMapperMock, debtorUnpaidDebtPositionOverviewMapperMock);
   }
 
   @AfterEach
@@ -81,7 +85,8 @@ class DebtPositionFacadeServiceImplTest {
       debtPositionResponseDTOMapperMock,
       printPaymentNoticeServiceMock,
       zipFileServiceMock,
-      organizationRetrieverServiceMock
+      organizationRetrieverServiceMock,
+      debtorUnpaidDebtPositionOverviewMapperMock
     );
   }
 
@@ -592,6 +597,56 @@ class DebtPositionFacadeServiceImplTest {
       .thenReturn(organizations);
 
     assertThrows(ResourceNotFoundException.class, () -> debtPositionFacadeService.getPagedUnpaidDebtPositions(xFiscalCode,brokerId, null, null, pageable, accessToken));
+  }
+
+  @Test
+  void givenValidDebtPositionOverviewWhenGetThenReturnMappedDTO() {
+    // given
+    Long brokerId = 1L;
+    Long debtPositionId = 2L;
+    Long organizationId = 3L;
+    String debtorFiscalCode = "debtorFiscalCode";
+
+    Organization org = podamFactory.manufacturePojo(Organization.class);
+    DebtorDebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtorDebtPositionDTO.class);
+    DebtorUnpaidDebtPositionOverviewDTO expectedDTO = podamFactory.manufacturePojo(DebtorUnpaidDebtPositionOverviewDTO.class);
+
+    Mockito.when(debtPositionServiceMock.getDebtorDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId, accessToken))
+      .thenReturn(debtPositionDTO);
+    Mockito.when(organizationRetrieverServiceMock.getValidOrganization(organizationId, brokerId, accessToken))
+      .thenReturn(org);
+    Mockito.when(debtorUnpaidDebtPositionOverviewMapperMock.map(org, debtPositionDTO))
+      .thenReturn(expectedDTO);
+
+    // when
+    DebtorUnpaidDebtPositionOverviewDTO result = debtPositionFacadeService.getDebtorUnpaidDebtPositionOverview(
+      brokerId, debtPositionId, debtorFiscalCode, organizationId, accessToken
+    );
+
+    // then
+    assertNotNull(result);
+    assertSame(expectedDTO, result);
+  }
+
+  @Test
+  void givenNullDebtPositionOverviewWhenGetThenReturnNull() {
+    // given
+    Long brokerId = 1L;
+    Long debtPositionId = 2L;
+    Long organizationId = 3L;
+    String debtorFiscalCode = "debtorFiscalCode";
+
+    Mockito.when(debtPositionServiceMock.getDebtorDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId, accessToken))
+      .thenReturn(null);
+
+    // when
+    DebtorUnpaidDebtPositionOverviewDTO result = debtPositionFacadeService.getDebtorUnpaidDebtPositionOverview(
+      brokerId, debtPositionId, debtorFiscalCode, organizationId, accessToken
+    );
+
+    // then
+    assertNull(result);
+    Mockito.verifyNoInteractions(organizationRetrieverServiceMock, debtorUnpaidDebtPositionOverviewMapperMock);
   }
 
 }

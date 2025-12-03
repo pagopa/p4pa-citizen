@@ -11,6 +11,8 @@ import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositio
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mapstruct.factory.Mappers;
 import uk.co.jemos.podam.api.PodamFactory;
@@ -20,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -106,27 +109,12 @@ class PagedDebtorDebtPositionMapperTest {
   }
 
   @Test
-  void givenMultiplePaymentOptionsWhenCalculateDueDateThenReturnEarliestInstallment() {
-    BasePaymentOption po1 = buildPaymentOption(1000, LocalDate.of(2024, 1, 10));
-    BasePaymentOption po2 = buildPaymentOption(1000, LocalDate.of(2024, 1, 5));
+  void givenPaymentOptionsWhenCalculateDueDateThenReturnEarliestInstallment() {
+    BasePaymentOption po1 = buildPaymentOption(1000, LocalDate.of(2024, 1, 10), LocalDate.of(2023, 1, 10), LocalDate.of(2025, 1, 10));
 
-    LocalDate result = mapper.calculateDueDate(List.of(po1, po2));
+    LocalDate result = mapper.calculateDueDate(po1);
 
-    assertEquals(LocalDate.of(2024, 1, 5), result);
-  }
-
-  @Test
-  void givenSinglePaymentOptionWhenCalculateTotalAmountThenReturnSumOfInstallments() {
-    BasePaymentOption po = buildPaymentOption(
-      3000,
-      LocalDate.of(2024, 1, 10),
-      LocalDate.of(2024, 1, 20),
-      LocalDate.of(2024, 2, 10)
-    );
-
-    Long result = mapper.calculateTotalAmountCents(po);
-
-    assertEquals(3000L, result);
+    assertEquals(LocalDate.of(2023, 1, 10), result);
   }
 
   @Test
@@ -216,16 +204,26 @@ class PagedDebtorDebtPositionMapperTest {
 
   @ParameterizedTest
   @NullAndEmptySource
-  void givenNullOrEmptyPaymentOptionsWhenCalculateDueDateThenReturnNull(List<BasePaymentOption> paymentOptions) {
-    LocalDate result = mapper.calculateDueDate(paymentOptions);
-    assertNull(result);
-  }
-
-
-  @ParameterizedTest
-  @NullAndEmptySource
   void givenNullOrEmptyPaymentOptionsWhenCalculateTotalAmountCentsThenReturnNull(List<BasePaymentOption> paymentOptions) {
     Long result = mapper.calculateTotalAmountCents(paymentOptions);
     assertNull(result);
+  }
+
+  @ParameterizedTest
+  @MethodSource("paymentOptionsSource")
+  void givenNullOrEmptyPaymentOptionsWhenCalculateDueDateThenReturnNull(BasePaymentOption paymentOption) {
+    LocalDate result = mapper.calculateDueDate(paymentOption);
+    assertNull(result);
+  }
+
+   static Stream<Arguments> paymentOptionsSource(){
+    BasePaymentOption basePaymentOption = new BasePaymentOption();
+    BasePaymentOption basePaymentOptionWithEmptyInstallments = new BasePaymentOption();
+    basePaymentOptionWithEmptyInstallments.setInstallments(Collections.emptyList());
+
+    return Stream.of(
+      Arguments.of(basePaymentOption),
+      Arguments.of(basePaymentOptionWithEmptyInstallments)
+    );
   }
 }

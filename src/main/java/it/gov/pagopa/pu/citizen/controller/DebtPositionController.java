@@ -4,6 +4,7 @@ import it.gov.pagopa.pu.citizen.controller.generated.DebtPositionApi;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionOverviewDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorDebtPositionDTO;
 import it.gov.pagopa.pu.citizen.security.SecurityUtils;
 import it.gov.pagopa.pu.citizen.service.debtposition.DebtPositionFacadeService;
@@ -81,5 +82,11 @@ public class DebtPositionController implements DebtPositionApi {
   public ResponseEntity<PagedDebtorDebtPositionDTO> getPagedUnpaidDebtPositions(String xFiscalCode, Long brokerId, String orgName, String orgFiscalCode, Pageable pageable) {
     log.info("User requested getPagedUnpaidDebtPositions having brokerId {} orgName {} and orgFiscalCode {}", brokerId, orgName, orgFiscalCode);
     return ResponseEntity.ok(debtPositionFacadeService.getPagedUnpaidDebtPositions(xFiscalCode, brokerId, orgName, orgFiscalCode, pageable, SecurityUtils.getAccessToken()));
+  }
+
+  @Override
+  public ResponseEntity<DebtorUnpaidDebtPositionOverviewDTO> getDebtorUnpaidDebtPositionOverview(Long brokerId, Long debtPositionId, String xFiscalCode, Long organizationId) {
+    log.info("User requested getDebtorUnpaidDebtPositionOverview having brokerId {} debtPositionId {} and organizationId {}", brokerId, debtPositionId, organizationId);
+    return ResponseEntity.ofNullable(debtPositionFacadeService.getDebtorUnpaidDebtPositionOverview(brokerId, debtPositionId, xFiscalCode, organizationId,  SecurityUtils.getAccessToken()));
   }
 }

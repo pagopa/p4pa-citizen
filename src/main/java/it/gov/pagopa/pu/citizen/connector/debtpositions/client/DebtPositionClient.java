@@ -4,6 +4,7 @@ import it.gov.pagopa.pu.citizen.connector.debtpositions.config.DebtPositionsApis
 import it.gov.pagopa.pu.citizen.utils.PageUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionOrigin;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositionDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -62,5 +63,15 @@ public class DebtPositionClient {
       PageUtils.getPageNumber(pageable),
       PageUtils.getPageSize(pageable),
       PageUtils.getSortList(pageable));
+  }
+
+  public DebtorDebtPositionDTO getDebtorDebtPositionOverview(Long debtPositionId, String debtorFiscalCode, Long organizationId, String accessToken){
+    try {
+      return debtPositionsApisHolder.getDebtPositionApi(accessToken)
+        .getDebtorUnpaidDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId);
+    }catch (HttpClientErrorException.NotFound e) {
+      log.warn("DebtorDebtPositionDTO having debtPositionId {}  and organizationId {} not found", debtPositionId, organizationId);
+      return null;
+    }
   }
 }

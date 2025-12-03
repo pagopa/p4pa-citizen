@@ -35,10 +35,9 @@ public interface PagedDebtorDebtPositionMapper {
   @Mapping(target = "paymentOptions", expression = "java(mapPaymentOptions(debtorDebtPosition.getPaymentOptions()))")
   DebtorUnpaidDebtPositionDTO map(Organization organization, DebtorDebtPositionDTO debtorDebtPosition);
 
-  @Mapping(target = "paymentOptionType", source = "paymentOptionType")
   @Mapping(target = "dueDate", expression = "java(calculateDueDate(paymentOption))")
-  @Mapping(target = "totalAmountCents", expression = "java(calculateTotalAmountCents(paymentOption))")
-  DebtorPaymentOptionDTO map(BasePaymentOption paymentOption);
+  @Mapping(target = "totalAmountCents", source = "totalAmountCents")
+  DebtorPaymentOptionDTO map(BasePaymentOption paymentOption, Long totalAmountCents);
 
 
   default List<DebtorUnpaidDebtPositionDTO> mapDebtorDebtPositionDTOWithOrganizationAndPagedDebtorUnpaidDebtPositionDTO(Map<Long, Organization> organizationsMap, PagedDebtorUnpaidDebtPositionDTO source){
@@ -55,21 +54,12 @@ public interface PagedDebtorDebtPositionMapper {
     return organization;
   }
 
-  default LocalDate calculateDueDate(BasePaymentOption paymentOption) {
-    return calculateDueDate(List.of(paymentOption));
-  }
-
-  default Long calculateTotalAmountCents(BasePaymentOption paymentOption) {
-    return calculateTotalAmountCents(List.of(paymentOption));
-  }
-
-
   default Long calculateTotalAmountCents(List<BasePaymentOption> paymentOptions) {
     if (paymentOptions == null || paymentOptions.isEmpty()) {
       return null;
     }
 
-    if (paymentOptions.size() == 1) {
+    if (paymentOptions.size() == 1 && paymentOptions.getFirst().getInstallments() != null) {
       return paymentOptions.getFirst().getInstallments()
         .stream()
         .mapToLong(BaseInstallment::getAmountCents)
@@ -89,18 +79,21 @@ public interface PagedDebtorDebtPositionMapper {
       return Collections.emptyList();
     }
 
+    Long totalAmountCents = calculateTotalAmountCents(paymentOptions);
     return paymentOptions.stream()
-      .map(this::map)
+      .map(po-> map(po, totalAmountCents))
       .toList();
   }
 
-  default LocalDate calculateDueDate(List<BasePaymentOption> paymentOptions) {
-    if (paymentOptions == null || paymentOptions.isEmpty()) {
+  default LocalDate calculateDueDate(BasePaymentOption paymentOption) {
+    if (paymentOption == null
+      || paymentOption.getInstallments() == null
+      || paymentOption.getInstallments().isEmpty()) {
       return null;
     }
 
-    return paymentOptions.stream()
-      .flatMap(po -> po.getInstallments().stream())
+    return paymentOption.getInstallments()
+      .stream()
       .map(BaseInstallment::getDueDate)
       .filter(Objects::nonNull)
       .min(LocalDate::compareTo)
