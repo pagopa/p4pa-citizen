@@ -3,19 +3,13 @@ package it.gov.pagopa.pu.citizen.mapper;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorPaymentOptionDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorDebtPositionDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.BaseInstallment;
-import it.gov.pagopa.pu.debtpositions.dto.generated.BasePaymentOption;
-import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositionDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.*;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Mapper(componentModel = "spring")
 public interface PagedDebtorDebtPositionMapper {
@@ -81,7 +75,13 @@ public interface PagedDebtorDebtPositionMapper {
 
     Long totalAmountCents = calculateTotalAmountCents(paymentOptions);
     return paymentOptions.stream()
-      .map(po-> map(po, totalAmountCents))
+      .map(po -> map(po, totalAmountCents))
+      .sorted(
+        Comparator.comparing(
+          DebtorPaymentOptionDTO::getDueDate,
+          Comparator.nullsLast(Comparator.naturalOrder())
+        )
+      )
       .toList();
   }
 
