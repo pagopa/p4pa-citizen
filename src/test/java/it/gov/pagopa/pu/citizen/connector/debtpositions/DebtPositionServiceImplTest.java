@@ -1,11 +1,11 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionClient;
-import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionViewSearchClient;
-import it.gov.pagopa.pu.citizen.connector.debtpositions.client.InstallmentNoPiiSearchClient;
-import it.gov.pagopa.pu.citizen.connector.debtpositions.client.PaymentOptionSearchClient;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
-import it.gov.pagopa.pu.debtpositions.dto.generated.*;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionOrigin;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositionDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,23 +14,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.util.List;
+
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DebtPositionServiceImplTest {
 
   @Mock
   private DebtPositionClient debtPositionClientMock;
-  @Mock
-  private DebtPositionViewSearchClient debtPositionViewSearchClientMock;
-  @Mock
-  private PaymentOptionSearchClient paymentOptionSearchClientMock;
-  @Mock
-  private InstallmentNoPiiSearchClient installmentNoPiiSearchClientMock;
 
   private final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
@@ -38,7 +33,7 @@ class DebtPositionServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    debtPositionService = new DebtPositionServiceImpl(debtPositionClientMock, debtPositionViewSearchClientMock, paymentOptionSearchClientMock, installmentNoPiiSearchClientMock);
+    debtPositionService = new DebtPositionServiceImpl(debtPositionClientMock);
   }
 
   @AfterEach
@@ -124,68 +119,39 @@ class DebtPositionServiceImplTest {
   }
 
   @Test
-  void whenGetPagedModelDebtPositionViewThenInvokeClient() {
-    // given
-    String accessToken = "ACCESS_TOKEN";
-    List<Long> organizationIds = List.of(1L, 2L);
+  void whenGetPagedDebtorUnpaidDebtPositionThenInvokeClient() {
+    String accessToken = "ACCESSTOKEN";
     String debtorFiscalCode = "debtorFiscalCode";
-    Pageable pageable = PageRequest.of(0, 10);
+    List<Long> organizationIds = List.of(1L);
 
-    PagedModelDebtPositionView expectedResult = podamFactory.manufacturePojo(PagedModelDebtPositionView.class);
+    PagedDebtorUnpaidDebtPositionDTO expectedResult = podamFactory.manufacturePojo(PagedDebtorUnpaidDebtPositionDTO.class);
 
-    Mockito.when(debtPositionViewSearchClientMock.getPagedModelDebtPositionView(
-      organizationIds, debtorFiscalCode, accessToken, pageable
-    )).thenReturn(expectedResult);
+    when(debtPositionClientMock.getPagedDebtorUnpaidDebtPosition(debtorFiscalCode, organizationIds,  Pageable.ofSize(1), accessToken))
+      .thenReturn(expectedResult);
 
-    // when
-    PagedModelDebtPositionView result =
-      debtPositionService.getPagedModelDebtPositionView(organizationIds, debtorFiscalCode, accessToken, pageable);
+    PagedDebtorUnpaidDebtPositionDTO result =debtPositionService.getPagedDebtorUnpaidDebtPosition(debtorFiscalCode, organizationIds, Pageable.ofSize(1), accessToken);
 
-    // then
     Assertions.assertNotNull(result);
     Assertions.assertSame(expectedResult, result);
   }
 
   @Test
-  void whenGetPaymentOptionsThenInvokeClient() {
-    // given
-    String accessToken = "ACCESS_TOKEN";
-    Long debtPositionId = 100L;
+  void whenGetDebtorDebtPositionOverviewThenInvokeClient() {
+    String accessToken = "ACCESSTOKEN";
+    String debtorFiscalCode = "debtorFiscalCode";
+    Long organizationId = 1L;
+    Long debtPositionId = 1L;
 
-    List<PaymentOption> expectedResult = podamFactory.manufacturePojo(List.class, PaymentOption.class);
+    DebtorDebtPositionDTO expectedResult = podamFactory.manufacturePojo(DebtorDebtPositionDTO.class);
 
-    Mockito.when(paymentOptionSearchClientMock.getPaymentOptions(debtPositionId, accessToken))
+
+    when(debtPositionClientMock.getDebtorDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId, accessToken))
       .thenReturn(expectedResult);
 
-    // when
-    List<PaymentOption> result =
-      debtPositionService.getPaymentOptions(debtPositionId, accessToken);
+    DebtorDebtPositionDTO result = debtPositionService.getDebtorDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId, accessToken);
 
-    // then
     Assertions.assertNotNull(result);
     Assertions.assertSame(expectedResult, result);
+
   }
-
-  @Test
-  void whenGetInstallmentsThenInvokeClient() {
-    // given
-    String accessToken = "ACCESS_TOKEN";
-    Long debtPositionId = 100L;
-    String installmentStatuses = "PAID,UNPAID";
-
-    List<InstallmentNoPII> expectedResult = podamFactory.manufacturePojo(List.class, InstallmentNoPII.class);
-
-    Mockito.when(installmentNoPiiSearchClientMock.getInstallments(debtPositionId, installmentStatuses, accessToken))
-      .thenReturn(expectedResult);
-
-    // when
-    List<InstallmentNoPII> result =
-      debtPositionService.getInstallments(debtPositionId, installmentStatuses, accessToken);
-
-    // then
-    Assertions.assertNotNull(result);
-    Assertions.assertSame(expectedResult, result);
-  }
-
-
 }

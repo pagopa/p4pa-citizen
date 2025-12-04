@@ -4,6 +4,7 @@ import it.gov.pagopa.pu.citizen.connector.organization.config.OrganizationApisHo
 import it.gov.pagopa.pu.citizen.utils.PageUtils;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.organization.controller.generated.OrganizationSearchControllerApi;
+import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import it.gov.pagopa.pu.organization.dto.generated.OrganizationStatus;
 import it.gov.pagopa.pu.organization.dto.generated.PagedModelOrganization;
 import org.junit.jupiter.api.AfterEach;
@@ -16,6 +17,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.util.ArrayList;
@@ -117,4 +120,35 @@ class OrganizationSearchClientTest {
     Assertions.assertSame(expectedResult, result);
   }
 
+
+  @Test
+  void whenGetBrokerOrganizationThenInvokeWithAccessToken() {
+    Long brokerId = 1L;
+    String accessToken = "ACCESSTOKEN";
+    Organization expectedResult = new Organization();
+
+    Mockito.when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
+      .thenReturn(organizationSearchControllerApiMock);
+    Mockito.when(organizationSearchControllerApiMock.crudOrganizationsGetBrokerOrganization(brokerId))
+      .thenReturn(expectedResult);
+
+    Organization result = organizationSearchClient.getBrokerOrganization(brokerId, accessToken);
+
+    Assertions.assertSame(expectedResult, result);
+  }
+
+  @Test
+  void givenNotFoundWhenGetBrokerOrganizationThenNull() {
+    Long brokerId = 1L;
+    String accessToken = "ACCESSTOKEN";
+
+    Mockito.when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
+      .thenReturn(organizationSearchControllerApiMock);
+    Mockito.when(organizationSearchControllerApiMock.crudOrganizationsGetBrokerOrganization(brokerId))
+      .thenThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, "NotFound", null, null, null));
+
+    Organization result = organizationSearchClient.getBrokerOrganization(brokerId, accessToken);
+
+    Assertions.assertNull(result);
+  }
 }

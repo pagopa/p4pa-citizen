@@ -7,6 +7,33 @@ servers:
   - url: "http://localhost:8080"
     description: Generated server url
 paths:
+  /brokers/{brokerId}:
+    get:
+      tags:
+        - Broker
+      operationId: getBrokerInfo
+      parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BrokerInfoDTO"
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden - Access denied
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /brokers/{brokerId}/spontaneous/organizations:
     get:
       tags:
@@ -283,10 +310,95 @@ paths:
           description: Not Found
         "500":
           description: Internal server error
+  /brokers/{brokerId}/debt-positions/unpaid:
+    get:
+      tags:
+        - DebtPosition
+      operationId: getPagedUnpaidDebtPositions
+      parameters:
+        - name: X-fiscal-code
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: orgName
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: orgFiscalCode
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedDebtorDebtPositionDTO"
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden - Access denied
+        '500':
+          description: Internal Server Error
+      x-spring-paginated: true
+  /brokers/{brokerId}/debt-positions/debtor/unpaid/{debtPositionId}/overview:
+    get:
+      tags:
+        - debt-position
+      operationId: getDebtorUnpaidDebtPositionOverview
+      parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: debtPositionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: X-fiscal-code
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organizationId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DebtorUnpaidDebtPositionOverviewDTO"
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden - Access denied
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /brokers/{brokerId}/receipts:
     get:
       tags:
-        - receipt
+        - Receipt
       operationId: getPagedDebtorReceipts
       parameters:
         - name: brokerId
@@ -664,6 +776,162 @@ components:
           type: string
         serviceType:
           type: string
+    PagedDebtorDebtPositionDTO:
+      type: object
+      required:
+        - content
+        - size
+        - totalElements
+        - totalPages
+        - number
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/DebtorUnpaidDebtPositionDTO'
+        size:
+          type: integer
+          format: int64
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int64
+        number:
+          type: integer
+          format: int64
+    DebtorUnpaidDebtPositionDTO:
+      type: object
+      required:
+        - debtPositionId
+        - debtPositionDescription
+        - debtPositionTypeOrgDescription
+        - organizationId
+        - orgFiscalCode
+        - orgName
+        - paymentOptions
+      properties:
+        debtPositionId:
+          type: integer
+          format: int64
+        debtPositionDescription:
+          type: string
+        debtPositionTypeOrgDescription:
+          type: string
+        status:
+          type: 'DebtPositionStatus'
+        organizationId:
+          type: integer
+          format: int64
+        orgFiscalCode:
+          type: string
+        orgName:
+          type: string
+        paymentOptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DebtorPaymentOptionDTO'
+    DebtorPaymentOptionDTO:
+      type: object
+      required:
+        - paymentOptionId
+        - paymentOptionType
+        - status
+      properties:
+        paymentOptionId:
+          type: integer
+          format: int64
+        paymentOptionType:
+          type: 'PaymentOptionType'
+        status:
+          type: 'PaymentOptionStatus'
+        totalAmountCents:
+          type: integer
+          format: int64
+        dueDate:
+          type: string
+          format: date
+    DebtorUnpaidDebtPositionOverviewDTO:
+      type: object
+      required:
+        - debtPositionId
+        - debtPositionDescription
+        - debtPositionTypeOrgDescription
+        - organizationId
+        - orgFiscalCode
+        - orgName
+        - paymentOptions
+      properties:
+        debtPositionId:
+          type: integer
+          format: int64
+        debtPositionDescription:
+          type: string
+        debtPositionTypeOrgDescription:
+          type: string
+        status:
+          type: 'DebtPositionStatus'
+        iupd:
+          type: string
+        organizationId:
+          type: integer
+          format: int64
+        orgFiscalCode:
+          type: string
+        orgName:
+          type: string
+        paymentOptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DebtorPaymentOptionOverviewDTO'
+    DebtorPaymentOptionOverviewDTO:
+      type: object
+      required:
+        - paymentOptionId
+        - paymentOptionType
+        - status
+        - installments
+      properties:
+        paymentOptionId:
+          type: integer
+          format: int64
+        paymentOptionType:
+          type: 'PaymentOptionType'
+        status:
+          type: 'PaymentOptionStatus'
+        totalAmountCents:
+          type: integer
+          format: int64
+        installments:
+          type: array
+          items:
+            $ref: '#/components/schemas/DebtorInstallmentsOverviewDTO'
+    DebtorInstallmentsOverviewDTO:
+      type: object
+      required:
+        - installmentId
+        - status
+        - amount
+        - remittanceInformation
+      properties:
+        installmentId:
+          type: integer
+          format: int64
+        status:
+          type: 'InstallmentStatus'
+        dueDate:
+          type: string
+          format: date
+        iuv:
+          type: string
+        nav:
+          type: string
+        amountCents:
+          type: integer
+          format: int64
+        remittanceInformation:
+          type: string
     ErrorDTO:
       type: object
       required:
@@ -682,3 +950,17 @@ components:
           type: string
         traceId:
           type: string
+    BrokerInfoDTO:
+      type: object
+      required:
+        - brokerName
+        - brokerFiscalCode
+      properties:
+        brokerName:
+          type: string
+        brokerFiscalCode:
+          type: string
+        brokerLogo:
+          type: string
+          format: base64
+          description: Base64 encoded logo of the organization

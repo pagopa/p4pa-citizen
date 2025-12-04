@@ -118,4 +118,17 @@ class OrganizationServiceImplTest {
     Assertions.assertSame(expectedResult, result);
   }
 
+  @Test
+  void whenGetBrokerOrganizationThenInvokeClient() {
+    Organization expectedResult = new Organization();
+    Long brokerId = 1L;
+    String accessToken = "accessToken";
+
+    when(organizationSearchClientMock.getBrokerOrganization(Mockito.same(brokerId), Mockito.same(accessToken)))
+      .thenReturn(expectedResult);
+
+    Organization result = organizationService.getBrokerOrganization(brokerId, accessToken);
+
+    assertSame(expectedResult, result);
+  }
 }

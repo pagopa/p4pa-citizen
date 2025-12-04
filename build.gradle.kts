@@ -185,7 +185,11 @@ openApiGenerate {
     "PersonDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.PersonDTO",
     "DebtPositionDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO",
     "ReceiptOrigin" to "it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptOriginType",
-    "ReceiptDetailDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptDetailDTO"
+    "ReceiptDetailDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptDetailDTO",
+    "PaymentOptionType" to "it.gov.pagopa.pu.debtpositions.dto.generated.PaymentOptionType",
+    "PaymentOptionStatus" to "it.gov.pagopa.pu.debtpositions.dto.generated.PaymentOptionStatus",
+    "DebtPositionStatus" to "it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionStatus",
+    "InstallmentStatus" to "it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus"
   ))
 }
 

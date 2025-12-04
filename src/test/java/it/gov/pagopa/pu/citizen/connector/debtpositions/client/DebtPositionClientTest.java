@@ -6,6 +6,8 @@ import it.gov.pagopa.pu.debtpositions.controller.generated.DebtPositionApi;
 import it.gov.pagopa.pu.debtpositions.controller.generated.DebtPositionViewSearchControllerApi;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionOrigin;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositionDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,10 +16,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.co.jemos.podam.api.PodamFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
@@ -164,5 +168,61 @@ class DebtPositionClientTest {
     List<DebtPositionDTO> result = debtPositionClient.getDebtPositionsByOrganizationIdAndIud(organizationId, iud, debtPositionOrigins, accessToken);
 
     Assertions.assertSame(expectedResult, result);
+  }
+
+  @Test
+  void whenGetPagedDebtorUnpaidDebtPositionThenInvokeWithAccessToken() {
+    String accessToken = "ACCESSTOKEN";
+    String debtorFiscalCode = "debtorFiscalCode";
+    List<Long> organizationIds = List.of(1L);
+
+    PagedDebtorUnpaidDebtPositionDTO expectedResult = podamFactory.manufacturePojo(PagedDebtorUnpaidDebtPositionDTO.class);
+
+    when(debtPositionApisHolderMock.getDebtPositionApi(accessToken))
+      .thenReturn(debtPositionApiMock);
+    when(debtPositionApiMock.getPagedDebtorUnpaidDebtPositions(debtorFiscalCode, organizationIds, 0, 1, new ArrayList<>()))
+      .thenReturn(expectedResult);
+
+    PagedDebtorUnpaidDebtPositionDTO result = debtPositionClient.getPagedDebtorUnpaidDebtPosition(debtorFiscalCode, organizationIds, Pageable.ofSize(1), accessToken);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertSame(expectedResult, result);
+  }
+
+  @Test
+  void whenGetDebtorDebtPositionOverviewThenInvokeWithAccessToken() {
+    String accessToken = "ACCESSTOKEN";
+    String debtorFiscalCode = "debtorFiscalCode";
+    Long organizationId = 1L;
+    Long debtPositionId = 1L;
+
+    DebtorDebtPositionDTO expectedResult = podamFactory.manufacturePojo(DebtorDebtPositionDTO.class);
+
+    when(debtPositionApisHolderMock.getDebtPositionApi(accessToken))
+      .thenReturn(debtPositionApiMock);
+    when(debtPositionApiMock.getDebtorUnpaidDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId))
+      .thenReturn(expectedResult);
+
+    DebtorDebtPositionDTO result = debtPositionClient.getDebtorDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId, accessToken);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertSame(expectedResult, result);
+  }
+
+  @Test
+  void givenNoDebtorDebtPositionDTOwhenGetDebtorDebtPositionOverviewThenNullResult() {
+    String accessToken = "ACCESSTOKEN";
+    String debtorFiscalCode = "debtorFiscalCode";
+    Long organizationId = 1L;
+    Long debtPositionId = 1L;
+
+    when(debtPositionApisHolderMock.getDebtPositionApi(accessToken))
+      .thenReturn(debtPositionApiMock);
+    when(debtPositionApiMock.getDebtorUnpaidDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId))
+      .thenThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, "NotFound", null, null, null));
+
+    DebtorDebtPositionDTO result = debtPositionClient.getDebtorDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId, accessToken);
+
+    Assertions.assertNull(result);
   }
 }

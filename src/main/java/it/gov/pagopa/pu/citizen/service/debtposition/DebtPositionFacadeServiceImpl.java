@@ -5,24 +5,32 @@ import it.gov.pagopa.pu.citizen.connector.pagopapayments.PrintPaymentNoticeServi
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionOverviewDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorDebtPositionDTO;
 import it.gov.pagopa.pu.citizen.exception.ConflictException;
 import it.gov.pagopa.pu.citizen.exception.InvalidParamException;
+import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionDTOMapper;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionResponseDTOMapper;
+import it.gov.pagopa.pu.citizen.mapper.DebtorUnpaidDebtPositionOverviewMapper;
+import it.gov.pagopa.pu.citizen.mapper.PagedDebtorDebtPositionMapper;
 import it.gov.pagopa.pu.citizen.service.ZipFileService;
+import it.gov.pagopa.pu.citizen.service.organization.BrokerOrganizationsRetrieverService;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositionDTO;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import jakarta.validation.ValidationException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static it.gov.pagopa.pu.citizen.utils.DebtPositionConstants.ORDINARY_DEBTPOSITION_ORIGINS;
 import static it.gov.pagopa.pu.citizen.utils.DebtPositionConstants.PAYABLE_STATUSES;
@@ -37,12 +45,20 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
   private final PrintPaymentNoticeService printPaymentNoticeService;
   private final ZipFileService zipFileService;
   private final OrganizationRetrieverService organizationRetrieverService;
+  private final BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverService;
+  private final PagedDebtorDebtPositionMapper pagedDebtorDebtPositionMapper;
+  private final DebtorUnpaidDebtPositionOverviewMapper debtorUnpaidDebtPositionOverviewMapper;
 
   public DebtPositionFacadeServiceImpl(DebtPositionService debtPositionService,
                                        DebtPositionDTOMapper debtPositionDTOMapper,
                                        @Value("${spontaneous.expiration-days}")Integer expirationDays,
                                        DebtPositionResponseDTOMapper debtPositionResponseDTOMapper,
-                                       PrintPaymentNoticeService printPaymentNoticeService, ZipFileService zipFileService, OrganizationRetrieverService organizationRetrieverService
+                                       PrintPaymentNoticeService printPaymentNoticeService,
+                                       ZipFileService zipFileService,
+                                       OrganizationRetrieverService organizationRetrieverService,
+                                       BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverService,
+                                       PagedDebtorDebtPositionMapper pagedDebtorDebtPositionMapper,
+                                       DebtorUnpaidDebtPositionOverviewMapper debtorUnpaidDebtPositionOverviewMapper
   ) {
     this.debtPositionDTOMapper = debtPositionDTOMapper;
     this.debtPositionService = debtPositionService;
@@ -51,6 +67,9 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
     this.printPaymentNoticeService = printPaymentNoticeService;
     this.zipFileService = zipFileService;
     this.organizationRetrieverService = organizationRetrieverService;
+    this.brokerOrganizationsRetrieverService = brokerOrganizationsRetrieverService;
+    this.pagedDebtorDebtPositionMapper = pagedDebtorDebtPositionMapper;
+    this.debtorUnpaidDebtPositionOverviewMapper = debtorUnpaidDebtPositionOverviewMapper;
   }
 
   @Override
@@ -155,5 +174,44 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
     }else{
       return debtPositionService.getDebtPositionByInstallmentId(installmentId, accessToken);
     }
+  }
+
+  @Override
+  public PagedDebtorDebtPositionDTO getPagedUnpaidDebtPositions(String xFiscalCode,
+                                                                Long brokerId,
+                                                                String orgName,
+                                                                String orgFiscalCode,
+                                                                Pageable pageable,
+                                                                String accessToken) {
+
+    Map<Long, Organization> organizations = retrieveOrganizations(brokerId, orgName, orgFiscalCode, accessToken);
+    List<Long> organizationsIds = new ArrayList<>(organizations.keySet());
+
+    PagedDebtorUnpaidDebtPositionDTO pagedDebtorUnpaidDebtPosition = debtPositionService.getPagedDebtorUnpaidDebtPosition(xFiscalCode, organizationsIds, pageable, accessToken);
+
+    return pagedDebtorDebtPositionMapper.map(
+      organizations,
+      pagedDebtorUnpaidDebtPosition
+    );
+  }
+
+  private Map<Long,Organization> retrieveOrganizations(Long brokerId, String orgName, String orgFiscalCode, String accessToken){
+    List<Organization> organizations = brokerOrganizationsRetrieverService.getAllOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(brokerId, orgName, orgFiscalCode, accessToken);
+    if (organizations.isEmpty()){
+      throw new ResourceNotFoundException("Organizations not found with brokerId %s orgName %s and orgFiscalCode %s".formatted(brokerId, orgName, orgFiscalCode));
+    }
+
+    return organizations.stream()
+      .collect(Collectors.toMap(Organization::getOrganizationId, org -> org));
+  }
+
+  @Override
+  public DebtorUnpaidDebtPositionOverviewDTO getDebtorUnpaidDebtPositionOverview(Long brokerId, Long debtPositionId, String debtorFiscalCode, Long organizationId, String accessToken) {
+    DebtorDebtPositionDTO debtorDebtPosition = debtPositionService.getDebtorDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId, accessToken);
+    if (debtorDebtPosition == null){
+      return null;
+    }
+
+    return debtorUnpaidDebtPositionOverviewMapper.map(organizationRetrieverService.getValidOrganization(organizationId, brokerId, accessToken), debtorDebtPosition);
   }
 }
