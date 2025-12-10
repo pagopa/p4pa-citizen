@@ -124,4 +124,14 @@ class DebtPositionsApisHolderTest extends BaseApiHolderTest {
       apisHolder::unload);
   }
 
+  @Test
+  void whenGetInstallmentApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
+    assertAuthenticationShouldBeSetInThreadSafeMode(
+      accessToken -> apisHolder.getInstallmentApi(accessToken)
+        .getInstallmentsByIuvOrNav(
+          "iuvOrNav","debtorFiscalCode",1L),
+      new ParameterizedTypeReference<>() {
+      },
+      apisHolder::unload);
+  }
 }

@@ -60,4 +60,14 @@ public class OrganizationSearchClient {
       return null;
     }
   }
+
+  public Organization findByOrgFiscalCode(String orgFiscalCode, String accessToken){
+    try {
+      return organizationApisHolder.getOrganizationSearchControllerApi(accessToken)
+        .crudOrganizationsFindByOrgFiscalCode(orgFiscalCode);
+    } catch (HttpClientErrorException.NotFound e) {
+      log.warn("Organization with orgFiscalCode {} not found", orgFiscalCode);
+      return null;
+    }
+  }
 }
