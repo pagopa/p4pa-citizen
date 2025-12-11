@@ -1,9 +1,12 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.InstallmentClient;
+import it.gov.pagopa.pu.citizen.connector.debtpositions.client.InstallmentNoPIISearchClient;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentDebtorDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentNoPII;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,16 +27,19 @@ class InstallmentServiceImplTest {
 
   @Mock
   private InstallmentClient installmentClientMock;
+  @Mock
+  private InstallmentNoPIISearchClient installmentNoPIISearchClientMock;
+
   private InstallmentService installmentService;
 
   @BeforeEach
   void setUp() {
-    installmentService = new InstallmentServiceImpl(installmentClientMock);
+    installmentService = new InstallmentServiceImpl(installmentClientMock, installmentNoPIISearchClientMock);
   }
 
   @AfterEach
   void mockitoVerify() {
-    Mockito.verifyNoMoreInteractions(installmentClientMock);
+    Mockito.verifyNoMoreInteractions(installmentClientMock, installmentNoPIISearchClientMock);
   }
 
   @Test
@@ -49,5 +55,39 @@ class InstallmentServiceImplTest {
 
     assertNotNull(result);
     assertEquals(expectedResult, result);
+  }
+
+  @Test
+  void whenGetDebtorInstallmentNoPIIThenInvokeClient() {
+    // given
+    String accessToken = "ACCESS_TOKEN";
+    Long debtPositionId = 10L;
+    Long paymentOptionId = 20L;
+    String fiscalCode = "ABCDEF12G34H567I";
+    Long organizationId = 100L;
+
+    List<InstallmentNoPII> expectedResult = podamFactory.manufacturePojo(List.class, InstallmentNoPII.class);
+
+    Mockito.when(installmentNoPIISearchClientMock.getDebtorInstallmentNoPII(
+      accessToken,
+      debtPositionId,
+      paymentOptionId,
+      fiscalCode,
+      organizationId
+    )).thenReturn(expectedResult);
+
+    // when
+    List<InstallmentNoPII> result =
+      installmentService.getDebtorInstallmentNoPII(
+        accessToken,
+        debtPositionId,
+        paymentOptionId,
+        fiscalCode,
+        organizationId
+      );
+
+    // then
+    Assertions.assertNotNull(result);
+    Assertions.assertSame(expectedResult, result);
   }
 }

@@ -13,23 +13,20 @@
     "BearerAuth" : [ ]
   } ],
   "tags" : [ {
+    "name" : "Installment",
+    "description" : "the Installment API"
+  }, {
     "name" : "Broker",
     "description" : "the Broker API"
   }, {
     "name" : "Receipt",
     "description" : "the Receipt API"
   }, {
-    "name" : "Installments",
-    "description" : "the Installments API"
-  }, {
     "name" : "DebtPositionTypeOrg",
     "description" : "the DebtPositionTypeOrg API"
   }, {
     "name" : "Organization",
     "description" : "the Organization API"
-  }, {
-    "name" : "installment",
-    "description" : "the installment API"
   }, {
     "name" : "DebtPosition",
     "description" : "the DebtPosition API"
@@ -883,7 +880,7 @@
     },
     "/brokers/{brokerId}/installments" : {
       "get" : {
-        "tags" : [ "installment" ],
+        "tags" : [ "Installment", "installment" ],
         "operationId" : "getInstallmentsByIuvOrNav",
         "parameters" : [ {
           "name" : "brokerId",
@@ -1276,7 +1273,7 @@
     },
     "/brokers/{brokerId}/debt-positions/debtor/unpaid/{debtPositionId}/{paymentOptionId}/installments" : {
       "get" : {
-        "tags" : [ "Installments" ],
+        "tags" : [ "Installment" ],
         "operationId" : "getDebtorUnpaidDebtPositionInstallments",
         "parameters" : [ {
           "name" : "brokerId",

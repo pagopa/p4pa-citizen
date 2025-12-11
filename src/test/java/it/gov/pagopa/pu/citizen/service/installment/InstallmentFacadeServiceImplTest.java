@@ -2,11 +2,14 @@ package it.gov.pagopa.pu.citizen.service.installment;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.InstallmentService;
 import it.gov.pagopa.pu.citizen.dto.InstallmentDebtorExtendedDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionInstallmentsDTO;
 import it.gov.pagopa.pu.citizen.exception.InvalidParamException;
+import it.gov.pagopa.pu.citizen.mapper.DebtorUnpaidDebtPositionInstallmentsMapper;
 import it.gov.pagopa.pu.citizen.mapper.InstallmentDebtorExtendedDTOMapper;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentDebtorDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentNoPII;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -23,6 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 @ExtendWith(MockitoExtension.class)
 class InstallmentFacadeServiceImplTest {
   @Mock
@@ -31,18 +37,20 @@ class InstallmentFacadeServiceImplTest {
   private InstallmentService installmentServiceMock;
   @Mock
   private InstallmentDebtorExtendedDTOMapper installmentDebtorExtendedDTOMapperMock;
+  @Mock
+  private DebtorUnpaidDebtPositionInstallmentsMapper debtorUnpaidDebtPositionInstallmentsMapperMock;
   private InstallmentFacadeService installmentFacadeService;
 
   private final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
   @BeforeEach
   void setUp() {
-    installmentFacadeService = new InstallmentFacadeServiceImpl(organizationRetrieverServiceMock,installmentServiceMock,installmentDebtorExtendedDTOMapperMock);
+    installmentFacadeService = new InstallmentFacadeServiceImpl(organizationRetrieverServiceMock,installmentServiceMock,installmentDebtorExtendedDTOMapperMock, debtorUnpaidDebtPositionInstallmentsMapperMock);
   }
 
   @AfterEach
   void mockitoVerify(){
-    Mockito.verifyNoMoreInteractions(organizationRetrieverServiceMock,installmentServiceMock,installmentDebtorExtendedDTOMapperMock);
+    Mockito.verifyNoMoreInteractions(organizationRetrieverServiceMock,installmentServiceMock,installmentDebtorExtendedDTOMapperMock, debtorUnpaidDebtPositionInstallmentsMapperMock);
   }
 
   @Test
@@ -134,5 +142,38 @@ class InstallmentFacadeServiceImplTest {
     Assertions.assertThrows(InvalidParamException.class,() -> installmentFacadeService.getInstallmentByIuvOrNav(brokerId,iuvOrNav, null, null,accessToken));
 
     Mockito.verifyNoInteractions(organizationRetrieverServiceMock,installmentServiceMock,installmentDebtorExtendedDTOMapperMock);
+  }
+
+  @Test
+  void givenValidInputsWhenGetDebtorInstallmentNoPIIThenReturnMappedDTOList() {
+    // given
+    Long brokerId = 10L;
+    Long debtPositionId = 20L;
+    Long paymentOptionId = 30L;
+    Long organizationId = 40L;
+    String fiscalCode = "debtorFiscalCode";
+    String accessToken = "accessToken";
+
+    Organization org = podamFactory.manufacturePojo(Organization.class);
+    Mockito.when(organizationRetrieverServiceMock.getValidOrganization(organizationId, brokerId, accessToken))
+      .thenReturn(org);
+
+    List<InstallmentNoPII> installments = podamFactory.manufacturePojo(List.class, InstallmentNoPII.class);
+    Mockito.when(installmentServiceMock.getDebtorInstallmentNoPII(
+        accessToken, debtPositionId, paymentOptionId, fiscalCode, organizationId))
+      .thenReturn(installments);
+
+    List<DebtorUnpaidDebtPositionInstallmentsDTO> expected = podamFactory.manufacturePojo(List.class, DebtorUnpaidDebtPositionInstallmentsDTO.class);
+    Mockito.when(debtorUnpaidDebtPositionInstallmentsMapperMock.mapDebtorUnpaidDebtPositionInstallmentsList(org, installments, debtPositionId))
+      .thenReturn(expected);
+
+    // when
+    List<DebtorUnpaidDebtPositionInstallmentsDTO> result =
+      installmentFacadeService.getDebtorInstallmentNoPII(
+        brokerId, debtPositionId, paymentOptionId, fiscalCode, organizationId, accessToken);
+
+    // then
+    assertNotNull(result);
+    assertEquals(expected, result);
   }
 }
