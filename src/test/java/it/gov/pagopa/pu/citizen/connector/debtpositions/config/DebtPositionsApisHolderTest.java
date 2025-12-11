@@ -124,4 +124,14 @@ class DebtPositionsApisHolderTest extends BaseApiHolderTest {
       apisHolder::unload);
   }
 
+  @Test
+  void whenGetInstallmentNoPiiSearchControllerApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
+    assertAuthenticationShouldBeSetInThreadSafeMode(
+      accessToken -> apisHolder.getInstallmentNoPiiSearchControllerApi(accessToken)
+        .crudInstallmentsFindDebtorUnpaidOrPaidByDebtPositionIdAndPaymentOptionId(
+          1L,2L,"debtorFiscalCode", 3L),
+      new ParameterizedTypeReference<>() {
+      },
+      apisHolder::unload);
+  }
 }
