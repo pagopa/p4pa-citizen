@@ -11,4 +11,5 @@ public interface OrganizationService {
   PagedModelOrganization getOrganizationsListByBrokerIdAndOrgName(Long brokerId, String orgName, Pageable pageable, String accessToken);
   PagedModelOrganization getOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(Long brokerId, String orgName, String orgFiscalCode, Pageable pageable, String accessToken);
   Organization getBrokerOrganization(Long brokerId, String accessToken);
+  Organization findByOrgFiscalCode(String orgFiscalCode, String accessToken);
 }

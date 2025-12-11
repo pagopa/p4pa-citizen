@@ -20,6 +20,7 @@ public class DebtPositionsApisHolder {
   private final ReceiptNoPiiViewSearchControllerApi receiptNoPiiViewSearchControllerApi;
   private final ReceiptApi receiptApi;
   private final ReceiptNoPiiSearchControllerApi receiptNoPiiSearchControllerApi;
+  private final InstallmentApi installmentApi;
   private final InstallmentNoPiiSearchControllerApi installmentNoPiiSearchControllerApi;
 
   private final ThreadLocal<String> bearerTokenHolder = new ThreadLocal<>();
@@ -46,6 +47,7 @@ public class DebtPositionsApisHolder {
     this.receiptNoPiiViewSearchControllerApi = new ReceiptNoPiiViewSearchControllerApi(apiClient);
     this.receiptApi = new ReceiptApi(apiClient);
     this.receiptNoPiiSearchControllerApi = new ReceiptNoPiiSearchControllerApi(apiClient);
+    this.installmentApi = new InstallmentApi(apiClient);
     this.installmentNoPiiSearchControllerApi = new InstallmentNoPiiSearchControllerApi(apiClient);
   }
 
@@ -104,6 +106,13 @@ public class DebtPositionsApisHolder {
    */
   public ReceiptNoPiiSearchControllerApi getReceiptNoPiiSearchControllerApi(String accessToken) {
     return getApi(accessToken, receiptNoPiiSearchControllerApi);
+  }
+
+  /**
+   * It will return a {@link InstallmentApi} instrumented with the provided accessToken. Use null if auth is not required
+   */
+  public InstallmentApi getInstallmentApi(String accessToken) {
+    return getApi(accessToken, installmentApi);
   }
 
   /**

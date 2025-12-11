@@ -43,4 +43,9 @@ public class OrganizationServiceImpl implements OrganizationService {
   public Organization getBrokerOrganization(Long brokerId, String accessToken) {
     return organizationSearchClient.getBrokerOrganization(brokerId,accessToken);
   }
+
+  @Override
+  public Organization findByOrgFiscalCode(String orgFiscalCode, String accessToken) {
+    return organizationSearchClient.findByOrgFiscalCode(orgFiscalCode,accessToken);
+  }
 }

@@ -189,7 +189,8 @@ openApiGenerate {
     "PaymentOptionType" to "it.gov.pagopa.pu.debtpositions.dto.generated.PaymentOptionType",
     "PaymentOptionStatus" to "it.gov.pagopa.pu.debtpositions.dto.generated.PaymentOptionStatus",
     "DebtPositionStatus" to "it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionStatus",
-    "InstallmentStatus" to "it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus"
+    "InstallmentStatus" to "it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus",
+    "InstallmentDebtorExtendedDTO" to "it.gov.pagopa.pu.citizen.dto.InstallmentDebtorExtendedDTO"
   ))
 }
 
