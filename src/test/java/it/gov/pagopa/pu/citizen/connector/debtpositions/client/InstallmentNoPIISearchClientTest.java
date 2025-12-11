@@ -124,4 +124,30 @@ class InstallmentNoPIISearchClientTest {
     Assertions.assertNotNull(result);
     Assertions.assertTrue(result.isEmpty());
   }
+
+  @Test
+  void givenNullCollectionModelInstallmentNoPIIWhenGetDebtorInstallmentNoPIIThenReturnEmptyList() {
+    // given
+    String accessToken = "ACCESS_TOKEN";
+    Long debtPositionId = 10L;
+    Long paymentOptionId = 20L;
+    String fiscalCode = "ABCDEF12G34H567I";
+    Long organizationId = 1L;
+
+    Mockito.when(debtPositionsApisHolderMock.getInstallmentNoPiiSearchControllerApi(accessToken))
+      .thenReturn(installmentNoPiiSearchControllerApiMock);
+
+    Mockito.when(installmentNoPiiSearchControllerApiMock
+        .crudInstallmentsFindDebtorUnpaidOrPaidByDebtPositionIdAndPaymentOptionId(
+          debtPositionId, paymentOptionId, fiscalCode, organizationId))
+      .thenReturn(null);
+
+    // when
+    List<InstallmentNoPII> result = installmentNoPiiSearchClient.getDebtorInstallmentNoPII(
+      accessToken, debtPositionId, paymentOptionId, fiscalCode, organizationId);
+
+    // then
+    Assertions.assertNotNull(result);
+    Assertions.assertTrue(result.isEmpty());
+  }
 }
