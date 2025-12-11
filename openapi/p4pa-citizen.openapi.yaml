@@ -398,7 +398,7 @@ paths:
   /brokers/{brokerId}/debt-positions/debtor/unpaid/{debtPositionId}/{paymentOptionId}/installments:
     get:
       tags:
-        - Installments
+        - Installment
       operationId: getDebtorUnpaidDebtPositionInstallments
       parameters:
         - name: brokerId

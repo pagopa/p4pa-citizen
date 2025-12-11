@@ -3,10 +3,13 @@ package it.gov.pagopa.pu.citizen.service.installment;
 import io.micrometer.common.util.StringUtils;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.InstallmentService;
 import it.gov.pagopa.pu.citizen.dto.InstallmentDebtorExtendedDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionInstallmentsDTO;
 import it.gov.pagopa.pu.citizen.exception.InvalidParamException;
+import it.gov.pagopa.pu.citizen.mapper.DebtorUnpaidDebtPositionInstallmentsMapper;
 import it.gov.pagopa.pu.citizen.mapper.InstallmentDebtorExtendedDTOMapper;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentDebtorDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentNoPII;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -21,11 +24,13 @@ public class InstallmentFacadeServiceImpl implements InstallmentFacadeService {
   private final OrganizationRetrieverService organizationRetrieverService;
   private final InstallmentService installmentService;
   private final InstallmentDebtorExtendedDTOMapper installmentDebtorExtendedDTOMapper;
+  private final DebtorUnpaidDebtPositionInstallmentsMapper debtorUnpaidDebtPositionInstallmentsMapper;
 
-  public InstallmentFacadeServiceImpl(OrganizationRetrieverService organizationRetrieverService, InstallmentService installmentService, InstallmentDebtorExtendedDTOMapper installmentDebtorExtendedDTOMapper) {
+  public InstallmentFacadeServiceImpl(OrganizationRetrieverService organizationRetrieverService, InstallmentService installmentService, InstallmentDebtorExtendedDTOMapper installmentDebtorExtendedDTOMapper, DebtorUnpaidDebtPositionInstallmentsMapper debtorUnpaidDebtPositionInstallmentsMapper) {
     this.organizationRetrieverService = organizationRetrieverService;
     this.installmentService = installmentService;
     this.installmentDebtorExtendedDTOMapper = installmentDebtorExtendedDTOMapper;
+    this.debtorUnpaidDebtPositionInstallmentsMapper = debtorUnpaidDebtPositionInstallmentsMapper;
   }
 
   @Override
@@ -46,6 +51,13 @@ public class InstallmentFacadeServiceImpl implements InstallmentFacadeService {
       installments,
       buildOrganizationMap(installments, organization, brokerId, accessToken)
     );
+  }
+
+  @Override
+  public List<DebtorUnpaidDebtPositionInstallmentsDTO> getDebtorInstallmentNoPII(Long brokerId, Long debtPositionId, Long paymentOptionId, String xFiscalCode, Long organizationId, String accessToken) {
+    Organization organization = organizationRetrieverService.getValidOrganization(organizationId, brokerId, accessToken);
+    List<InstallmentNoPII> debtorInstallmentNoPII = installmentService.getDebtorInstallmentNoPII(accessToken, debtPositionId, paymentOptionId, xFiscalCode, organizationId);
+    return debtorUnpaidDebtPositionInstallmentsMapper.mapDebtorUnpaidDebtPositionInstallmentsList(organization, debtorInstallmentNoPII, debtPositionId);
   }
 
   private Organization resolveOrganization(String orgFiscalCode, Long brokerId, String accessToken) {
