@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import uk.co.jemos.podam.api.PodamFactory;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,7 +49,7 @@ class DebtorUnpaidDebtPositionInstallmentsMapperTest {
   }
 
   @Test
-  void givenOrganizationAndInstallmentsListWhenMapListThenReturnMappedList() {
+  void givenOrganizationAndInstallmentsListWhenMapListThenReturnOrderedMappedList() {
     // given
     Organization org = podam.manufacturePojo(Organization.class);
     org.setOrganizationId(200L);
@@ -57,7 +58,14 @@ class DebtorUnpaidDebtPositionInstallmentsMapperTest {
 
     Long debtPositionId = 1L;
 
-    List<InstallmentNoPII> installments = podam.manufacturePojo(List.class, InstallmentNoPII.class);
+    InstallmentNoPII installment = podam.manufacturePojo(InstallmentNoPII.class);
+    installment.setStatus(InstallmentStatus.UNPAID);
+    installment.dueDate(LocalDate.of(2025, 12, 3));
+
+    InstallmentNoPII installment2 = podam.manufacturePojo(InstallmentNoPII.class);
+    installment2.setStatus(InstallmentStatus.UNPAID);
+    installment2.dueDate(LocalDate.of(2024, 3, 3));
+    List<InstallmentNoPII> installments = List.of(installment, installment2);
 
     // when
     List<DebtorUnpaidDebtPositionInstallmentsDTO> result =
@@ -66,6 +74,8 @@ class DebtorUnpaidDebtPositionInstallmentsMapperTest {
     // then
     assertNotNull(result);
     assertEquals(installments.size(), result.size());
+    assertEquals(installment2.getDueDate(), result.getFirst().getDueDate());
+    assertEquals(installment.getDueDate(), result.getLast().getDueDate());
 
     result.forEach(TestUtils::checkNotNullFields);
 

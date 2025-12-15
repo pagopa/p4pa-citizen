@@ -6,6 +6,7 @@ import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -18,7 +19,10 @@ public interface DebtorUnpaidDebtPositionInstallmentsMapper {
   DebtorUnpaidDebtPositionInstallmentsDTO map(Organization organization, InstallmentNoPII installment, Long debtPositionId);
 
   default List<DebtorUnpaidDebtPositionInstallmentsDTO> mapDebtorUnpaidDebtPositionInstallmentsList(Organization organization, List<InstallmentNoPII> installments, Long debtPositionId){
-    return installments.stream().map(installmentNoPII -> map(organization, installmentNoPII, debtPositionId)).toList();
+    return installments.stream().map(installmentNoPII -> map(organization, installmentNoPII, debtPositionId))
+      .sorted(Comparator.comparing(DebtorUnpaidDebtPositionInstallmentsDTO::getDueDate,
+        Comparator.nullsLast(Comparator.naturalOrder())))
+      .toList();
   }
 
 }
