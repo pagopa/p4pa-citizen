@@ -2034,6 +2034,10 @@
         "type" : "string",
         "enum" : [ "RECEIPT_PAGOPA", "RECEIPT_FILE", "PAYMENTS_REPORTING" ]
       },
+      "DebtPositionOrigin" : {
+        "type" : "string",
+        "enum" : [ "ORDINARY", "ORDINARY_SIL", "SPONTANEOUS", "SPONTANEOUS_SIL", "SPONTANEOUS_MIXED", "SECONDARY_ORG", "RECEIPT_FILE", "RECEIPT_PAGOPA", "REPORTING_PAGOPA" ]
+      },
       "ReceiptDetailExtendedDTO" : {
         "type" : "object",
         "properties" : {
@@ -2081,6 +2085,12 @@
             "type" : "integer",
             "format" : "int64"
           },
+          "receiptOrigin" : {
+            "$ref" : "#/components/schemas/ReceiptOriginType"
+          },
+          "debtPositionOrigin" : {
+            "$ref" : "#/components/schemas/DebtPositionOrigin"
+          },
           "organizationId" : {
             "type" : "integer",
             "format" : "int64"
@@ -2092,7 +2102,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "debtPositionTypeOrgDescription", "debtor", "iud", "paymentAmountCents", "pspCompanyName", "receiptId", "remittanceInformation" ]
+        "required" : [ "debtPositionOrigin", "debtPositionTypeOrgDescription", "debtor", "iud", "paymentAmountCents", "pspCompanyName", "receiptId", "receiptOrigin", "remittanceInformation" ]
       },
       "CodeEnum" : {
         "type" : "string",
@@ -2230,10 +2240,6 @@
           }
         },
         "required" : [ "debtPositionOrigin", "debtPositionTypeOrgId", "flagPuPagoPaPayment", "organizationId", "paymentOptions" ]
-      },
-      "DebtPositionOrigin" : {
-        "type" : "string",
-        "enum" : [ "ORDINARY", "ORDINARY_SIL", "SPONTANEOUS", "SPONTANEOUS_SIL", "SPONTANEOUS_MIXED", "SECONDARY_ORG", "RECEIPT_FILE", "RECEIPT_PAGOPA", "REPORTING_PAGOPA" ]
       },
       "DebtPositionStatus" : {
         "type" : "string",
