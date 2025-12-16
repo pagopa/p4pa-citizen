@@ -583,7 +583,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/ReceiptDetailDTO"
+                  "$ref" : "#/components/schemas/ReceiptDetailExtendedDTO"
                 }
               }
             }
@@ -593,7 +593,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/ReceiptDetailDTO"
+                  "$ref" : "#/components/schemas/ReceiptDetailExtendedDTO"
                 }
               }
             }
@@ -603,7 +603,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/ReceiptDetailDTO"
+                  "$ref" : "#/components/schemas/ReceiptDetailExtendedDTO"
                 }
               }
             }
@@ -613,7 +613,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/ReceiptDetailDTO"
+                  "$ref" : "#/components/schemas/ReceiptDetailExtendedDTO"
                 }
               }
             }
@@ -2034,7 +2034,7 @@
         "type" : "string",
         "enum" : [ "RECEIPT_PAGOPA", "RECEIPT_FILE", "PAYMENTS_REPORTING" ]
       },
-      "ReceiptDetailDTO" : {
+      "ReceiptDetailExtendedDTO" : {
         "type" : "object",
         "properties" : {
           "receiptId" : {
@@ -2080,6 +2080,16 @@
           "notificationFeeCents" : {
             "type" : "integer",
             "format" : "int64"
+          },
+          "organizationId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "orgName" : {
+            "type" : "string"
+          },
+          "orgFiscalCode" : {
+            "type" : "string"
           }
         },
         "required" : [ "debtPositionTypeOrgDescription", "debtor", "iud", "paymentAmountCents", "pspCompanyName", "receiptId", "remittanceInformation" ]

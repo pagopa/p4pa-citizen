@@ -2,11 +2,11 @@ package it.gov.pagopa.pu.citizen.controller;
 
 import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
+import it.gov.pagopa.pu.citizen.dto.ReceiptDetailExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
 import it.gov.pagopa.pu.citizen.security.SecurityUtilsTest;
 import it.gov.pagopa.pu.citizen.service.receipt.ReceiptFacadeService;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
-import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptDetailDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -71,11 +71,11 @@ class ReceiptControllerTest {
     Long brokerId = 1L;
     Long organizationId = 2L;
     Long receiptId = 3L;
-    ReceiptDetailDTO expectedResult = podamFactory.manufacturePojo(ReceiptDetailDTO.class);
+    ReceiptDetailExtendedDTO expectedResult = podamFactory.manufacturePojo(ReceiptDetailExtendedDTO.class);
 
     Mockito.when(receiptFacadeServiceMock.getReceiptDetail(fiscalCode, brokerId, organizationId, receiptId, accessToken)).thenReturn(expectedResult);
     //when
-    ResponseEntity<ReceiptDetailDTO> result = receiptController.getReceiptDetail(fiscalCode, brokerId, organizationId, receiptId);
+    ResponseEntity<ReceiptDetailExtendedDTO> result = receiptController.getReceiptDetail(fiscalCode, brokerId, organizationId, receiptId);
     //then
     assertNotNull(result);
     assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -92,7 +92,7 @@ class ReceiptControllerTest {
 
     Mockito.when(receiptFacadeServiceMock.getReceiptDetail(fiscalCode, brokerId, organizationId, receiptId, accessToken)).thenReturn(null);
     //when
-    ResponseEntity<ReceiptDetailDTO> result = receiptController.getReceiptDetail(fiscalCode, brokerId, organizationId, receiptId);
+    ResponseEntity<ReceiptDetailExtendedDTO> result = receiptController.getReceiptDetail(fiscalCode, brokerId, organizationId, receiptId);
     //then
     assertNotNull(result);
     assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());

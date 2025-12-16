@@ -2,9 +2,11 @@ package it.gov.pagopa.pu.citizen.service.receipt;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.ReceiptService;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
+import it.gov.pagopa.pu.citizen.dto.ReceiptDetailExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.PagedDebtorReceiptsDTOMapper;
+import it.gov.pagopa.pu.citizen.mapper.ReceiptDetailExtendedMapper;
 import it.gov.pagopa.pu.citizen.service.organization.BrokerOrganizationsRetrieverService;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import it.gov.pagopa.pu.debtpositions.dto.generated.PagedModelReceiptNoPIIView;
@@ -27,12 +29,14 @@ public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
   private final BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverService;
   private final PagedDebtorReceiptsDTOMapper pagedDebtorReceiptsDTOMapper;
   private final OrganizationRetrieverService organizationRetrieverService;
+  private final ReceiptDetailExtendedMapper receiptDetailExtendedMapper;
 
-  public ReceiptFacadeServiceImpl(ReceiptService receiptService, BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverService, PagedDebtorReceiptsDTOMapper pagedDebtorReceiptsDTOMapper, OrganizationRetrieverService organizationRetrieverService) {
+  public ReceiptFacadeServiceImpl(ReceiptService receiptService, BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverService, PagedDebtorReceiptsDTOMapper pagedDebtorReceiptsDTOMapper, OrganizationRetrieverService organizationRetrieverService, ReceiptDetailExtendedMapper receiptDetailExtendedMapper) {
     this.receiptService = receiptService;
     this.brokerOrganizationsRetrieverService = brokerOrganizationsRetrieverService;
     this.pagedDebtorReceiptsDTOMapper = pagedDebtorReceiptsDTOMapper;
     this.organizationRetrieverService = organizationRetrieverService;
+    this.receiptDetailExtendedMapper = receiptDetailExtendedMapper;
   }
 
   @Override
@@ -54,13 +58,14 @@ public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
   }
 
   @Override
-  public ReceiptDetailDTO getReceiptDetail(String fiscalCode, Long brokerId, Long organizationId, Long receiptId, String accessToken) {
-    organizationRetrieverService.validateOrganization(organizationId,brokerId,accessToken);
+  public ReceiptDetailExtendedDTO getReceiptDetail(String fiscalCode, Long brokerId, Long organizationId, Long receiptId, String accessToken) {
+    Organization organization = organizationRetrieverService.getValidOrganization(organizationId, brokerId, accessToken);
     ReceiptDetailDTO receiptDetailDTO = receiptService.getReceiptDetail(receiptId, organizationId, accessToken);
     if(receiptDetailDTO!=null){
       validateReceiptDebtor(fiscalCode,receiptDetailDTO);
+      return receiptDetailExtendedMapper.map(organization, receiptDetailDTO);
     }
-    return receiptDetailDTO;
+    return null;
   }
 
   private static void validateReceiptDebtor(String fiscalCode, ReceiptDetailDTO receipt) {
