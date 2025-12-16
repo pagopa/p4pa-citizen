@@ -140,8 +140,6 @@ class ReceiptFacadeServiceImplTest {
     Long receiptId = 3L;
     String fiscalCode = "fiscalCode";
 
-    Organization organization = podamFactory.manufacturePojo(Organization.class);
-    Mockito.when(organizationRetrieverServiceMock.getValidOrganization(organizationId, brokerId, accessToken)).thenReturn(organization);
     Mockito.when(receiptServiceMock.getReceiptDetail(receiptId,organizationId,accessToken)).thenReturn(null);
 
     ReceiptDetailExtendedDTO result = receiptFacadeService.getReceiptDetail(fiscalCode,brokerId,organizationId,receiptId, accessToken);
@@ -160,11 +158,9 @@ class ReceiptFacadeServiceImplTest {
     Long receiptId = 3L;
     String fiscalCode = "fiscalCode";
 
-    Organization organization = podamFactory.manufacturePojo(Organization.class);
     ReceiptDetailDTO expectedResult = podamFactory.manufacturePojo(ReceiptDetailDTO.class);
     expectedResult.getDebtor().setFiscalCode(fiscalCode+"1");
 
-    Mockito.when(organizationRetrieverServiceMock.getValidOrganization(organizationId, brokerId, accessToken)).thenReturn(organization);
     Mockito.when(receiptServiceMock.getReceiptDetail(receiptId,organizationId,accessToken)).thenReturn(expectedResult);
 
     assertThrows(AuthorizationDeniedException.class,() -> receiptFacadeService.getReceiptDetail(fiscalCode,brokerId,organizationId,receiptId, accessToken));

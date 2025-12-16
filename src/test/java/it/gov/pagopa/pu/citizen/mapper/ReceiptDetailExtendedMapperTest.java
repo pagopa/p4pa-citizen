@@ -23,7 +23,11 @@ class ReceiptDetailExtendedMapperTest {
     ReceiptDetailExtendedDTO result = mapper.map(organization, receiptDetailDTO);
     //then
     Assertions.assertNotNull(result);
+    Assertions.assertEquals(organization.getOrganizationId(), result.getOrganizationId());
+    Assertions.assertEquals(organization.getOrgName(), result.getOrgName());
+    Assertions.assertEquals(organization.getOrgFiscalCode(), result.getOrgFiscalCode());
     TestUtils.checkNotNullFields(result);
+    TestUtils.reflectionEqualsByName(receiptDetailDTO,result);
   }
 
 }

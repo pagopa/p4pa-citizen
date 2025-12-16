@@ -59,10 +59,10 @@ public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
 
   @Override
   public ReceiptDetailExtendedDTO getReceiptDetail(String fiscalCode, Long brokerId, Long organizationId, Long receiptId, String accessToken) {
-    Organization organization = organizationRetrieverService.getValidOrganization(organizationId, brokerId, accessToken);
     ReceiptDetailDTO receiptDetailDTO = receiptService.getReceiptDetail(receiptId, organizationId, accessToken);
     if(receiptDetailDTO!=null){
       validateReceiptDebtor(fiscalCode,receiptDetailDTO);
+      Organization organization = organizationRetrieverService.getValidOrganization(organizationId, brokerId, accessToken);
       return receiptDetailExtendedMapper.map(organization, receiptDetailDTO);
     }
     return null;
