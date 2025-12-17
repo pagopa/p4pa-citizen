@@ -14,10 +14,10 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class DebtorReceiptsFiltersDTO {
-  String debtorFiscalCode;
-  String noticeNumberOrIuv;
-  OffsetDateTime paymentDateTimeFrom;
-  OffsetDateTime paymentDateTimeTo;
-  List<String> organizationsFiscalCode;
-  List<ReceiptOriginType> receiptOrigins;
+  private String debtorFiscalCode;
+  private String noticeNumberOrIuv;
+  private OffsetDateTime paymentDateTimeFrom;
+  private OffsetDateTime paymentDateTimeTo;
+  private List<String> organizationsFiscalCode;
+  private List<ReceiptOriginType> receiptOrigins;
 }
