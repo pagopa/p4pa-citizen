@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.OffsetDateTime;
+
 @Slf4j
 @RestController
 public class ReceiptController implements ReceiptApi {
@@ -23,9 +25,9 @@ public class ReceiptController implements ReceiptApi {
   }
 
   @Override
-  public ResponseEntity<PagedDebtorReceiptsDTO> getPagedDebtorReceipts(Long brokerId, String xFiscalCode, String orgName, Pageable pageable) {
+  public ResponseEntity<PagedDebtorReceiptsDTO> getPagedDebtorReceipts(Long brokerId, String xFiscalCode, String orgName, String noticeNumberOrIuv, OffsetDateTime paymentDateTimeFrom, OffsetDateTime paymentDateTimeTo, Pageable pageable) {
     log.info("Requested getPagedDebtorReceipts on brokerId {} and orgName {}", brokerId, orgName);
-    return ResponseEntity.ok(receiptFacadeService.getPagedDebtorReceipts(brokerId, orgName, xFiscalCode, SecurityUtils.getAccessToken(), pageable));
+    return ResponseEntity.ok(receiptFacadeService.getPagedDebtorReceipts(brokerId, orgName, xFiscalCode, noticeNumberOrIuv, paymentDateTimeFrom, paymentDateTimeTo, SecurityUtils.getAccessToken(), pageable));
   }
 
   @Override

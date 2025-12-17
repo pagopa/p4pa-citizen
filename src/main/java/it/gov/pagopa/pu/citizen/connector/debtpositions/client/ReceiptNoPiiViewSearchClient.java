@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 
@@ -21,12 +22,15 @@ public class ReceiptNoPiiViewSearchClient {
     this.debtPositionsApisHolder = debtPositionsApisHolder;
   }
 
-  public PagedModelReceiptNoPIIView getPagedModelReceiptNoPIIView(String debtorFiscalCode, List<String> organizationsFiscalCode, List<ReceiptOriginType> receiptOrigins, Pageable pageable, String accessToken){
+  public PagedModelReceiptNoPIIView getPagedModelReceiptNoPIIView(String debtorFiscalCode, List<String> organizationsFiscalCode, List<ReceiptOriginType> receiptOrigins, String noticeNumberOrIuv, OffsetDateTime paymentDateTimeFrom, OffsetDateTime paymentDateTimeTo, Pageable pageable, String accessToken){
     return debtPositionsApisHolder.getReceiptNoPiiViewSearchControllerApi(accessToken)
       .crudReceiptNoPiiViewGetPagedPrimaryReceiptByFilters(
         debtorFiscalCode,
         organizationsFiscalCode,
         receiptOrigins,
+        noticeNumberOrIuv,
+        paymentDateTimeFrom,
+        paymentDateTimeTo,
         PageUtils.getPageNumber(pageable),
         PageUtils.getPageSize(pageable),
         PageUtils.getSortList(pageable));

@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import uk.co.jemos.podam.api.PodamFactory;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import static it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptOriginType.RECEIPT_PAGOPA;
@@ -57,12 +58,15 @@ class ReceiptServiceImplTest {
     String accessToken = "accessToken";
     String fiscalCode = "fiscalCode";
     List<ReceiptOriginType> receipts = List.of(RECEIPT_PAGOPA);
+    String noticeNumberOrIuv = "noticeNumberOrIuv";
+    OffsetDateTime paymentDateTimeFrom = OffsetDateTime.now().minusDays(1);
+    OffsetDateTime paymentDateTimeTo = OffsetDateTime.now();
 
     PageRequest pageRequest = PageRequest.of(1, 10);
     PagedModelReceiptNoPIIView expectedResult = podamFactory.manufacturePojo(PagedModelReceiptNoPIIView.class);
-    Mockito.when(receiptNoPiiViewSearchClientMock.getPagedModelReceiptNoPIIView(fiscalCode, orgsFiscalCode, receipts, pageRequest, accessToken)).thenReturn(expectedResult);
+    Mockito.when(receiptNoPiiViewSearchClientMock.getPagedModelReceiptNoPIIView(fiscalCode, orgsFiscalCode, receipts, noticeNumberOrIuv, paymentDateTimeFrom, paymentDateTimeTo, pageRequest, accessToken)).thenReturn(expectedResult);
     //when
-    PagedModelReceiptNoPIIView result = receiptService.getPagedModelReceiptNoPIIView(fiscalCode, orgsFiscalCode, receipts, pageRequest, accessToken);
+    PagedModelReceiptNoPIIView result = receiptService.getPagedModelReceiptNoPIIView(fiscalCode, orgsFiscalCode, receipts, noticeNumberOrIuv, paymentDateTimeFrom, paymentDateTimeTo, pageRequest, accessToken);
     //then
     assertNotNull(result);
     assertEquals(expectedResult, result);

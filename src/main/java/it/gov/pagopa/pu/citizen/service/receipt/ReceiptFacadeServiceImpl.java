@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,10 +41,10 @@ public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
   }
 
   @Override
-  public PagedDebtorReceiptsDTO getPagedDebtorReceipts(Long brokerId, String orgName, String debtorFiscalCode, String accessToken, Pageable pageable) {
+  public PagedDebtorReceiptsDTO getPagedDebtorReceipts(Long brokerId, String orgName, String debtorFiscalCode, String noticeNumberOrIuv, OffsetDateTime paymentDateTimeFrom, OffsetDateTime paymentDateTimeTo, String accessToken, Pageable pageable) {
     Map<String,Organization> organizationsMap = retrieveOrganizations(brokerId, orgName, accessToken);
     List<String> organizationsFiscalCodes = new ArrayList<>(organizationsMap.keySet());
-    PagedModelReceiptNoPIIView pagedModelReceiptNoPIIView = receiptService.getPagedModelReceiptNoPIIView(debtorFiscalCode, organizationsFiscalCodes, List.of(ReceiptOriginType.RECEIPT_PAGOPA), pageable, accessToken);
+    PagedModelReceiptNoPIIView pagedModelReceiptNoPIIView = receiptService.getPagedModelReceiptNoPIIView(debtorFiscalCode, organizationsFiscalCodes, List.of(ReceiptOriginType.RECEIPT_PAGOPA), noticeNumberOrIuv, paymentDateTimeFrom, paymentDateTimeTo, pageable, accessToken);
     return pagedDebtorReceiptsDTOMapper.map(organizationsMap, pagedModelReceiptNoPIIView);
   }
 

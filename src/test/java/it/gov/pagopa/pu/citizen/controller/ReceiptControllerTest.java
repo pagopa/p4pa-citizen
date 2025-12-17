@@ -21,6 +21,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.co.jemos.podam.api.PodamFactory;
 
+import java.time.OffsetDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,12 +54,15 @@ class ReceiptControllerTest {
     Long brokerId = 1L;
     String fiscalCode = "fiscalCode";
     String orgName = "orgName";
+    String noticeNumberOrIuv = "noticeNumberOrIuv";
+    OffsetDateTime paymentDateTimeFrom = OffsetDateTime.now().minusDays(1);
+    OffsetDateTime paymentDateTimeTo = OffsetDateTime.now();
     PageRequest pageRequest = PageRequest.of(1, 10);
     PagedDebtorReceiptsDTO expectedResult = podamFactory.manufacturePojo(PagedDebtorReceiptsDTO.class);
 
-    Mockito.when(receiptFacadeServiceMock.getPagedDebtorReceipts(brokerId, orgName, fiscalCode, accessToken, pageRequest)).thenReturn(expectedResult);
+    Mockito.when(receiptFacadeServiceMock.getPagedDebtorReceipts(brokerId, orgName, fiscalCode, noticeNumberOrIuv, paymentDateTimeFrom, paymentDateTimeTo,  accessToken, pageRequest)).thenReturn(expectedResult);
     //when
-    ResponseEntity<PagedDebtorReceiptsDTO> result = receiptController.getPagedDebtorReceipts(brokerId, fiscalCode, orgName, pageRequest);
+    ResponseEntity<PagedDebtorReceiptsDTO> result = receiptController.getPagedDebtorReceipts(brokerId, fiscalCode, orgName, noticeNumberOrIuv, paymentDateTimeFrom, paymentDateTimeTo, pageRequest);
     //then
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertNotNull(result);

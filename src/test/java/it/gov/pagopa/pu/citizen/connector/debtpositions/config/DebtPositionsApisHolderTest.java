@@ -13,6 +13,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
@@ -95,6 +96,9 @@ class DebtPositionsApisHolderTest extends BaseApiHolderTest {
           "debtorFiscalCode",
           List.of("orgFiscalCode"),
           List.of(ReceiptOriginType.RECEIPT_FILE),
+          "noticeNumberOrIuv",
+          OffsetDateTime.now(),
+          OffsetDateTime.now(),
           0,1,null
         ),
       new ParameterizedTypeReference<>() {
