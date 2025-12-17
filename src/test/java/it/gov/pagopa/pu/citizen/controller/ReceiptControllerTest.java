@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.controller;
 
 import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
+import it.gov.pagopa.pu.citizen.dto.DebtorReceiptsFiltersDTO;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.ReceiptDetailExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
@@ -58,9 +59,15 @@ class ReceiptControllerTest {
     OffsetDateTime paymentDateTimeFrom = OffsetDateTime.now().minusDays(1);
     OffsetDateTime paymentDateTimeTo = OffsetDateTime.now();
     PageRequest pageRequest = PageRequest.of(1, 10);
+    DebtorReceiptsFiltersDTO debtorReceiptsFiltersDTO = DebtorReceiptsFiltersDTO.builder()
+      .debtorFiscalCode(fiscalCode)
+      .noticeNumberOrIuv(noticeNumberOrIuv)
+      .paymentDateTimeTo(paymentDateTimeTo)
+      .paymentDateTimeFrom(paymentDateTimeFrom)
+      .build();
     PagedDebtorReceiptsDTO expectedResult = podamFactory.manufacturePojo(PagedDebtorReceiptsDTO.class);
 
-    Mockito.when(receiptFacadeServiceMock.getPagedDebtorReceipts(brokerId, orgName, fiscalCode, noticeNumberOrIuv, paymentDateTimeFrom, paymentDateTimeTo,  accessToken, pageRequest)).thenReturn(expectedResult);
+    Mockito.when(receiptFacadeServiceMock.getPagedDebtorReceipts(brokerId, orgName, debtorReceiptsFiltersDTO,  accessToken, pageRequest)).thenReturn(expectedResult);
     //when
     ResponseEntity<PagedDebtorReceiptsDTO> result = receiptController.getPagedDebtorReceipts(brokerId, fiscalCode, orgName, noticeNumberOrIuv, paymentDateTimeFrom, paymentDateTimeTo, pageRequest);
     //then

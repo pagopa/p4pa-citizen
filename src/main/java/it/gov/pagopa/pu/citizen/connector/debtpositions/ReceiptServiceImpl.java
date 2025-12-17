@@ -3,15 +3,12 @@ package it.gov.pagopa.pu.citizen.connector.debtpositions;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptClient;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiSearchClient;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiViewSearchClient;
+import it.gov.pagopa.pu.citizen.dto.DebtorReceiptsFiltersDTO;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.PagedModelReceiptNoPIIView;
 import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptDetailDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptOriginType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.time.OffsetDateTime;
-import java.util.List;
 
 @Service
 public class ReceiptServiceImpl implements ReceiptService {
@@ -27,8 +24,8 @@ public class ReceiptServiceImpl implements ReceiptService {
   }
 
   @Override
-  public PagedModelReceiptNoPIIView getPagedModelReceiptNoPIIView(String debtorFiscalCode, List<String> organizationsFiscalCode, List<ReceiptOriginType> receiptOrigins, String noticeNumberOrIuv, OffsetDateTime paymentDateTimeFrom, OffsetDateTime paymentDateTimeTo, Pageable pageable, String accessToken) {
-    return receiptNoPiiViewSearchClient.getPagedModelReceiptNoPIIView(debtorFiscalCode, organizationsFiscalCode, receiptOrigins, noticeNumberOrIuv, paymentDateTimeFrom, paymentDateTimeTo, pageable, accessToken);
+  public PagedModelReceiptNoPIIView getPagedModelReceiptNoPIIView(DebtorReceiptsFiltersDTO debtorReceiptsFiltersDTO, Pageable pageable, String accessToken) {
+    return receiptNoPiiViewSearchClient.getPagedModelReceiptNoPIIView(debtorReceiptsFiltersDTO, pageable, accessToken);
   }
 
   @Override
