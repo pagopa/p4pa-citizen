@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.service.receipt;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.ReceiptService;
+import it.gov.pagopa.pu.citizen.dto.DebtorReceiptsFiltersDTO;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.ReceiptDetailExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
@@ -40,10 +41,11 @@ public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
   }
 
   @Override
-  public PagedDebtorReceiptsDTO getPagedDebtorReceipts(Long brokerId, String orgName, String debtorFiscalCode, String accessToken, Pageable pageable) {
+  public PagedDebtorReceiptsDTO getPagedDebtorReceipts(Long brokerId, String orgName, DebtorReceiptsFiltersDTO debtorReceiptsFiltersDTO, String accessToken, Pageable pageable) {
     Map<String,Organization> organizationsMap = retrieveOrganizations(brokerId, orgName, accessToken);
-    List<String> organizationsFiscalCodes = new ArrayList<>(organizationsMap.keySet());
-    PagedModelReceiptNoPIIView pagedModelReceiptNoPIIView = receiptService.getPagedModelReceiptNoPIIView(debtorFiscalCode, organizationsFiscalCodes, List.of(ReceiptOriginType.RECEIPT_PAGOPA), pageable, accessToken);
+    debtorReceiptsFiltersDTO.setOrganizationsFiscalCode(new ArrayList<>(organizationsMap.keySet()));
+    debtorReceiptsFiltersDTO.setReceiptOrigins(List.of(ReceiptOriginType.RECEIPT_PAGOPA));
+    PagedModelReceiptNoPIIView pagedModelReceiptNoPIIView = receiptService.getPagedModelReceiptNoPIIView(debtorReceiptsFiltersDTO, pageable, accessToken);
     return pagedDebtorReceiptsDTOMapper.map(organizationsMap, pagedModelReceiptNoPIIView);
   }
 

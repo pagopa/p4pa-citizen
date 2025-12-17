@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.controller;
 
 import it.gov.pagopa.pu.citizen.controller.generated.ReceiptApi;
+import it.gov.pagopa.pu.citizen.dto.DebtorReceiptsFiltersDTO;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.ReceiptDetailExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
@@ -11,6 +12,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.OffsetDateTime;
 
 @Slf4j
 @RestController
@@ -23,9 +26,14 @@ public class ReceiptController implements ReceiptApi {
   }
 
   @Override
-  public ResponseEntity<PagedDebtorReceiptsDTO> getPagedDebtorReceipts(Long brokerId, String xFiscalCode, String orgName, Pageable pageable) {
+  public ResponseEntity<PagedDebtorReceiptsDTO> getPagedDebtorReceipts(Long brokerId, String xFiscalCode, String orgName, String noticeNumberOrIuv, OffsetDateTime paymentDateTimeFrom, OffsetDateTime paymentDateTimeTo, Pageable pageable) {
     log.info("Requested getPagedDebtorReceipts on brokerId {} and orgName {}", brokerId, orgName);
-    return ResponseEntity.ok(receiptFacadeService.getPagedDebtorReceipts(brokerId, orgName, xFiscalCode, SecurityUtils.getAccessToken(), pageable));
+    return ResponseEntity.ok(receiptFacadeService.getPagedDebtorReceipts(brokerId, orgName, DebtorReceiptsFiltersDTO.builder()
+      .debtorFiscalCode(xFiscalCode)
+      .noticeNumberOrIuv(noticeNumberOrIuv)
+      .paymentDateTimeTo(paymentDateTimeTo)
+      .paymentDateTimeFrom(paymentDateTimeFrom).build(),
+      SecurityUtils.getAccessToken(), pageable));
   }
 
   @Override

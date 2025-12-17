@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions.client;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.config.DebtPositionsApisHolder;
+import it.gov.pagopa.pu.citizen.dto.DebtorReceiptsFiltersDTO;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.controller.generated.ReceiptNoPiiViewSearchControllerApi;
 import it.gov.pagopa.pu.debtpositions.dto.generated.PagedModelReceiptNoPIIView;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import uk.co.jemos.podam.api.PodamFactory;
 
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,14 +53,25 @@ class ReceiptNoPiiViewSearchClientTest {
     String accessToken = "accessToken";
     String fiscalCode = "fiscalCode";
     List<ReceiptOriginType> receipts = List.of(RECEIPT_PAGOPA);
+    String noticeNumberOrIuv = "noticeNumberOrIuv";
+    OffsetDateTime paymentDateTimeFrom = OffsetDateTime.now().minusDays(1);
+    OffsetDateTime paymentDateTimeTo = OffsetDateTime.now();
+    DebtorReceiptsFiltersDTO debtorReceiptsFiltersDTO = DebtorReceiptsFiltersDTO.builder()
+      .debtorFiscalCode(fiscalCode)
+      .noticeNumberOrIuv(noticeNumberOrIuv)
+      .paymentDateTimeTo(paymentDateTimeTo)
+      .paymentDateTimeFrom(paymentDateTimeFrom)
+      .organizationsFiscalCode(orgsFiscalCode)
+      .receiptOrigins(receipts)
+      .build();
 
     PageRequest pageRequest = PageRequest.of(1, 10);
 
     PagedModelReceiptNoPIIView expectedResult = podamFactory.manufacturePojo(PagedModelReceiptNoPIIView.class);
     Mockito.when(debtPositionApisHolderMock.getReceiptNoPiiViewSearchControllerApi(accessToken)).thenReturn(receiptNoPiiViewSearchControllerApiMock);
-    Mockito.when(receiptNoPiiViewSearchControllerApiMock.crudReceiptNoPiiViewGetPagedPrimaryReceiptByFilters(fiscalCode, orgsFiscalCode, receipts, pageRequest.getPageNumber(), pageRequest.getPageSize(), Collections.emptyList() )).thenReturn(expectedResult);
+    Mockito.when(receiptNoPiiViewSearchControllerApiMock.crudReceiptNoPiiViewGetPagedPrimaryReceiptByFilters(fiscalCode, orgsFiscalCode, receipts, noticeNumberOrIuv, paymentDateTimeFrom, paymentDateTimeTo, pageRequest.getPageNumber(), pageRequest.getPageSize(), Collections.emptyList() )).thenReturn(expectedResult);
     //when
-    PagedModelReceiptNoPIIView result = receiptNoPiiViewSearchClient.getPagedModelReceiptNoPIIView(fiscalCode, orgsFiscalCode, receipts, pageRequest, accessToken);
+    PagedModelReceiptNoPIIView result = receiptNoPiiViewSearchClient.getPagedModelReceiptNoPIIView(debtorReceiptsFiltersDTO, pageRequest, accessToken);
     //then
     assertNotNull(result);
     assertEquals(expectedResult, result);

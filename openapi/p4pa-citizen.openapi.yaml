@@ -467,6 +467,23 @@ paths:
           required: false
           schema:
             type: string
+        - name: noticeNumberOrIuv
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: paymentDateTimeFrom
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: paymentDateTimeTo
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
       responses:
         "200":
           description: Ok
