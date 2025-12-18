@@ -1802,6 +1802,10 @@
           "code" : {
             "type" : "string"
           },
+          "debtPositionTypeOrgCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
           "structure" : {
             "$ref" : "#/components/schemas/SpontaneousFormStructure"
           },
