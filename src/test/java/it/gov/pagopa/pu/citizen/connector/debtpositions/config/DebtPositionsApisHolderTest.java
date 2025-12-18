@@ -13,6 +13,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
@@ -95,6 +96,9 @@ class DebtPositionsApisHolderTest extends BaseApiHolderTest {
           "debtorFiscalCode",
           List.of("orgFiscalCode"),
           List.of(ReceiptOriginType.RECEIPT_FILE),
+          "noticeNumberOrIuv",
+          OffsetDateTime.now(),
+          OffsetDateTime.now(),
           0,1,null
         ),
       new ParameterizedTypeReference<>() {
@@ -124,4 +128,24 @@ class DebtPositionsApisHolderTest extends BaseApiHolderTest {
       apisHolder::unload);
   }
 
+  @Test
+  void whenGetInstallmentApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
+    assertAuthenticationShouldBeSetInThreadSafeMode(
+      accessToken -> apisHolder.getInstallmentApi(accessToken)
+        .getInstallmentsByIuvOrNav(
+          "iuvOrNav","debtorFiscalCode",1L),
+      new ParameterizedTypeReference<>() {
+      },
+      apisHolder::unload);
+  }
+  @Test
+  void whenGetInstallmentNoPiiSearchControllerApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
+    assertAuthenticationShouldBeSetInThreadSafeMode(
+      accessToken -> apisHolder.getInstallmentNoPiiSearchControllerApi(accessToken)
+        .crudInstallmentsFindDebtorUnpaidOrPaidByDebtPositionIdAndPaymentOptionId(
+          1L,2L,"debtorFiscalCode", 3L),
+      new ParameterizedTypeReference<>() {
+      },
+      apisHolder::unload);
+  }
 }

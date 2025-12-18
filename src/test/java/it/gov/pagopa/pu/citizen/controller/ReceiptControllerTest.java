@@ -1,12 +1,13 @@
 package it.gov.pagopa.pu.citizen.controller;
 
 import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
+import it.gov.pagopa.pu.citizen.dto.DebtorReceiptsFiltersDTO;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
+import it.gov.pagopa.pu.citizen.dto.ReceiptDetailExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
 import it.gov.pagopa.pu.citizen.security.SecurityUtilsTest;
 import it.gov.pagopa.pu.citizen.service.receipt.ReceiptFacadeService;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
-import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptDetailDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.co.jemos.podam.api.PodamFactory;
+
+import java.time.OffsetDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,12 +55,21 @@ class ReceiptControllerTest {
     Long brokerId = 1L;
     String fiscalCode = "fiscalCode";
     String orgName = "orgName";
+    String noticeNumberOrIuv = "noticeNumberOrIuv";
+    OffsetDateTime paymentDateTimeFrom = OffsetDateTime.now().minusDays(1);
+    OffsetDateTime paymentDateTimeTo = OffsetDateTime.now();
     PageRequest pageRequest = PageRequest.of(1, 10);
+    DebtorReceiptsFiltersDTO debtorReceiptsFiltersDTO = DebtorReceiptsFiltersDTO.builder()
+      .debtorFiscalCode(fiscalCode)
+      .noticeNumberOrIuv(noticeNumberOrIuv)
+      .paymentDateTimeTo(paymentDateTimeTo)
+      .paymentDateTimeFrom(paymentDateTimeFrom)
+      .build();
     PagedDebtorReceiptsDTO expectedResult = podamFactory.manufacturePojo(PagedDebtorReceiptsDTO.class);
 
-    Mockito.when(receiptFacadeServiceMock.getPagedDebtorReceipts(brokerId, orgName, fiscalCode, accessToken, pageRequest)).thenReturn(expectedResult);
+    Mockito.when(receiptFacadeServiceMock.getPagedDebtorReceipts(brokerId, orgName, debtorReceiptsFiltersDTO,  accessToken, pageRequest)).thenReturn(expectedResult);
     //when
-    ResponseEntity<PagedDebtorReceiptsDTO> result = receiptController.getPagedDebtorReceipts(brokerId, fiscalCode, orgName, pageRequest);
+    ResponseEntity<PagedDebtorReceiptsDTO> result = receiptController.getPagedDebtorReceipts(brokerId, fiscalCode, orgName, noticeNumberOrIuv, paymentDateTimeFrom, paymentDateTimeTo, pageRequest);
     //then
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertNotNull(result);
@@ -71,11 +83,11 @@ class ReceiptControllerTest {
     Long brokerId = 1L;
     Long organizationId = 2L;
     Long receiptId = 3L;
-    ReceiptDetailDTO expectedResult = podamFactory.manufacturePojo(ReceiptDetailDTO.class);
+    ReceiptDetailExtendedDTO expectedResult = podamFactory.manufacturePojo(ReceiptDetailExtendedDTO.class);
 
     Mockito.when(receiptFacadeServiceMock.getReceiptDetail(fiscalCode, brokerId, organizationId, receiptId, accessToken)).thenReturn(expectedResult);
     //when
-    ResponseEntity<ReceiptDetailDTO> result = receiptController.getReceiptDetail(fiscalCode, brokerId, organizationId, receiptId);
+    ResponseEntity<ReceiptDetailExtendedDTO> result = receiptController.getReceiptDetail(fiscalCode, brokerId, organizationId, receiptId);
     //then
     assertNotNull(result);
     assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -92,7 +104,7 @@ class ReceiptControllerTest {
 
     Mockito.when(receiptFacadeServiceMock.getReceiptDetail(fiscalCode, brokerId, organizationId, receiptId, accessToken)).thenReturn(null);
     //when
-    ResponseEntity<ReceiptDetailDTO> result = receiptController.getReceiptDetail(fiscalCode, brokerId, organizationId, receiptId);
+    ResponseEntity<ReceiptDetailExtendedDTO> result = receiptController.getReceiptDetail(fiscalCode, brokerId, organizationId, receiptId);
     //then
     assertNotNull(result);
     assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());

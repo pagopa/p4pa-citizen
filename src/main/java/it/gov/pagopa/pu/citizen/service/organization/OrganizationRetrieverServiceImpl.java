@@ -7,12 +7,13 @@ import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.OrganizationsWithSpontaneousDTOMapper;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrgWithActiveSpontaneousCount;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
@@ -77,4 +78,11 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
     return organization;
   }
 
+  public Organization getValidOrganization(String orgFiscalCode, Long brokerId, String accessToken) {
+    Organization organization = organizationService.findByOrgFiscalCode(orgFiscalCode, accessToken);
+    if(organization==null || !brokerId.equals(organization.getBrokerId())){
+      throw new ResourceNotFoundException("Organization having orgFiscalCode "+orgFiscalCode+" and brokerId "+brokerId+" not found");
+    }
+    return organization;
+  }
 }

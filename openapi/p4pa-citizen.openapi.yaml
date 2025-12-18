@@ -354,7 +354,7 @@ paths:
   /brokers/{brokerId}/debt-positions/debtor/unpaid/{debtPositionId}/overview:
     get:
       tags:
-        - debt-position
+        - DebtPosition
       operationId: getDebtorUnpaidDebtPositionOverview
       parameters:
         - name: brokerId
@@ -395,6 +395,56 @@ paths:
           description: Not Found
         '500':
           description: Internal Server Error
+  /brokers/{brokerId}/debt-positions/debtor/unpaid/{debtPositionId}/{paymentOptionId}/installments:
+    get:
+      tags:
+        - Installment
+      operationId: getDebtorUnpaidDebtPositionInstallments
+      parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: debtPositionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: paymentOptionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: X-fiscal-code
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organizationId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DebtorUnpaidDebtPositionInstallmentsDTO"
+        '401':
+          description: Unauthorized - Missing or invalid token
+        '403':
+          description: Forbidden - Access denied
+        '500':
+          description: Internal Server Error
   /brokers/{brokerId}/receipts:
     get:
       tags:
@@ -417,6 +467,23 @@ paths:
           required: false
           schema:
             type: string
+        - name: noticeNumberOrIuv
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: paymentDateTimeFrom
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: paymentDateTimeTo
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
       responses:
         "200":
           description: Ok
@@ -468,7 +535,7 @@ paths:
           content:
             application/json:
               schema:
-                type: 'ReceiptDetailDTO'
+                type: 'ReceiptDetailExtendedDTO'
         '401':
           description: Unauthorized - Missing or invalid token
         '403':
@@ -527,6 +594,48 @@ paths:
           description: Unauthorized - Missing or invalid token
         '403':
           description: Forbidden
+        '404':
+          description: Not Found
+        "500":
+          description: Internal server error
+  /brokers/{brokerId}/installments:
+    get:
+      tags:
+        - installment
+      operationId: getInstallmentsByIuvOrNav
+      parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: iuvOrNav
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: X-fiscal-code
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: orgFiscalCode
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: 'InstallmentDebtorExtendedDTO'
+        "400":
+          description: Invalid request
         '404':
           description: Not Found
         "500":
@@ -907,6 +1016,37 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DebtorInstallmentsOverviewDTO'
+    DebtorUnpaidDebtPositionInstallmentsDTO:
+      type: object
+      properties:
+        debtPositionId:
+          type: integer
+          format: int64
+        paymentOptionId:
+          type: integer
+          format: int64
+        installmentId:
+          type: integer
+          format: int64
+        status:
+          type: 'InstallmentStatus'
+        iuv:
+          type: string
+        remittanceInformation:
+          type: string
+        amountCents:
+          type: integer
+          format: int64
+        dueDate:
+          type: string
+          format: date
+        organizationId:
+          type: integer
+          format: int64
+        orgFiscalCode:
+          type: string
+        orgName:
+          type: string
     DebtorInstallmentsOverviewDTO:
       type: object
       required:

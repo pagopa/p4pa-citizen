@@ -120,7 +120,6 @@ class OrganizationSearchClientTest {
     Assertions.assertSame(expectedResult, result);
   }
 
-
   @Test
   void whenGetBrokerOrganizationThenInvokeWithAccessToken() {
     Long brokerId = 1L;
@@ -148,6 +147,37 @@ class OrganizationSearchClientTest {
       .thenThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, "NotFound", null, null, null));
 
     Organization result = organizationSearchClient.getBrokerOrganization(brokerId, accessToken);
+
+    Assertions.assertNull(result);
+  }
+
+  @Test
+  void whenFindByOrgFiscalCodeThenOk() {
+    String orgFiscalCode = "orgFiscalCode";
+    String accessToken = "ACCESSTOKEN";
+    Organization expectedResult = new Organization();
+
+    Mockito.when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
+      .thenReturn(organizationSearchControllerApiMock);
+    Mockito.when(organizationSearchControllerApiMock.crudOrganizationsFindByOrgFiscalCode(orgFiscalCode))
+      .thenReturn(expectedResult);
+
+    Organization result = organizationSearchClient.findByOrgFiscalCode(orgFiscalCode, accessToken);
+
+    Assertions.assertSame(expectedResult, result);
+  }
+
+  @Test
+  void givenNotFoundWhenFindByOrgFiscalCodeThenNull() {
+    String orgFiscalCode = "orgFiscalCode";
+    String accessToken = "ACCESSTOKEN";
+
+    Mockito.when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
+      .thenReturn(organizationSearchControllerApiMock);
+    Mockito.when(organizationSearchControllerApiMock.crudOrganizationsFindByOrgFiscalCode(orgFiscalCode))
+      .thenThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, "NotFound", null, null, null));
+
+    Organization result = organizationSearchClient.findByOrgFiscalCode(orgFiscalCode, accessToken);
 
     Assertions.assertNull(result);
   }

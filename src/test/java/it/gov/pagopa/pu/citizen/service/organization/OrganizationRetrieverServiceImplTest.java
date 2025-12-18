@@ -1,10 +1,5 @@
 package it.gov.pagopa.pu.citizen.service.organization;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import it.gov.pagopa.pu.citizen.connector.debtpositions.DebtPositionTypeOrgService;
 import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
 import it.gov.pagopa.pu.citizen.dto.generated.OrganizationsWithSpontaneousDTO;
@@ -13,8 +8,6 @@ import it.gov.pagopa.pu.citizen.mapper.OrganizationsWithSpontaneousDTOMapper;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrgWithActiveSpontaneousCount;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +17,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.jemos.podam.api.PodamFactory;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class OrganizationRetrieverServiceImplTest {
@@ -191,5 +189,46 @@ class OrganizationRetrieverServiceImplTest {
     Organization result = organizationRetrieverService.getValidOrganization(organizationId, brokerId, accessToken);
 
     assertEquals(organization, result);
+  }
+
+  @Test
+  void givenValidOrgFiscalCodeWhenGetValidOrganizationThenOk(){
+    String accessToken = "ACCESS_TOKEN";
+    long brokerId = 1L;
+    String orgFiscalCode = "orgFiscalCode";
+
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    organization.setBrokerId(brokerId);
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(orgFiscalCode,accessToken)).thenReturn(organization);
+
+    Organization result = organizationRetrieverService.getValidOrganization(orgFiscalCode,brokerId,accessToken);
+
+    assertEquals(organization, result);
+  }
+
+  @Test
+  void givenNoOrganizationWhenGetValidOrganizationThenResourceNotFoundException(){
+    String accessToken = "ACCESS_TOKEN";
+    long brokerId = 1L;
+    String orgFiscalCode = "orgFiscalCode";
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(orgFiscalCode,accessToken)).thenReturn(null);
+
+    Assertions.assertThrows(ResourceNotFoundException.class,() -> organizationRetrieverService.getValidOrganization(orgFiscalCode,brokerId,accessToken));
+  }
+
+  @Test
+  void givenNoMatchingBrokerIdWhenGetValidOrganizationThenResourceNotFoundException(){
+    String accessToken = "ACCESS_TOKEN";
+    long brokerId = 1L;
+    String orgFiscalCode = "orgFiscalCode";
+
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    organization.setBrokerId(brokerId+1);
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(orgFiscalCode,accessToken)).thenReturn(organization);
+
+    Assertions.assertThrows(ResourceNotFoundException.class,() -> organizationRetrieverService.getValidOrganization(orgFiscalCode,brokerId,accessToken));
   }
 }

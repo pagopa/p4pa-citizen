@@ -131,4 +131,18 @@ class OrganizationServiceImplTest {
 
     assertSame(expectedResult, result);
   }
+
+  @Test
+  void whenFindByOrgFiscalCodeThenInvokeClient() {
+    Organization expectedResult = new Organization();
+    String orgFiscalCode = "orgFiscalCode";
+    String accessToken = "accessToken";
+
+    when(organizationSearchClientMock.findByOrgFiscalCode(orgFiscalCode, accessToken))
+      .thenReturn(expectedResult);
+
+    Organization result = organizationService.findByOrgFiscalCode(orgFiscalCode, accessToken);
+
+    assertSame(expectedResult, result);
+  }
 }
