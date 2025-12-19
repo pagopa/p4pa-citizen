@@ -9,6 +9,7 @@ spring:
   threads:
     virtual:
       enabled: true
+
 management:
   info:
     build.enabled: true
