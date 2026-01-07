@@ -36,4 +36,9 @@ public class DebtPositionTypeOrgServiceImpl implements DebtPositionTypeOrgServic
   public DebtPositionTypeOrg getDebtPositionTypeOrg(Long debtPositionTypeOrgId, String accessToken) {
       return debtPositionTypeOrgEntityClient.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken);
   }
+
+  @Override
+  public List<DebtPositionTypeOrg> getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(Long organizationId, String accessToken) {
+    return debtPositionTypeOrgSearchClient.getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(organizationId, accessToken);
+  }
 }

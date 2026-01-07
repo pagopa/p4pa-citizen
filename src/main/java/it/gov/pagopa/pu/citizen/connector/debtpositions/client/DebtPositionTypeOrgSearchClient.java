@@ -23,4 +23,11 @@ public class DebtPositionTypeOrgSearchClient {
     return collectionModelDebtPositionTypeOrg != null && collectionModelDebtPositionTypeOrg.getEmbedded() != null?
       collectionModelDebtPositionTypeOrg.getEmbedded().getDebtPositionTypeOrgs() : Collections.emptyList();
   }
+
+  public List<DebtPositionTypeOrg> getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(Long organizationId, String accessToken){
+    CollectionModelDebtPositionTypeOrg collectionModelDebtPositionTypeOrg = debtPositionsApisHolder.getDebtPositionTypeOrgSearchControllerApi(accessToken)
+      .crudDebtPositionTypeOrgsGetCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(organizationId);
+    return collectionModelDebtPositionTypeOrg != null && collectionModelDebtPositionTypeOrg.getEmbedded() != null?
+      collectionModelDebtPositionTypeOrg.getEmbedded().getDebtPositionTypeOrgs() : Collections.emptyList();
+  }
 }

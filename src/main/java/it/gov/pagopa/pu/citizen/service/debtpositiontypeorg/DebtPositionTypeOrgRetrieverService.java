@@ -8,4 +8,5 @@ import java.util.List;
 public interface DebtPositionTypeOrgRetrieverService {
   List<DebtPositionTypeOrgsWithSpontaneousDTO> getDebtPositionTypeOrgsWithSpontaneous(Long brokerId, Long organizationId, String accessToken);
   DebtPositionTypeOrgsWithSpontaneousDetailsDTO getDebtPositionTypeOrgsWithSpontaneousDetailsDTO(Long brokerId, Long organizationId, Long debtPositionTypeOrgId, String accessToken);
+  List<DebtPositionTypeOrgsWithSpontaneousDTO> getCurrentYearTopTenDebtPositionTypeOrgsWithSpontaneous(Long brokerId, Long organizationId, String accessToken);
 }

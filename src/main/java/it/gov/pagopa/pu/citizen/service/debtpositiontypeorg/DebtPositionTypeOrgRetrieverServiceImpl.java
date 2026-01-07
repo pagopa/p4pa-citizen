@@ -52,6 +52,12 @@ public class DebtPositionTypeOrgRetrieverServiceImpl implements DebtPositionType
     return debtPositionTypeOrgsWithSpontaneousDetailsDTOMapper.map(debtPositionTypeOrg, getSpontaneousForm(accessToken, debtPositionTypeOrg));
   }
 
+  @Override
+  public List<DebtPositionTypeOrgsWithSpontaneousDTO> getCurrentYearTopTenDebtPositionTypeOrgsWithSpontaneous(Long brokerId, Long organizationId, String accessToken) {
+    organizationRetrieverService.validateOrganization(organizationId, brokerId, accessToken);
+    return debtPositionTypeOrgsListWithSpontaneousDTOMapper.map(debtPositionTypeOrgService.getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(organizationId,accessToken));
+  }
+
   private SpontaneousForm getSpontaneousForm(String accessToken, DebtPositionTypeOrg debtPositionTypeOrg) {
     if (debtPositionTypeOrg.getSpontaneousFormId() != null){
       return spontaneousFormService.getSpontaneousForm(debtPositionTypeOrg.getSpontaneousFormId(), accessToken);
