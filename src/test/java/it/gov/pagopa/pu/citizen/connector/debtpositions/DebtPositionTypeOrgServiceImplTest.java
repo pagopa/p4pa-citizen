@@ -88,4 +88,31 @@ class DebtPositionTypeOrgServiceImplTest {
     Assertions.assertNotNull(result);
     Assertions.assertEquals(expectedResult, result);
   }
+
+  @Test
+  void givenOrganizationIdWhenGetCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationIdThenReturnDebtPositionTypeOrgList() {
+    // given
+    String accessToken = "ACCESS_TOKEN";
+    Long organizationId = 1L;
+
+    List<DebtPositionTypeOrg> expectedResult =
+      podamFactory.manufacturePojo(List.class, DebtPositionTypeOrg.class);
+
+    Mockito.when(
+      debtPositionTypeOrgSearchClientMock
+        .getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
+          organizationId, accessToken)
+    ).thenReturn(expectedResult);
+
+    // when
+    List<DebtPositionTypeOrg> result =
+      debtPositionTypeOrgService
+        .getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
+          organizationId, accessToken);
+
+    // then
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(expectedResult, result);
+  }
+
 }

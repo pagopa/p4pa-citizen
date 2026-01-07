@@ -165,4 +165,44 @@ class DebtPositionTypeOrgRetrieverServiceImplTest {
         brokerId, organizationId, debtPositionTypeOrgId, accessToken));
   }
 
+  @Test
+  void givenBrokerIdAndOrganizationIdWhenGetCurrentYearTopTenDebtPositionTypeOrgsWithSpontaneousThenReturnDTOList() {
+    // given
+    Long brokerId = 1L;
+    Long organizationId = 3L;
+    String accessToken = "accessToken";
+
+    Mockito.doNothing()
+      .when(organizationRetrieverServiceMock)
+      .validateOrganization(organizationId, brokerId, accessToken);
+
+    List<DebtPositionTypeOrg> debtPositionTypeOrgList =
+      podamFactory.manufacturePojo(List.class, DebtPositionTypeOrg.class);
+
+    Mockito.when(
+      debtPositionTypeOrgServiceMock
+        .getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
+          organizationId, accessToken)
+    ).thenReturn(debtPositionTypeOrgList);
+
+    List<DebtPositionTypeOrgsWithSpontaneousDTO> expectedResult =
+      podamFactory.manufacturePojo(List.class, DebtPositionTypeOrgsWithSpontaneousDTO.class);
+
+    Mockito.when(
+      debtPositionTypeOrgsListWithSpontaneousDTOMapperMock
+        .map(debtPositionTypeOrgList)
+    ).thenReturn(expectedResult);
+
+    // when
+    List<DebtPositionTypeOrgsWithSpontaneousDTO> result =
+      debtPositionTypeOrgRetrieverService
+        .getCurrentYearTopTenDebtPositionTypeOrgsWithSpontaneous(
+          brokerId, organizationId, accessToken);
+
+    // then
+    assertNotNull(result);
+    assertEquals(expectedResult, result);
+  }
+
+
 }

@@ -76,4 +76,32 @@ class DebtPositionTypeOrgControllerTest {
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertEquals(expectedResult, result.getBody());
   }
+
+  @Test
+  void givenBrokerIdAndOrganizationIdWhenGetCurrentYearTopTenDebtPositionTypeOrgsWithSpontaneousThenOk() {
+    // given
+    Long brokerId = 1L;
+    Long organizationId = 3L;
+
+    List<DebtPositionTypeOrgsWithSpontaneousDTO> expectedResult =
+      podamFactory.manufacturePojo(List.class, DebtPositionTypeOrgsWithSpontaneousDTO.class);
+
+    Mockito.when(
+      debtPositionTypeOrgRetrieverServiceMock
+        .getCurrentYearTopTenDebtPositionTypeOrgsWithSpontaneous(
+          brokerId, organizationId, accessToken)
+    ).thenReturn(expectedResult);
+
+    // when
+    ResponseEntity<List<DebtPositionTypeOrgsWithSpontaneousDTO>> result =
+      debtPositionTypeOrgController
+        .getCurrentYearTopTenDebtPositionTypeOrgsWithSpontaneous(
+          brokerId, organizationId);
+
+    // then
+    assertNotNull(result);
+    assertEquals(HttpStatus.OK, result.getStatusCode());
+    assertEquals(expectedResult, result.getBody());
+  }
+
 }

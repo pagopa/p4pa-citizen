@@ -98,4 +98,98 @@ class DebtPositionTypeOrgSearchClientTest {
     Assertions.assertTrue(result.isEmpty());
   }
 
+  @Test
+  void givenOrganizationIdWhenGetCurrentYearTopTenSpontaneousDebtPositionTypeOrgThenReturnList() {
+    // given
+    String accessToken = "ACCESS_TOKEN";
+    Long organizationId = 1L;
+
+    CollectionModelDebtPositionTypeOrg expectedResult =
+      podamFactory.manufacturePojo(CollectionModelDebtPositionTypeOrg.class);
+
+    Mockito.when(
+      debtPositionsApisHolderMock
+        .getDebtPositionTypeOrgSearchControllerApi(accessToken)
+    ).thenReturn(debtPositionTypeOrgSearchControllerApiMock);
+
+    Mockito.when(
+      debtPositionTypeOrgSearchControllerApiMock
+        .crudDebtPositionTypeOrgsGetCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
+          organizationId)
+    ).thenReturn(expectedResult);
+
+    // when
+    List<DebtPositionTypeOrg> result =
+      debtPositionTypeOrgSearchClient
+        .getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
+          organizationId, accessToken);
+
+    // then
+    assertNotNull(result);
+    assertEquals(
+      expectedResult.getEmbedded().getDebtPositionTypeOrgs(),
+      result
+    );
+  }
+
+  @Test
+  void givenNullCollectionWhenGetCurrentYearTopTenSpontaneousDebtPositionTypeOrgThenReturnEmptyList() {
+    // given
+    String accessToken = "ACCESS_TOKEN";
+    Long organizationId = 1L;
+
+    Mockito.when(
+      debtPositionsApisHolderMock
+        .getDebtPositionTypeOrgSearchControllerApi(accessToken)
+    ).thenReturn(debtPositionTypeOrgSearchControllerApiMock);
+
+    Mockito.when(
+      debtPositionTypeOrgSearchControllerApiMock
+        .crudDebtPositionTypeOrgsGetCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
+          organizationId)
+    ).thenReturn(null);
+
+    // when
+    List<DebtPositionTypeOrg> result =
+      debtPositionTypeOrgSearchClient
+        .getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
+          organizationId, accessToken);
+
+    // then
+    assertNotNull(result);
+    Assertions.assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void givenNullEmbeddedWhenGetCurrentYearTopTenSpontaneousDebtPositionTypeOrgThenReturnEmptyList() {
+    // given
+    String accessToken = "ACCESS_TOKEN";
+    Long organizationId = 1L;
+
+    CollectionModelDebtPositionTypeOrg collection =
+      podamFactory.manufacturePojo(CollectionModelDebtPositionTypeOrg.class);
+    collection.setEmbedded(null);
+
+    Mockito.when(
+      debtPositionsApisHolderMock
+        .getDebtPositionTypeOrgSearchControllerApi(accessToken)
+    ).thenReturn(debtPositionTypeOrgSearchControllerApiMock);
+
+    Mockito.when(
+      debtPositionTypeOrgSearchControllerApiMock
+        .crudDebtPositionTypeOrgsGetCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
+          organizationId)
+    ).thenReturn(collection);
+
+    // when
+    List<DebtPositionTypeOrg> result =
+      debtPositionTypeOrgSearchClient
+        .getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
+          organizationId, accessToken);
+
+    // then
+    Assertions.assertNotNull(result);
+    Assertions.assertTrue(result.isEmpty());
+  }
+
 }
