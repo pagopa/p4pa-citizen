@@ -103,7 +103,7 @@ class DebtPositionTypeOrgSearchClientTest {
   }
 
   @Test
-  void givenOrganizationIdWhenGetCurrentYearTopTenSpontaneousDebtPositionTypeOrgThenReturnList() {
+  void givenOrganizationIdWhenGetMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYearThenReturnList() {
     // given
     String accessToken = "ACCESS_TOKEN";
     Long organizationId = 1L;
@@ -144,7 +144,7 @@ class DebtPositionTypeOrgSearchClientTest {
   }
 
   @Test
-  void givenNullCollectionWhenGetCurrentYearTopTenSpontaneousDebtPositionTypeOrgThenReturnEmptyList() {
+  void givenNullCollectionWhenGetMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYearThenReturnEmptyList() {
     // given
     String accessToken = "ACCESS_TOKEN";
     Long organizationId = 1L;
@@ -176,7 +176,7 @@ class DebtPositionTypeOrgSearchClientTest {
   }
 
   @Test
-  void givenNullEmbeddedWhenGetCurrentYearTopTenSpontaneousDebtPositionTypeOrgThenReturnEmptyList() {
+  void givenNullEmbeddedWhenGetMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYearThenReturnEmptyList() {
     // given
     String accessToken = "ACCESS_TOKEN";
     Long organizationId = 1L;
