@@ -7,6 +7,7 @@ import it.gov.pagopa.pu.citizen.exception.InvalidParamException;
 import it.gov.pagopa.pu.citizen.security.SecurityUtils;
 import it.gov.pagopa.pu.citizen.service.debtpositiontypeorg.DebtPositionTypeOrgRetrieverService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,11 +18,13 @@ import java.util.List;
 @RestController
 public class DebtPositionTypeOrgController implements DebtPositionTypeOrgApi {
 
-  private static final int MAX_PAGE_SIZE = 1000;
+  private final int pageMaxSize;
   private final DebtPositionTypeOrgRetrieverService debtPositionTypeOrgRetrieverService;
 
-  public DebtPositionTypeOrgController(DebtPositionTypeOrgRetrieverService debtPositionTypeOrgRetrieverService) {
+  public DebtPositionTypeOrgController(DebtPositionTypeOrgRetrieverService debtPositionTypeOrgRetrieverService,
+                                       @Value("${rest.page.request-max-page-size}") int pageMaxSize) {
     this.debtPositionTypeOrgRetrieverService = debtPositionTypeOrgRetrieverService;
+    this.pageMaxSize = pageMaxSize;
   }
 
   @Override
@@ -39,9 +42,9 @@ public class DebtPositionTypeOrgController implements DebtPositionTypeOrgApi {
   @Override
   public ResponseEntity<List<DebtPositionTypeOrgsWithSpontaneousDTO>> getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(Long brokerId, Long organizationId, Pageable pageable) {
     log.info("Requested getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear on brokerId {} and organizationId {}", brokerId, organizationId);
-    if (pageable != null && pageable.getPageSize() > MAX_PAGE_SIZE) {
+    if (pageable != null && pageable.getPageSize() > pageMaxSize) {
       throw new InvalidParamException(
-        "The size query parameter must not exceed " + MAX_PAGE_SIZE
+        "The size query parameter must not exceed " + pageMaxSize
       );
     }
 

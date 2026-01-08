@@ -39,7 +39,7 @@ class DebtPositionTypeOrgControllerTest {
   @BeforeEach
   void setUp() {
     SecurityUtilsTest.configureSecurityContext(accessToken, loggedUser);
-    debtPositionTypeOrgController = new DebtPositionTypeOrgController(debtPositionTypeOrgRetrieverServiceMock);
+    debtPositionTypeOrgController = new DebtPositionTypeOrgController(debtPositionTypeOrgRetrieverServiceMock, 100);
   }
 
   @AfterEach
@@ -114,7 +114,7 @@ class DebtPositionTypeOrgControllerTest {
     Long brokerId = 1L;
     Long organizationId = 3L;
 
-    Pageable pageable = PageRequest.of(0, 1001);
+    Pageable pageable = PageRequest.of(0, 101);
 
     // then
     assertThrows(
