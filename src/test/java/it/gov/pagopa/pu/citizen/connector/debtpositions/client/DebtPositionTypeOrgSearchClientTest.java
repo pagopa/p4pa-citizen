@@ -5,6 +5,7 @@ import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.controller.generated.DebtPositionTypeOrgSearchControllerApi;
 import it.gov.pagopa.pu.debtpositions.dto.generated.CollectionModelDebtPositionTypeOrg;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrg;
+import it.gov.pagopa.pu.debtpositions.dto.generated.PagedModelDebtPositionTypeOrg;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +14,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import uk.co.jemos.podam.api.PodamFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -103,9 +107,10 @@ class DebtPositionTypeOrgSearchClientTest {
     // given
     String accessToken = "ACCESS_TOKEN";
     Long organizationId = 1L;
+    Pageable pageable = PageRequest.of(0, 10);
 
-    CollectionModelDebtPositionTypeOrg expectedResult =
-      podamFactory.manufacturePojo(CollectionModelDebtPositionTypeOrg.class);
+    PagedModelDebtPositionTypeOrg expectedResult =
+      podamFactory.manufacturePojo(PagedModelDebtPositionTypeOrg.class);
 
     Mockito.when(
       debtPositionsApisHolderMock
@@ -114,15 +119,21 @@ class DebtPositionTypeOrgSearchClientTest {
 
     Mockito.when(
       debtPositionTypeOrgSearchControllerApiMock
-        .crudDebtPositionTypeOrgsGetCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
-          organizationId)
+        .crudDebtPositionTypeOrgsFindMostUsedSpontaneousDebtPositionTypesForOrganizationInCurrentYear(
+          organizationId,
+          pageable.getPageNumber(),
+          pageable.getPageSize(),
+          new ArrayList<>()
+          )
     ).thenReturn(expectedResult);
 
     // when
     List<DebtPositionTypeOrg> result =
       debtPositionTypeOrgSearchClient
-        .getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
-          organizationId, accessToken);
+        .getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(
+          organizationId,
+          pageable,
+          accessToken);
 
     // then
     assertNotNull(result);
@@ -137,6 +148,7 @@ class DebtPositionTypeOrgSearchClientTest {
     // given
     String accessToken = "ACCESS_TOKEN";
     Long organizationId = 1L;
+    Pageable pageable = PageRequest.of(0, 10);
 
     Mockito.when(
       debtPositionsApisHolderMock
@@ -145,15 +157,18 @@ class DebtPositionTypeOrgSearchClientTest {
 
     Mockito.when(
       debtPositionTypeOrgSearchControllerApiMock
-        .crudDebtPositionTypeOrgsGetCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
-          organizationId)
+        .crudDebtPositionTypeOrgsFindMostUsedSpontaneousDebtPositionTypesForOrganizationInCurrentYear(
+          organizationId,
+          pageable.getPageNumber(),
+          pageable.getPageSize(),
+          new ArrayList<>())
     ).thenReturn(null);
 
     // when
     List<DebtPositionTypeOrg> result =
       debtPositionTypeOrgSearchClient
-        .getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
-          organizationId, accessToken);
+        .getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(
+          organizationId, pageable, accessToken);
 
     // then
     assertNotNull(result);
@@ -165,10 +180,11 @@ class DebtPositionTypeOrgSearchClientTest {
     // given
     String accessToken = "ACCESS_TOKEN";
     Long organizationId = 1L;
+    Pageable pageable = PageRequest.of(0, 10);
 
-    CollectionModelDebtPositionTypeOrg collection =
-      podamFactory.manufacturePojo(CollectionModelDebtPositionTypeOrg.class);
-    collection.setEmbedded(null);
+    PagedModelDebtPositionTypeOrg expectedResult =
+      podamFactory.manufacturePojo(PagedModelDebtPositionTypeOrg.class);
+    expectedResult.setEmbedded(null);
 
     Mockito.when(
       debtPositionsApisHolderMock
@@ -177,15 +193,18 @@ class DebtPositionTypeOrgSearchClientTest {
 
     Mockito.when(
       debtPositionTypeOrgSearchControllerApiMock
-        .crudDebtPositionTypeOrgsGetCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
-          organizationId)
-    ).thenReturn(collection);
+        .crudDebtPositionTypeOrgsFindMostUsedSpontaneousDebtPositionTypesForOrganizationInCurrentYear(
+          organizationId,
+          pageable.getPageNumber(),
+          pageable.getPageSize(),
+          new ArrayList<>())
+    ).thenReturn(expectedResult);
 
     // when
     List<DebtPositionTypeOrg> result =
       debtPositionTypeOrgSearchClient
-        .getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
-          organizationId, accessToken);
+        .getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(
+          organizationId, pageable, accessToken);
 
     // then
     Assertions.assertNotNull(result);

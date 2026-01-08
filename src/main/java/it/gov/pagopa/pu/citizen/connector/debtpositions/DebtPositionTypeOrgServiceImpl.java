@@ -5,6 +5,7 @@ import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionTypeO
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.DebtPositionTypeOrgWithActiveSpontaneousCountSearchClient;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrg;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrgWithActiveSpontaneousCount;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,7 +39,7 @@ public class DebtPositionTypeOrgServiceImpl implements DebtPositionTypeOrgServic
   }
 
   @Override
-  public List<DebtPositionTypeOrg> getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(Long organizationId, String accessToken) {
-    return debtPositionTypeOrgSearchClient.getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(organizationId, accessToken);
+  public List<DebtPositionTypeOrg> getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(Long organizationId, Pageable pageable, String accessToken) {
+    return debtPositionTypeOrgSearchClient.getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(organizationId, pageable, accessToken);
   }
 }

@@ -96,12 +96,12 @@ paths:
           description: Forbidden - Access denied
         '500':
           description: Internal Server Error
-  /brokers/{brokerId}/spontaneous/organizations/{organizationId}/debt-position-type-orgs/top-ten:
+  /brokers/{brokerId}/spontaneous/organizations/{organizationId}/debt-position-type-orgs/most-used:
     get:
       tags:
         - DebtPositionTypeOrg
-      summary: "Retrieves the list of top ten spontaneous debtPositionTypeOrg for current year"
-      operationId: getCurrentYearTopTenDebtPositionTypeOrgsWithSpontaneous
+      summary: "Retrieves the most used spontaneous debt position types for the current year"
+      operationId: getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear
       parameters:
         - name: brokerId
           in: path
@@ -124,12 +124,15 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDTO"
+        '400':
+          description: Bad Request
         '401':
           description: Unauthorized - Missing or invalid token
         '403':
           description: Forbidden - Access denied
         '500':
           description: Internal Server Error
+      x-spring-paginated: true
   /brokers/{brokerId}/spontaneous/organizations/{organizationId}/debt-position-type-orgs/{debtPositionTypeOrgId}:
     get:
       tags:

@@ -434,11 +434,11 @@
         } ]
       }
     },
-    "/brokers/{brokerId}/spontaneous/organizations/{organizationId}/debt-position-type-orgs/top-ten" : {
+    "/brokers/{brokerId}/spontaneous/organizations/{organizationId}/debt-position-type-orgs/most-used" : {
       "get" : {
         "tags" : [ "DebtPositionTypeOrg" ],
-        "summary" : "Retrieves the list of top ten spontaneous debtPositionTypeOrg for current year",
-        "operationId" : "getCurrentYearTopTenDebtPositionTypeOrgsWithSpontaneous",
+        "summary" : "Retrieves the most used spontaneous debt position types for the current year",
+        "operationId" : "getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear",
         "parameters" : [ {
           "name" : "brokerId",
           "in" : "path",
@@ -455,10 +455,54 @@
             "type" : "integer",
             "format" : "int64"
           }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Zero-based page index (0..N)",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 0,
+            "minimum" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "The size of the page to be returned",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 20,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
         } ],
         "responses" : {
           "200" : {
             "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DebtPositionTypeOrgsWithSpontaneousDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -2144,7 +2188,7 @@
       },
       "DebtPositionOrigin" : {
         "type" : "string",
-        "enum" : [ "ORDINARY", "ORDINARY_SIL", "SPONTANEOUS", "SPONTANEOUS_SIL", "SPONTANEOUS_MIXED", "SECONDARY_ORG", "RECEIPT_FILE", "RECEIPT_PAGOPA", "REPORTING_PAGOPA" ]
+        "enum" : [ "ORDINARY", "ORDINARY_SIL", "SPONTANEOUS", "SPONTANEOUS_SIL", "SPONTANEOUS_MIXED", "SPONTANEOUS_PSP", "SECONDARY_ORG", "RECEIPT_FILE", "RECEIPT_PAGOPA", "REPORTING_PAGOPA" ]
       },
       "ReceiptDetailExtendedDTO" : {
         "type" : "object",

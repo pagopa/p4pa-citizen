@@ -14,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.util.List;
@@ -90,25 +92,26 @@ class DebtPositionTypeOrgServiceImplTest {
   }
 
   @Test
-  void givenOrganizationIdWhenGetCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationIdThenReturnDebtPositionTypeOrgList() {
+  void givenOrganizationIdWhenGetMostUsedSpontaneousDebtPositionTypeOrgByOrganizationIdThenReturnDebtPositionTypeOrgList() {
     // given
     String accessToken = "ACCESS_TOKEN";
     Long organizationId = 1L;
+    Pageable pageable = PageRequest.of(0, 10);
 
     List<DebtPositionTypeOrg> expectedResult =
       podamFactory.manufacturePojo(List.class, DebtPositionTypeOrg.class);
 
     Mockito.when(
       debtPositionTypeOrgSearchClientMock
-        .getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
-          organizationId, accessToken)
+        .getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(
+          organizationId, pageable, accessToken)
     ).thenReturn(expectedResult);
 
     // when
     List<DebtPositionTypeOrg> result =
       debtPositionTypeOrgService
-        .getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
-          organizationId, accessToken);
+        .getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(
+          organizationId, pageable, accessToken);
 
     // then
     Assertions.assertNotNull(result);

@@ -1,8 +1,11 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions.client;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.config.DebtPositionsApisHolder;
+import it.gov.pagopa.pu.citizen.utils.PageUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.CollectionModelDebtPositionTypeOrg;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrg;
+import it.gov.pagopa.pu.debtpositions.dto.generated.PagedModelDebtPositionTypeOrg;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -24,10 +27,14 @@ public class DebtPositionTypeOrgSearchClient {
       collectionModelDebtPositionTypeOrg.getEmbedded().getDebtPositionTypeOrgs() : Collections.emptyList();
   }
 
-  public List<DebtPositionTypeOrg> getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(Long organizationId, String accessToken){
-    CollectionModelDebtPositionTypeOrg collectionModelDebtPositionTypeOrg = debtPositionsApisHolder.getDebtPositionTypeOrgSearchControllerApi(accessToken)
-      .crudDebtPositionTypeOrgsGetCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(organizationId);
-    return collectionModelDebtPositionTypeOrg != null && collectionModelDebtPositionTypeOrg.getEmbedded() != null?
-      collectionModelDebtPositionTypeOrg.getEmbedded().getDebtPositionTypeOrgs() : Collections.emptyList();
+  public List<DebtPositionTypeOrg> getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(Long organizationId, Pageable pageable, String accessToken){
+    PagedModelDebtPositionTypeOrg pagedModelDebtPositionTypeOrg = debtPositionsApisHolder.getDebtPositionTypeOrgSearchControllerApi(accessToken)
+      .crudDebtPositionTypeOrgsFindMostUsedSpontaneousDebtPositionTypesForOrganizationInCurrentYear(
+        organizationId,
+        PageUtils.getPageNumber(pageable),
+        PageUtils.getPageSize(pageable),
+        PageUtils.getSortList(pageable));
+    return pagedModelDebtPositionTypeOrg != null && pagedModelDebtPositionTypeOrg.getEmbedded() != null?
+      pagedModelDebtPositionTypeOrg.getEmbedded().getDebtPositionTypeOrgs() : Collections.emptyList();
   }
 }

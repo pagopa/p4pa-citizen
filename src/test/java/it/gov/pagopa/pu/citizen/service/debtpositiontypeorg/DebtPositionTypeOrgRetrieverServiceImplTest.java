@@ -18,6 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.util.List;
@@ -166,11 +168,12 @@ class DebtPositionTypeOrgRetrieverServiceImplTest {
   }
 
   @Test
-  void givenBrokerIdAndOrganizationIdWhenGetCurrentYearTopTenDebtPositionTypeOrgsWithSpontaneousThenReturnDTOList() {
+  void givenBrokerIdAndOrganizationIdWhenGetMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYearThenReturnDTOList() {
     // given
     Long brokerId = 1L;
     Long organizationId = 3L;
     String accessToken = "accessToken";
+    Pageable pageable = PageRequest.of(0, 10);
 
     Mockito.doNothing()
       .when(organizationRetrieverServiceMock)
@@ -181,8 +184,8 @@ class DebtPositionTypeOrgRetrieverServiceImplTest {
 
     Mockito.when(
       debtPositionTypeOrgServiceMock
-        .getCurrentYearTopTenSpontaneousDebtPositionTypeOrgByOrganizationId(
-          organizationId, accessToken)
+        .getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(
+          organizationId, pageable, accessToken)
     ).thenReturn(debtPositionTypeOrgList);
 
     List<DebtPositionTypeOrgsWithSpontaneousDTO> expectedResult =
@@ -196,8 +199,8 @@ class DebtPositionTypeOrgRetrieverServiceImplTest {
     // when
     List<DebtPositionTypeOrgsWithSpontaneousDTO> result =
       debtPositionTypeOrgRetrieverService
-        .getCurrentYearTopTenDebtPositionTypeOrgsWithSpontaneous(
-          brokerId, organizationId, accessToken);
+        .getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(
+          brokerId, organizationId, pageable, accessToken);
 
     // then
     assertNotNull(result);
