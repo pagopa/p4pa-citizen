@@ -437,8 +437,8 @@
     "/brokers/{brokerId}/spontaneous/organizations/{organizationId}/debt-position-type-orgs/top-ten" : {
       "get" : {
         "tags" : [ "DebtPositionTypeOrg" ],
-        "summary" : "Retrieves the list of top ten spontaneous debtPositionTypeOrg",
-        "operationId" : "getTopTenDebtPositionTypeOrgsWithSpontaneous",
+        "summary" : "Retrieves the list of top ten spontaneous debtPositionTypeOrg for current year",
+        "operationId" : "getCurrentYearTopTenDebtPositionTypeOrgsWithSpontaneous",
         "parameters" : [ {
           "name" : "brokerId",
           "in" : "path",
