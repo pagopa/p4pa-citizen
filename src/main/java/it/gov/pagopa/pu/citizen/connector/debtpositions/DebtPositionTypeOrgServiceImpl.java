@@ -8,6 +8,7 @@ import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrgWithActiv
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Service
@@ -39,7 +40,7 @@ public class DebtPositionTypeOrgServiceImpl implements DebtPositionTypeOrgServic
   }
 
   @Override
-  public List<DebtPositionTypeOrg> getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(Long organizationId, Pageable pageable, String accessToken) {
-    return debtPositionTypeOrgSearchClient.getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(organizationId, pageable, accessToken);
+  public List<DebtPositionTypeOrg> getMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(Long organizationId, OffsetDateTime creationDateFrom, OffsetDateTime creationDateTo, Pageable pageable, String accessToken) {
+    return debtPositionTypeOrgSearchClient.getMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(organizationId, creationDateFrom, creationDateTo, pageable, accessToken);
   }
 }

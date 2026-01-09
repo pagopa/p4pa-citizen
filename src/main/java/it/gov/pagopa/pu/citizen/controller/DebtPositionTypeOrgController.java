@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Slf4j
@@ -40,14 +41,14 @@ public class DebtPositionTypeOrgController implements DebtPositionTypeOrgApi {
   }
 
   @Override
-  public ResponseEntity<List<DebtPositionTypeOrgsWithSpontaneousDTO>> getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(Long brokerId, Long organizationId, Pageable pageable) {
-    log.info("Requested getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear on brokerId {} and organizationId {}", brokerId, organizationId);
+  public ResponseEntity<List<DebtPositionTypeOrgsWithSpontaneousDTO>> getMostUsedSpontaneousDebtPositionTypeOrgs(Long brokerId, Long organizationId, OffsetDateTime creationDateFrom, OffsetDateTime creationDateTo, Pageable pageable) {
+    log.info("Requested getMostUsedSpontaneousDebtPositionTypeOrgs on brokerId {} and organizationId {}", brokerId, organizationId);
     if (pageable != null && pageable.getPageSize() > pageMaxSize) {
       throw new InvalidParamException(
         "The size query parameter must not exceed " + pageMaxSize
       );
     }
 
-    return ResponseEntity.ok(debtPositionTypeOrgRetrieverService.getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(brokerId, organizationId, pageable, SecurityUtils.getAccessToken()));
+    return ResponseEntity.ok(debtPositionTypeOrgRetrieverService.getMostUsedSpontaneousDebtPositionTypeOrgs(brokerId, organizationId, creationDateFrom, creationDateTo, pageable, SecurityUtils.getAccessToken()));
   }
 }

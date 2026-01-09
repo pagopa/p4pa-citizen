@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.co.jemos.podam.api.PodamFactory;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -81,10 +82,12 @@ class DebtPositionTypeOrgControllerTest {
   }
 
   @Test
-  void givenBrokerIdAndOrganizationIdWhenGetMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYearThenOk() {
+  void givenBrokerIdAndOrganizationIdWhenGetMostUsedSpontaneousDebtPositionTypeOrgsrThenOk() {
     // given
     Long brokerId = 1L;
     Long organizationId = 3L;
+    OffsetDateTime offsetDateTimeFrom = OffsetDateTime.now().minusYears(1);
+    OffsetDateTime offsetDateTimeTo= OffsetDateTime.now();
     Pageable pageable = PageRequest.of(0, 10);
 
     List<DebtPositionTypeOrgsWithSpontaneousDTO> expectedResult =
@@ -92,15 +95,15 @@ class DebtPositionTypeOrgControllerTest {
 
     Mockito.when(
       debtPositionTypeOrgRetrieverServiceMock
-        .getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(
-          brokerId, organizationId, pageable, accessToken)
+        .getMostUsedSpontaneousDebtPositionTypeOrgs(
+          brokerId, organizationId, offsetDateTimeFrom, offsetDateTimeTo, pageable, accessToken)
     ).thenReturn(expectedResult);
 
     // when
     ResponseEntity<List<DebtPositionTypeOrgsWithSpontaneousDTO>> result =
       debtPositionTypeOrgController
-        .getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(
-          brokerId, organizationId, pageable);
+        .getMostUsedSpontaneousDebtPositionTypeOrgs(
+          brokerId, organizationId, offsetDateTimeFrom, offsetDateTimeTo, pageable);
 
     // then
     assertNotNull(result);
@@ -109,20 +112,23 @@ class DebtPositionTypeOrgControllerTest {
   }
 
   @Test
-  void givenPageableWithSizeGreaterThanMaxWhenGetMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYearThenThrowException() {
+  void givenPageableWithSizeGreaterThanMaxWhenGetMostUsedSpontaneousDebtPositionTypeOrgsThenThrowException() {
     // given
     Long brokerId = 1L;
     Long organizationId = 3L;
-
+    OffsetDateTime offsetDateTimeFrom = OffsetDateTime.now().minusYears(1);
+    OffsetDateTime offsetDateTimeTo= OffsetDateTime.now();
     Pageable pageable = PageRequest.of(0, 101);
 
     // then
     assertThrows(
       InvalidParamException.class,
       () -> debtPositionTypeOrgController
-        .getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(
+        .getMostUsedSpontaneousDebtPositionTypeOrgs(
           brokerId,
           organizationId,
+          offsetDateTimeFrom,
+          offsetDateTimeTo,
           pageable
         )
     );

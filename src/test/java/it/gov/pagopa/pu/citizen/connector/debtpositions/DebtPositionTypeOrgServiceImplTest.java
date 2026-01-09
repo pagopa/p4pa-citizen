@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import uk.co.jemos.podam.api.PodamFactory;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
@@ -96,6 +97,8 @@ class DebtPositionTypeOrgServiceImplTest {
     // given
     String accessToken = "ACCESS_TOKEN";
     Long organizationId = 1L;
+    OffsetDateTime offsetDateTimeFrom = OffsetDateTime.now().minusYears(1);
+    OffsetDateTime offsetDateTimeTo= OffsetDateTime.now();
     Pageable pageable = PageRequest.of(0, 10);
 
     List<DebtPositionTypeOrg> expectedResult =
@@ -103,15 +106,15 @@ class DebtPositionTypeOrgServiceImplTest {
 
     Mockito.when(
       debtPositionTypeOrgSearchClientMock
-        .getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(
-          organizationId, pageable, accessToken)
+        .getMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(
+          organizationId, offsetDateTimeFrom, offsetDateTimeTo, pageable, accessToken)
     ).thenReturn(expectedResult);
 
     // when
     List<DebtPositionTypeOrg> result =
       debtPositionTypeOrgService
-        .getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(
-          organizationId, pageable, accessToken);
+        .getMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(
+          organizationId, offsetDateTimeFrom, offsetDateTimeTo, pageable, accessToken);
 
     // then
     Assertions.assertNotNull(result);

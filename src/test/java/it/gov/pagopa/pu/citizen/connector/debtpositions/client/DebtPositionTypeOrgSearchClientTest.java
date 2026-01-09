@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import uk.co.jemos.podam.api.PodamFactory;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,10 +104,13 @@ class DebtPositionTypeOrgSearchClientTest {
   }
 
   @Test
-  void givenOrganizationIdWhenGetMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYearThenReturnList() {
+  void givenOrganizationIdWhenGetMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDateThenReturnList() {
     // given
     String accessToken = "ACCESS_TOKEN";
     Long organizationId = 1L;
+    OffsetDateTime offsetDateTimeFrom = OffsetDateTime.now().minusYears(1);
+    OffsetDateTime offsetDateTimeTo= OffsetDateTime.now();
+
     Pageable pageable = PageRequest.of(0, 10);
 
     PagedModelDebtPositionTypeOrg expectedResult =
@@ -119,8 +123,10 @@ class DebtPositionTypeOrgSearchClientTest {
 
     Mockito.when(
       debtPositionTypeOrgSearchControllerApiMock
-        .crudDebtPositionTypeOrgsFindMostUsedSpontaneousDebtPositionTypesForOrganizationInCurrentYear(
+        .crudDebtPositionTypeOrgsFindMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(
           organizationId,
+          offsetDateTimeFrom.toLocalDateTime(),
+          offsetDateTimeTo.toLocalDateTime(),
           pageable.getPageNumber(),
           pageable.getPageSize(),
           new ArrayList<>()
@@ -130,8 +136,10 @@ class DebtPositionTypeOrgSearchClientTest {
     // when
     List<DebtPositionTypeOrg> result =
       debtPositionTypeOrgSearchClient
-        .getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(
+        .getMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(
           organizationId,
+          offsetDateTimeFrom,
+          offsetDateTimeTo,
           pageable,
           accessToken);
 
@@ -144,11 +152,13 @@ class DebtPositionTypeOrgSearchClientTest {
   }
 
   @Test
-  void givenNullCollectionWhenGetMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYearThenReturnEmptyList() {
+  void givenNullCollectionWhenGetMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDateThenReturnEmptyList() {
     // given
     String accessToken = "ACCESS_TOKEN";
     Long organizationId = 1L;
     Pageable pageable = PageRequest.of(0, 10);
+    OffsetDateTime offsetDateTimeFrom = OffsetDateTime.now().minusYears(1);
+    OffsetDateTime offsetDateTimeTo= OffsetDateTime.now();
 
     Mockito.when(
       debtPositionsApisHolderMock
@@ -157,8 +167,10 @@ class DebtPositionTypeOrgSearchClientTest {
 
     Mockito.when(
       debtPositionTypeOrgSearchControllerApiMock
-        .crudDebtPositionTypeOrgsFindMostUsedSpontaneousDebtPositionTypesForOrganizationInCurrentYear(
+        .crudDebtPositionTypeOrgsFindMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(
           organizationId,
+          offsetDateTimeFrom.toLocalDateTime(),
+          offsetDateTimeTo.toLocalDateTime(),
           pageable.getPageNumber(),
           pageable.getPageSize(),
           new ArrayList<>())
@@ -167,8 +179,8 @@ class DebtPositionTypeOrgSearchClientTest {
     // when
     List<DebtPositionTypeOrg> result =
       debtPositionTypeOrgSearchClient
-        .getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(
-          organizationId, pageable, accessToken);
+        .getMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(
+          organizationId, offsetDateTimeFrom, offsetDateTimeTo, pageable, accessToken);
 
     // then
     assertNotNull(result);
@@ -176,10 +188,12 @@ class DebtPositionTypeOrgSearchClientTest {
   }
 
   @Test
-  void givenNullEmbeddedWhenGetMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYearThenReturnEmptyList() {
+  void givenNullEmbeddedWhenGetMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDateThenReturnEmptyList() {
     // given
     String accessToken = "ACCESS_TOKEN";
     Long organizationId = 1L;
+    OffsetDateTime offsetDateTimeFrom = OffsetDateTime.now().minusYears(1);
+    OffsetDateTime offsetDateTimeTo= OffsetDateTime.now();
     Pageable pageable = PageRequest.of(0, 10);
 
     PagedModelDebtPositionTypeOrg expectedResult =
@@ -193,8 +207,10 @@ class DebtPositionTypeOrgSearchClientTest {
 
     Mockito.when(
       debtPositionTypeOrgSearchControllerApiMock
-        .crudDebtPositionTypeOrgsFindMostUsedSpontaneousDebtPositionTypesForOrganizationInCurrentYear(
+        .crudDebtPositionTypeOrgsFindMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(
           organizationId,
+          offsetDateTimeFrom.toLocalDateTime(),
+          offsetDateTimeTo.toLocalDateTime(),
           pageable.getPageNumber(),
           pageable.getPageSize(),
           new ArrayList<>())
@@ -203,8 +219,8 @@ class DebtPositionTypeOrgSearchClientTest {
     // when
     List<DebtPositionTypeOrg> result =
       debtPositionTypeOrgSearchClient
-        .getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear(
-          organizationId, pageable, accessToken);
+        .getMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(
+          organizationId, offsetDateTimeFrom, offsetDateTimeTo,pageable, accessToken);
 
     // then
     Assertions.assertNotNull(result);

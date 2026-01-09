@@ -100,8 +100,8 @@ paths:
     get:
       tags:
         - DebtPositionTypeOrg
-      summary: "Retrieves the most used spontaneous debt position types for the current year"
-      operationId: getMostUsedSpontaneousDebtPositionTypeOrgsForCurrentYear
+      summary: "Retrieves the most used spontaneous debt position types"
+      operationId: getMostUsedSpontaneousDebtPositionTypeOrgs
       parameters:
         - name: brokerId
           in: path
@@ -115,6 +115,18 @@ paths:
           schema:
             type: integer
             format: int64
+        - name: creationDateFrom
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: creationDateTo
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
       responses:
         '200':
           description: OK
