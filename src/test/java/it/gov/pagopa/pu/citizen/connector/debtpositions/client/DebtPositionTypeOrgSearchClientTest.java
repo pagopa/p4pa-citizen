@@ -5,6 +5,7 @@ import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.controller.generated.DebtPositionTypeOrgSearchControllerApi;
 import it.gov.pagopa.pu.debtpositions.dto.generated.CollectionModelDebtPositionTypeOrg;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrg;
+import it.gov.pagopa.pu.debtpositions.dto.generated.PagedModelDebtPositionTypeOrg;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +14,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import uk.co.jemos.podam.api.PodamFactory;
 
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -94,6 +99,130 @@ class DebtPositionTypeOrgSearchClientTest {
 
     List<DebtPositionTypeOrg> result = debtPositionTypeOrgSearchClient.getDebtPositionTypeOrgsFindActiveDebtPositionTypeOrg(organizationId, accessToken);
 
+    Assertions.assertNotNull(result);
+    Assertions.assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void givenOrganizationIdWhenGetMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDateThenReturnList() {
+    // given
+    String accessToken = "ACCESS_TOKEN";
+    Long organizationId = 1L;
+    OffsetDateTime offsetDateTimeFrom = OffsetDateTime.now().minusYears(1);
+    OffsetDateTime offsetDateTimeTo= OffsetDateTime.now();
+
+    Pageable pageable = PageRequest.of(0, 10);
+
+    PagedModelDebtPositionTypeOrg expectedResult =
+      podamFactory.manufacturePojo(PagedModelDebtPositionTypeOrg.class);
+
+    Mockito.when(
+      debtPositionsApisHolderMock
+        .getDebtPositionTypeOrgSearchControllerApi(accessToken)
+    ).thenReturn(debtPositionTypeOrgSearchControllerApiMock);
+
+    Mockito.when(
+      debtPositionTypeOrgSearchControllerApiMock
+        .crudDebtPositionTypeOrgsFindMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(
+          organizationId,
+          offsetDateTimeFrom.toLocalDateTime(),
+          offsetDateTimeTo.toLocalDateTime(),
+          pageable.getPageNumber(),
+          pageable.getPageSize(),
+          new ArrayList<>()
+          )
+    ).thenReturn(expectedResult);
+
+    // when
+    List<DebtPositionTypeOrg> result =
+      debtPositionTypeOrgSearchClient
+        .getMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(
+          organizationId,
+          offsetDateTimeFrom,
+          offsetDateTimeTo,
+          pageable,
+          accessToken);
+
+    // then
+    assertNotNull(result);
+    assertEquals(
+      expectedResult.getEmbedded().getDebtPositionTypeOrgs(),
+      result
+    );
+  }
+
+  @Test
+  void givenNullCollectionWhenGetMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDateThenReturnEmptyList() {
+    // given
+    String accessToken = "ACCESS_TOKEN";
+    Long organizationId = 1L;
+    Pageable pageable = PageRequest.of(0, 10);
+    OffsetDateTime offsetDateTimeFrom = OffsetDateTime.now().minusYears(1);
+    OffsetDateTime offsetDateTimeTo= OffsetDateTime.now();
+
+    Mockito.when(
+      debtPositionsApisHolderMock
+        .getDebtPositionTypeOrgSearchControllerApi(accessToken)
+    ).thenReturn(debtPositionTypeOrgSearchControllerApiMock);
+
+    Mockito.when(
+      debtPositionTypeOrgSearchControllerApiMock
+        .crudDebtPositionTypeOrgsFindMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(
+          organizationId,
+          offsetDateTimeFrom.toLocalDateTime(),
+          offsetDateTimeTo.toLocalDateTime(),
+          pageable.getPageNumber(),
+          pageable.getPageSize(),
+          new ArrayList<>())
+    ).thenReturn(null);
+
+    // when
+    List<DebtPositionTypeOrg> result =
+      debtPositionTypeOrgSearchClient
+        .getMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(
+          organizationId, offsetDateTimeFrom, offsetDateTimeTo, pageable, accessToken);
+
+    // then
+    assertNotNull(result);
+    Assertions.assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void givenNullEmbeddedWhenGetMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDateThenReturnEmptyList() {
+    // given
+    String accessToken = "ACCESS_TOKEN";
+    Long organizationId = 1L;
+    OffsetDateTime offsetDateTimeFrom = OffsetDateTime.now().minusYears(1);
+    OffsetDateTime offsetDateTimeTo= OffsetDateTime.now();
+    Pageable pageable = PageRequest.of(0, 10);
+
+    PagedModelDebtPositionTypeOrg expectedResult =
+      podamFactory.manufacturePojo(PagedModelDebtPositionTypeOrg.class);
+    expectedResult.setEmbedded(null);
+
+    Mockito.when(
+      debtPositionsApisHolderMock
+        .getDebtPositionTypeOrgSearchControllerApi(accessToken)
+    ).thenReturn(debtPositionTypeOrgSearchControllerApiMock);
+
+    Mockito.when(
+      debtPositionTypeOrgSearchControllerApiMock
+        .crudDebtPositionTypeOrgsFindMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(
+          organizationId,
+          offsetDateTimeFrom.toLocalDateTime(),
+          offsetDateTimeTo.toLocalDateTime(),
+          pageable.getPageNumber(),
+          pageable.getPageSize(),
+          new ArrayList<>())
+    ).thenReturn(expectedResult);
+
+    // when
+    List<DebtPositionTypeOrg> result =
+      debtPositionTypeOrgSearchClient
+        .getMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(
+          organizationId, offsetDateTimeFrom, offsetDateTimeTo,pageable, accessToken);
+
+    // then
     Assertions.assertNotNull(result);
     Assertions.assertTrue(result.isEmpty());
   }
