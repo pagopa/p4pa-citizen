@@ -741,6 +741,7 @@ components:
         - organizationId
         - code
         - description
+        - flagAnonymousFiscalCode
         - formType
       properties:
         debtPositionTypeOrgId:
@@ -756,6 +757,8 @@ components:
           type: string
         description:
           type: string
+        flagAnonymousFiscalCode:
+          type: boolean
         formType:
           type: string
           enum:
