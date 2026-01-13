@@ -1862,6 +1862,9 @@
           "description" : {
             "type" : "string"
           },
+          "flagAnonymousFiscalCode" : {
+            "type" : "boolean"
+          },
           "formType" : {
             "$ref" : "#/components/schemas/FormTypeEnum"
           },
@@ -1876,7 +1879,7 @@
             "$ref" : "#/components/schemas/SpontaneousForm"
           }
         },
-        "required" : [ "code", "debtPositionTypeId", "debtPositionTypeOrgId", "description", "formType", "organizationId" ]
+        "required" : [ "code", "debtPositionTypeId", "debtPositionTypeOrgId", "description", "flagAnonymousFiscalCode", "formType", "organizationId" ]
       },
       "FormTypeEnum" : {
         "type" : "string",

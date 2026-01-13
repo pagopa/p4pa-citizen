@@ -28,6 +28,7 @@ class DebtPositionTypeOrgsWithSpontaneousDetailsDTOMapperTest {
     debtPositionTypeOrg.setAmountCents(null);
     debtPositionTypeOrg.setExternalPaymentUrl(null);
     debtPositionTypeOrg.setSpontaneousFormId(null);
+    debtPositionTypeOrg.setFlagAnonymousFiscalCode(false);
 
     SpontaneousForm spontaneousForm = podamFactory.manufacturePojo(SpontaneousForm.class);
     // when
@@ -38,6 +39,7 @@ class DebtPositionTypeOrgsWithSpontaneousDetailsDTOMapperTest {
     assertEquals(debtPositionTypeOrg.getCode(), result.getCode());
     assertEquals(debtPositionTypeOrg.getOrganizationId(), result.getOrganizationId());
     assertEquals(spontaneousForm, result.getFormCustom());
+    assertFalse(result.getFlagAnonymousFiscalCode());
     assertEquals(DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum.STANDARD, result.getFormType());
     TestUtils.checkNotNullFields(result, "amountCents", "externalPaymentUrl", "spontaneousFormId");
   }
