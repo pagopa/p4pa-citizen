@@ -11,8 +11,10 @@ import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverServic
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrg;
 import it.gov.pagopa.pu.debtpositions.dto.generated.SpontaneousForm;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -50,6 +52,12 @@ public class DebtPositionTypeOrgRetrieverServiceImpl implements DebtPositionType
     }
 
     return debtPositionTypeOrgsWithSpontaneousDetailsDTOMapper.map(debtPositionTypeOrg, getSpontaneousForm(accessToken, debtPositionTypeOrg));
+  }
+
+  @Override
+  public List<DebtPositionTypeOrgsWithSpontaneousDTO> getMostUsedSpontaneousDebtPositionTypeOrgs(Long brokerId, Long organizationId, OffsetDateTime creationDateFrom, OffsetDateTime creationDateTo, Pageable pageable, String accessToken) {
+    organizationRetrieverService.validateOrganization(organizationId, brokerId, accessToken);
+    return debtPositionTypeOrgsListWithSpontaneousDTOMapper.map(debtPositionTypeOrgService.getMostUsedSpontaneousDebtPositionTypesForOrganizationByOrganizationIdAndDate(organizationId, creationDateFrom, creationDateTo, pageable, accessToken));
   }
 
   private SpontaneousForm getSpontaneousForm(String accessToken, DebtPositionTypeOrg debtPositionTypeOrg) {

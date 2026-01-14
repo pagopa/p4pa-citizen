@@ -1,6 +1,8 @@
 import com.github.jk1.license.filter.SpdxLicenseBundleNormalizer
 import com.github.jk1.license.render.XmlReportRenderer
 import java.util.*
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
   java
@@ -112,6 +114,8 @@ dependencies {
 tasks {
   test {
     jvmArgs("-javaagent:${mockitoAgent.asPath}")
+    testLogging.events = setOf(TestLogEvent.FAILED)
+    testLogging.exceptionFormat = TestExceptionFormat.FULL
   }
 }
 

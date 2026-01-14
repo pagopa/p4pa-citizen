@@ -4,15 +4,14 @@ import it.gov.pagopa.pu.citizen.connector.debtpositions.ReceiptService;
 import it.gov.pagopa.pu.citizen.dto.DebtorReceiptsFiltersDTO;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.ReceiptDetailExtendedDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtorReceiptDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.PagedDebtorReceiptsDTOMapper;
 import it.gov.pagopa.pu.citizen.mapper.ReceiptDetailExtendedMapper;
 import it.gov.pagopa.pu.citizen.service.organization.BrokerOrganizationsRetrieverService;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
-import it.gov.pagopa.pu.debtpositions.dto.generated.PagedModelReceiptNoPIIView;
-import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptDetailDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptOriginType;
+import it.gov.pagopa.pu.debtpositions.dto.generated.*;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -83,5 +82,17 @@ public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
       return null;
     }
     return receiptService.getReceiptPdf(receiptId, organizationId, accessToken);
+  }
+
+  @Override
+  public List<DebtorReceiptDTO> getDebtorReceipts(String debtorFiscalCode, Long brokerId, Long organizationId, Long debtPositionId, Long paymentOptionId, String accessToken) {
+    Organization organization = organizationRetrieverService.getValidOrganization(organizationId, brokerId, accessToken);
+    List<ReceiptNoPIIView> debtorReceipts = receiptService.getDebtorReceipts(debtorFiscalCode, organizationId,
+      debtPositionId, paymentOptionId, List.of(ReceiptOriginType.RECEIPT_PAGOPA),
+      List.of(InstallmentStatus.PAID,InstallmentStatus.REPORTED), accessToken);
+    return pagedDebtorReceiptsDTOMapper.sortedMapReceiptNoPIIViewWithOrganization(
+      Map.of(organization.getOrgFiscalCode(),organization),
+      debtorReceipts
+    );
   }
 }

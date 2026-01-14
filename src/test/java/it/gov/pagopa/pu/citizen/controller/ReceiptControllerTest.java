@@ -4,6 +4,7 @@ import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
 import it.gov.pagopa.pu.citizen.dto.DebtorReceiptsFiltersDTO;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.ReceiptDetailExtendedDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtorReceiptDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
 import it.gov.pagopa.pu.citizen.security.SecurityUtilsTest;
 import it.gov.pagopa.pu.citizen.service.receipt.ReceiptFacadeService;
@@ -23,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,12 +42,12 @@ class ReceiptControllerTest {
 
   @BeforeEach
   void setUp() {
+    SecurityUtilsTest.configureSecurityContext(accessToken, loggedUser);
     receiptController = new ReceiptController(receiptFacadeServiceMock);
   }
 
   @AfterEach
   void mockitoVerify() {
-    SecurityUtilsTest.configureSecurityContext(accessToken, loggedUser);
     Mockito.verifyNoMoreInteractions(receiptFacadeServiceMock);
   }
 
@@ -147,5 +149,26 @@ class ReceiptControllerTest {
 
     assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     assertNull(response.getBody());
+  }
+
+  @Test
+  void whenGetDebtorReceiptsThenOk() {
+    //given
+    String debtorFiscalCode = "debtorFiscalCode";
+    Long brokerId = 1L;
+    Long organizationId = 2L;
+    Long paymentOptionId = 3L;
+    Long debtPositionId = 4L;
+    List<DebtorReceiptDTO> expectedResult = podamFactory.manufacturePojo(List.class, DebtorReceiptDTO.class);
+
+    Mockito.when(receiptFacadeServiceMock.getDebtorReceipts(debtorFiscalCode,brokerId,organizationId,
+      debtPositionId,paymentOptionId,accessToken)).thenReturn(expectedResult);
+
+    ResponseEntity<List<DebtorReceiptDTO>> result = receiptController.getDebtorReceipts(brokerId,organizationId,
+      debtPositionId,paymentOptionId,debtorFiscalCode);
+
+    assertEquals(HttpStatus.OK, result.getStatusCode());
+    assertNotNull(result);
+    assertEquals(expectedResult, result.getBody());
   }
 }

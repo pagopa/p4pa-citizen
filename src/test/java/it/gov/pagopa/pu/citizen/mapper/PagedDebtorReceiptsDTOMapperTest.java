@@ -114,4 +114,56 @@ class PagedDebtorReceiptsDTOMapperTest {
       () -> mapper.retrieveOrganization(organizationsMap, receipt)
     );
   }
+
+  @Test
+  void whenSortedMapReceiptNoPIIViewWithOrganizationThenReturnDebtorReceiptDTOList() {
+    // given
+    List<Organization> organizations = podamFactory.manufacturePojo(List.class, Organization.class);
+    Map<String, Organization> organizationsMap = organizations.stream()
+      .collect(Collectors.toMap(Organization::getOrgFiscalCode, org -> org));
+
+    ReceiptNoPIIView receipt1 = podamFactory.manufacturePojo(ReceiptNoPIIView.class);
+    ReceiptNoPIIView receipt2 = podamFactory.manufacturePojo(ReceiptNoPIIView.class);
+    receipt2.setPaymentDateTime(receipt1.getPaymentDateTime().minusDays(1));
+
+    receipt1.setOrgFiscalCode(organizations.get(0).getOrgFiscalCode());
+    receipt2.setOrgFiscalCode(organizations.get(1).getOrgFiscalCode());
+
+    List<ReceiptNoPIIView> receipts = List.of(receipt1, receipt2);
+
+    // when
+    List<DebtorReceiptDTO> result = mapper.sortedMapReceiptNoPIIViewWithOrganization(organizationsMap, receipts);
+
+    // then
+    assertNotNull(result);
+    assertEquals(2, result.size());
+
+    DebtorReceiptDTO mappedReceipt = result.getFirst();
+    assertEquals(receipt2.getReceiptId(),mappedReceipt.getReceiptId());
+    assertEquals(receipt1.getReceiptId(),result.getLast().getReceiptId());
+    Organization expectedOrg = organizationsMap.get(mappedReceipt.getOrgFiscalCode());
+
+    assertEquals(expectedOrg.getOrganizationId(), mappedReceipt.getOrganizationId());
+    assertEquals(expectedOrg.getOrgFiscalCode(), mappedReceipt.getOrgFiscalCode());
+    assertEquals(expectedOrg.getOrgName(), mappedReceipt.getOrgName());
+
+    for(DebtorReceiptDTO receipt : result){
+      TestUtils.checkNotNullFields(receipt);
+    }
+  }
+
+  @Test
+  void givenNoReceiptsWhenSortedMapReceiptNoPIIViewWithOrganizationThenEmptyList() {
+    // given
+    List<Organization> organizations = podamFactory.manufacturePojo(List.class, Organization.class);
+    Map<String, Organization> organizationsMap = organizations.stream()
+      .collect(Collectors.toMap(Organization::getOrgFiscalCode, org -> org));
+
+    // when
+    List<DebtorReceiptDTO> result = mapper.sortedMapReceiptNoPIIViewWithOrganization(organizationsMap, null);
+
+    // then
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
+  }
 }
