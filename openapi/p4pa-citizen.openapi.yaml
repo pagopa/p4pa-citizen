@@ -547,6 +547,56 @@ paths:
         "500":
           description: Internal server error
       x-spring-paginated: true
+  /brokers/{brokerId}/organization/{organizationId}/debt-position/{debtPositionId}/payment-option/{paymentOptionId}/receipts:
+    get:
+      tags:
+        - Receipt
+      operationId: getDebtorReceipts
+      parameters:
+        - name: brokerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: debtPositionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: paymentOptionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: X-fiscal-code
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DebtorReceiptDTO'
+        "400":
+          description: Invalid request
+        "404":
+          description: Not found
+        "500":
+          description: Internal server error
   /brokers/{brokerId}/organizations/{organizationId}/receipts/{receiptId}:
     get:
       tags:

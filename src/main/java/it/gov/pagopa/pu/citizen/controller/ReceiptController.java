@@ -4,6 +4,7 @@ import it.gov.pagopa.pu.citizen.controller.generated.ReceiptApi;
 import it.gov.pagopa.pu.citizen.dto.DebtorReceiptsFiltersDTO;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.ReceiptDetailExtendedDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtorReceiptDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
 import it.gov.pagopa.pu.citizen.security.SecurityUtils;
 import it.gov.pagopa.pu.citizen.service.receipt.ReceiptFacadeService;
@@ -14,6 +15,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -58,5 +60,12 @@ public class ReceiptController implements ReceiptApi {
       .contentType(MediaType.APPLICATION_PDF)
       .headers(headers)
       .body(resource.getResource());
+  }
+
+  @Override
+  public ResponseEntity<List<DebtorReceiptDTO>> getDebtorReceipts(Long brokerId, Long organizationId, Long debtPositionId, Long paymentOptionId, String xFiscalCode) {
+    log.info("Requested getDebtorReceipts on brokerId {} organizationId {} debtPositionId {} and paymentOptionId {}", brokerId, organizationId, debtPositionId, paymentOptionId);
+    return ResponseEntity.ok(receiptFacadeService.getDebtorReceipts(xFiscalCode,
+      brokerId, organizationId, debtPositionId, paymentOptionId, SecurityUtils.getAccessToken()));
   }
 }

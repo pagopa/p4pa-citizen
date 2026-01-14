@@ -5,6 +5,7 @@ import it.gov.pagopa.pu.citizen.connector.debtpositions.ReceiptService;
 import it.gov.pagopa.pu.citizen.dto.DebtorReceiptsFiltersDTO;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.ReceiptDetailExtendedDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtorReceiptDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.PagedDebtorReceiptsDTOMapper;
@@ -12,9 +13,7 @@ import it.gov.pagopa.pu.citizen.mapper.ReceiptDetailExtendedMapper;
 import it.gov.pagopa.pu.citizen.service.organization.BrokerOrganizationsRetrieverService;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
-import it.gov.pagopa.pu.debtpositions.dto.generated.PagedModelReceiptNoPIIView;
-import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptDetailDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptOriginType;
+import it.gov.pagopa.pu.debtpositions.dto.generated.*;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -228,5 +227,33 @@ class ReceiptFacadeServiceImplTest {
     FileResourceDTO result = receiptFacadeService.getReceiptPdf(debtorFiscalCode,brokerId,organizationId,receiptId,accessToken);
 
     assertNull(result);
+  }
+
+  @Test
+  void whenGetDebtorReceiptsThenOk() {
+    UserInfo loggedUser = new UserInfo();
+    loggedUser.setMappedExternalUserId("mappedExternalUserId");
+    String accessToken = "accessToken";
+    String debtorFiscalCode = "debtorFiscalCode";
+    Long brokerId = 1L;
+    Long organizationId = 2L;
+    Long paymentOptionId = 3L;
+    Long debtPositionId = 4L;
+
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    List<ReceiptNoPIIView> receipts = podamFactory.manufacturePojo(List.class, ReceiptNoPIIView.class);
+    List<DebtorReceiptDTO> expectedResult = podamFactory.manufacturePojo(List.class, ReceiptDetailExtendedDTO.class);
+
+    Mockito.when(organizationRetrieverServiceMock.getValidOrganization(organizationId, brokerId, accessToken)).thenReturn(organization);
+    Mockito.when(receiptServiceMock.getDebtorReceipts(debtorFiscalCode,organizationId,debtPositionId,paymentOptionId,
+      List.of(RECEIPT_PAGOPA),List.of(InstallmentStatus.PAID,InstallmentStatus.REPORTED),accessToken))
+      .thenReturn(receipts);
+    Mockito.when(pagedDebtorReceiptsDTOMapperMock.sortedMapReceiptNoPIIViewWithOrganization(Map.of(organization.getOrgFiscalCode(),organization), receipts))
+      .thenReturn(expectedResult);
+
+    List<DebtorReceiptDTO> result = receiptFacadeService.getDebtorReceipts(debtorFiscalCode,brokerId,organizationId,debtPositionId,paymentOptionId,accessToken);
+
+    assertNotNull(result);
+    assertEquals(expectedResult, result);
   }
 }
