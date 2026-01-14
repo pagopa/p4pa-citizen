@@ -5,10 +5,11 @@ import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiSearc
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiViewSearchClient;
 import it.gov.pagopa.pu.citizen.dto.DebtorReceiptsFiltersDTO;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.PagedModelReceiptNoPIIView;
-import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptDetailDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ReceiptServiceImpl implements ReceiptService {
@@ -41,5 +42,10 @@ public class ReceiptServiceImpl implements ReceiptService {
   @Override
   public FileResourceDTO getReceiptPdf(Long receiptId, Long organizationId, String accessToken) {
     return receiptClient.getReceiptPdf(receiptId, organizationId, accessToken);
+  }
+
+  @Override
+  public List<ReceiptNoPIIView> getDebtorReceipts(String debtorFiscalCode, Long organizationId, Long debtPositionId, Long paymentOptionId, List<ReceiptOriginType> receiptOrigins, List<InstallmentStatus> installmentStatuses, String accessToken) {
+    return receiptNoPiiViewSearchClient.getDebtorReceipts(debtorFiscalCode, organizationId, debtPositionId, paymentOptionId, receiptOrigins, installmentStatuses, accessToken);
   }
 }

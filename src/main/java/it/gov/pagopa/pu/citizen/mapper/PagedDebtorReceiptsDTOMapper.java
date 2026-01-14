@@ -7,9 +7,13 @@ import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptNoPIIView;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 @Mapper(componentModel = "spring")
 public interface PagedDebtorReceiptsDTOMapper{
@@ -27,9 +31,22 @@ public interface PagedDebtorReceiptsDTOMapper{
   DebtorReceiptDTO map(Organization organization, ReceiptNoPIIView receiptNoPIIView);
 
   default List<DebtorReceiptDTO> mapReceiptNoPIIViewWithOrganization(Map<String, Organization> organizationsMap, List<ReceiptNoPIIView> receiptNoPIIViewList){
-
     return receiptNoPIIViewList.stream()
-      .map(personalReceiptNoPIIView -> map(retrieveOrganization(organizationsMap, personalReceiptNoPIIView), personalReceiptNoPIIView)).toList();
+      .map(receiptNoPIIViewToDebtorReceiptDTOFunction(organizationsMap)).toList();
+  }
+
+  private Function<ReceiptNoPIIView, DebtorReceiptDTO> receiptNoPIIViewToDebtorReceiptDTOFunction(Map<String, Organization> organizationsMap) {
+    return receiptNoPIIView -> map(retrieveOrganization(organizationsMap, receiptNoPIIView), receiptNoPIIView);
+  }
+
+  default List<DebtorReceiptDTO> sortedMapReceiptNoPIIViewWithOrganization(Map<String, Organization> organizationsMap, List<ReceiptNoPIIView> receiptNoPIIViewList){
+    if(CollectionUtils.isEmpty(receiptNoPIIViewList)){
+      return Collections.emptyList();
+    }
+    return receiptNoPIIViewList.stream()
+        .sorted(Comparator.comparing(ReceiptNoPIIView::getPaymentDateTime))
+        .map(receiptNoPIIViewToDebtorReceiptDTOFunction(organizationsMap))
+        .toList();
   }
 
   default Organization retrieveOrganization(Map<String, Organization> organizationsMap, ReceiptNoPIIView receiptNoPIIView){
