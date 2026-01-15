@@ -82,16 +82,27 @@ class DebtPositionTypeOrgsWithSpontaneousDetailsDTOMapperTest {
     custom.setExternalPaymentUrl(null);
     custom.setSpontaneousFormId(1L);
 
+    DebtPositionTypeOrg customAndAmount = localPodamFactory.manufacturePojo(DebtPositionTypeOrg.class);
+    customAndAmount.setAmountCents(100L);
+    customAndAmount.setExternalPaymentUrl(null);
+    customAndAmount.setSpontaneousFormId(1L);
+
+    DebtPositionTypeOrg customAndAmountInvalid = localPodamFactory.manufacturePojo(DebtPositionTypeOrg.class);
+    customAndAmountInvalid.setAmountCents(100L);
+    customAndAmountInvalid.setExternalPaymentUrl("https://x");
+    customAndAmountInvalid.setSpontaneousFormId(1L);
+
     DebtPositionTypeOrg invalid = localPodamFactory.manufacturePojo(DebtPositionTypeOrg.class);
     invalid.setAmountCents(100L);
     invalid.setExternalPaymentUrl("https://x");
 
     return Stream.of(
-      Arguments.of(
-        standard, DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum.STANDARD),
+      Arguments.of(standard, DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum.STANDARD),
       Arguments.of(presetAmount, DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum.PRESET_AMOUNT),
       Arguments.of(externalUrl, DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum.EXTERNAL_URL),
       Arguments.of(custom, DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum.CUSTOM),
+      Arguments.of(customAndAmount, DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum.CUSTOM),
+      Arguments.of(customAndAmountInvalid, null),
       Arguments.of(invalid, null)
     );
   }

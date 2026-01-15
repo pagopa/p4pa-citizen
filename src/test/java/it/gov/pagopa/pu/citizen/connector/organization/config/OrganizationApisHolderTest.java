@@ -44,7 +44,7 @@ class OrganizationApisHolderTest extends BaseApiHolderTest {
   void whenGetOrganizationSearchControllerApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
     assertAuthenticationShouldBeSetInThreadSafeMode(
       accessToken -> apisHolder.getOrganizationSearchControllerApi(accessToken)
-        .crudOrganizationsFindByBrokerIdAndFilters(1L, null, null, null,1, 1, new ArrayList<>()),
+        .crudOrganizationsFindByBrokerIdAndFilters(1L, null, null, null,null,1, 1,  new ArrayList<>()),
       new ParameterizedTypeReference<>() {},
       apisHolder::unload);
   }

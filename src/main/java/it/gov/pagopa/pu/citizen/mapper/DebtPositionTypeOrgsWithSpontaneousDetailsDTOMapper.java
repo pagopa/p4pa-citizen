@@ -20,21 +20,27 @@ public interface DebtPositionTypeOrgsWithSpontaneousDetailsDTOMapper {
     boolean hasUrl = org.getExternalPaymentUrl() != null;
     boolean hasForm = org.getSpontaneousFormId() != null;
 
-    int count = (hasAmount ? 1 : 0) + (hasUrl ? 1 : 0) + (hasForm ? 1 : 0);
-
-    if (count > 1) {
+    if (hasUrl && (hasAmount || hasForm)) {
       throw new IllegalStateException("Invalid combination of fields in DebtPositionTypeOrg");
     }
 
-    if (hasAmount)
-      return DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum.PRESET_AMOUNT;
-    if (hasUrl)
-      return DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum.EXTERNAL_URL;
-    if (hasForm)
+    if (hasAmount && hasForm) {
       return DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum.CUSTOM;
+    }
+
+    if (hasAmount) {
+      return DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum.PRESET_AMOUNT;
+    }
+
+    if (hasUrl) {
+      return DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum.EXTERNAL_URL;
+    }
+
+    if (hasForm) {
+      return DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum.CUSTOM;
+    }
 
     return DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum.STANDARD;
   }
-
 
 }
