@@ -55,5 +55,6 @@ jobs:
               "APPS_TOP": "[p4pa-citizen]",
               "APPS_MID": "[]",
               "APPS_EXT": "[]",
+              "POSTMAN_BRANCH": "${{ github.ref_name }}",
               "TRIGGER_MESSAGE": "p4pa-citizen"
             }
