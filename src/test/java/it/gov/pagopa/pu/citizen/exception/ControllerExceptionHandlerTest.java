@@ -259,7 +259,7 @@ class ControllerExceptionHandlerTest {
 
   @Test
   void handleResourceNotFoundException() throws Exception {
-    doThrow(new ResourceNotFoundException("[RESOURCE_FOUND] Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+    doThrow(new ResourceNotFoundException("Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
       .andExpect(MockMvcResultMatchers.status().isNotFound())
