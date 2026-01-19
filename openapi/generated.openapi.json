@@ -2378,24 +2378,29 @@
         },
         "required" : [ "debtPositionOrigin", "debtPositionTypeOrgDescription", "debtor", "iud", "paymentAmountCents", "pspCompanyName", "receiptId", "receiptOrigin", "remittanceInformation" ]
       },
-      "CodeEnum" : {
-        "type" : "string",
-        "enum" : [ "NOT_FOUND", "BAD_REQUEST", "GENERIC_ERROR", "FORBIDDEN", "CONFLICT" ]
-      },
       "ErrorDTO" : {
         "type" : "object",
         "properties" : {
-          "code" : {
-            "$ref" : "#/components/schemas/CodeEnum"
+          "title" : {
+            "$ref" : "#/components/schemas/TitleEnum",
+            "description" : "The title describing the error"
           },
-          "message" : {
-            "type" : "string"
+          "description" : {
+            "type" : "string",
+            "description" : "Description of the error"
           },
           "traceId" : {
             "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
           }
         },
-        "required" : [ "code", "message" ]
+        "required" : [ "description", "title" ]
+      },
+      "TitleEnum" : {
+        "type" : "string",
+        "enum" : [ "NOT_FOUND", "BAD_REQUEST", "GENERIC_ERROR", "FORBIDDEN", "CONFLICT" ]
       },
       "InstallmentDebtorExtendedDTO" : {
         "type" : "object",

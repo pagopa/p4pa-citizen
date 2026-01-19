@@ -1,6 +1,8 @@
 package it.gov.pagopa.pu.citizen.exception;
 
 import it.gov.pagopa.pu.citizen.dto.generated.ErrorDTO;
+import it.gov.pagopa.pu.citizen.mapper.UpstreamErrorMapper;
+import it.gov.pagopa.pu.citizen.utils.ErrorMessageParser;
 import it.gov.pagopa.pu.citizen.utils.Utilities;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,21 +36,27 @@ import java.util.stream.Collectors;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ControllerExceptionHandler {
 
+  private final UpstreamErrorMapper upstreamErrorMapper;
+
+  public ControllerExceptionHandler(UpstreamErrorMapper upstreamErrorMapper) {
+    this.upstreamErrorMapper = upstreamErrorMapper;
+  }
+
   @ExceptionHandler({ValidationException.class, HttpMessageNotReadableException.class, MethodArgumentNotValidException.class, MethodArgumentTypeMismatchException.class})
   public ResponseEntity<ErrorDTO> handleViolationException(Exception ex, HttpServletRequest request) {
-    return handleException(ex, request, HttpStatus.BAD_REQUEST, ErrorDTO.CodeEnum.BAD_REQUEST);
+    return handleException(ex, request, HttpStatus.BAD_REQUEST, ErrorDTO.TitleEnum.BAD_REQUEST);
   }
 
   @ExceptionHandler({ServletException.class, ErrorResponseException.class})
   public ResponseEntity<ErrorDTO> handleServletException(Exception ex, HttpServletRequest request) {
     HttpStatusCode httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-    ErrorDTO.CodeEnum errorCode = ErrorDTO.CodeEnum.GENERIC_ERROR;
+    ErrorDTO.TitleEnum errorCode = ErrorDTO.TitleEnum.GENERIC_ERROR;
     if (ex instanceof ErrorResponse errorResponse) {
       httpStatus = errorResponse.getStatusCode();
       if (httpStatus.isSameCodeAs(HttpStatus.NOT_FOUND)) {
-        errorCode = ErrorDTO.CodeEnum.NOT_FOUND;
+        errorCode = ErrorDTO.TitleEnum.NOT_FOUND;
       } else if (httpStatus.is4xxClientError()) {
-        errorCode = ErrorDTO.CodeEnum.BAD_REQUEST;
+        errorCode = ErrorDTO.TitleEnum.BAD_REQUEST;
       }
     }
     return handleException(ex, request, httpStatus, errorCode);
@@ -56,48 +64,92 @@ public class ControllerExceptionHandler {
 
   @ExceptionHandler({RuntimeException.class})
   public ResponseEntity<ErrorDTO> handleRuntimeException(RuntimeException ex, HttpServletRequest request) {
-    return handleException(ex, request, HttpStatus.INTERNAL_SERVER_ERROR, ErrorDTO.CodeEnum.GENERIC_ERROR);
+    return handleException(ex, request, HttpStatus.INTERNAL_SERVER_ERROR, ErrorDTO.TitleEnum.GENERIC_ERROR);
   }
 
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<ErrorDTO> handleResourceNotFoundException(ResourceNotFoundException ex, HttpServletRequest request) {
-    return handleException(ex, request, HttpStatus.NOT_FOUND, ErrorDTO.CodeEnum.NOT_FOUND);
+    return handleException(ex, request, HttpStatus.NOT_FOUND, ErrorDTO.TitleEnum.NOT_FOUND);
   }
 
   @ExceptionHandler({HttpClientErrorException.class})
   public ResponseEntity<ErrorDTO> handleHttpClientErrorException(HttpClientErrorException ex, HttpServletRequest request) {
-    return handleException(ex, request, ex.getStatusCode(),  ErrorDTO.CodeEnum.GENERIC_ERROR);
+    logException(ex, request, ex.getStatusCode());
+
+    ErrorDTO.TitleEnum title = transcodeStatus(ex.getStatusCode());
+    String traceId = Utilities.getTraceId();
+    String description = ex.getMessage();
+    String code = "GENERIC_ERROR";
+
+    UpstreamErrorMapper.MappedUpstreamError mapped = upstreamErrorMapper.from(ex);
+    if(mapped != null) {
+      description = mapped.description();
+      code = mapped.code();
+    }
+
+    ErrorDTO dto = new ErrorDTO();
+    dto.setTitle(title);
+    dto.setDescription(description);
+    dto.setTraceId(traceId);
+    dto.setCode(code);
+
+    return ResponseEntity
+      .status(ex.getStatusCode())
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(dto);
+  }
+
+  private static ErrorDTO.TitleEnum transcodeStatus(HttpStatusCode status) {
+    if (status.isSameCodeAs(HttpStatus.NOT_FOUND)) return ErrorDTO.TitleEnum.NOT_FOUND;
+    if (status.isSameCodeAs(HttpStatus.CONFLICT)) return ErrorDTO.TitleEnum.CONFLICT;
+    if (status.isSameCodeAs(HttpStatus.FORBIDDEN)) return ErrorDTO.TitleEnum.FORBIDDEN;
+    if (status.is4xxClientError()) return ErrorDTO.TitleEnum.BAD_REQUEST;
+    return ErrorDTO.TitleEnum.GENERIC_ERROR;
   }
 
   @ExceptionHandler(ZipFileException.class)
   public ResponseEntity<ErrorDTO> handleZipFileException(ZipFileException ex, HttpServletRequest request) {
-    return handleException(ex, request, HttpStatus.INTERNAL_SERVER_ERROR, ErrorDTO.CodeEnum.GENERIC_ERROR);
+    return handleException(ex, request, HttpStatus.INTERNAL_SERVER_ERROR, ErrorDTO.TitleEnum.GENERIC_ERROR);
   }
 
   @ExceptionHandler({AuthorizationDeniedException.class})
   public ResponseEntity<ErrorDTO> handleAuthorizationDeniedException(AuthorizationDeniedException ex, HttpServletRequest request) {
-    return handleException(ex, request, HttpStatus.FORBIDDEN, ErrorDTO.CodeEnum.FORBIDDEN);
+    return handleException(ex, request, HttpStatus.FORBIDDEN, ErrorDTO.TitleEnum.FORBIDDEN);
   }
 
   @ExceptionHandler({ConflictException.class})
   public ResponseEntity<ErrorDTO> handleConflictException(ConflictException ex, HttpServletRequest request) {
-    return handleException(ex, request, HttpStatus.CONFLICT, ErrorDTO.CodeEnum.CONFLICT);
+    return handleException(ex, request, HttpStatus.CONFLICT, ErrorDTO.TitleEnum.CONFLICT);
   }
 
   @ExceptionHandler({InvalidParamException.class})
   public ResponseEntity<ErrorDTO> handleInvalidParamException(InvalidParamException ex, HttpServletRequest request) {
-    return handleException(ex, request, HttpStatus.BAD_REQUEST, ErrorDTO.CodeEnum.BAD_REQUEST);
+    return handleException(ex, request, HttpStatus.BAD_REQUEST, ErrorDTO.TitleEnum.BAD_REQUEST);
   }
 
-  static ResponseEntity<ErrorDTO> handleException(Exception ex, HttpServletRequest request, HttpStatusCode httpStatus, ErrorDTO.CodeEnum errorEnum) {
+  static ResponseEntity<ErrorDTO> handleException(Exception ex, HttpServletRequest request, HttpStatusCode httpStatus, ErrorDTO.TitleEnum errorEnum) {
     logException(ex, request, httpStatus);
 
     String message = buildReturnedMessage(ex);
+    String description = message;
+    String code;
+
+    ErrorMessageParser.ParsedError parsed = ErrorMessageParser.parse(message);
+    code = parsed.code();
+    if (parsed.description() != null) {
+      description = parsed.description();
+    }
+
+    ErrorDTO dto = new ErrorDTO();
+    dto.setTitle(errorEnum);
+    dto.setDescription(description);
+    dto.setTraceId(Utilities.getTraceId());
+    dto.setCode(code);
 
     return ResponseEntity
       .status(httpStatus)
       .contentType(MediaType.APPLICATION_JSON)
-      .body(new ErrorDTO(errorEnum, message, Utilities.getTraceId()));
+      .body(dto);
   }
 
   private static void logException(Exception ex, HttpServletRequest request, HttpStatusCode httpStatus) {
