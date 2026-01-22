@@ -153,7 +153,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
 
   private static void validateDebtPosition(Long organizationId, String fiscalCode, DebtPositionDTO debtPosition) {
     if(!debtPosition.getOrganizationId().equals(organizationId)){
-      throw new ConflictException("DebtPosition's organizationId does not match the given organizationId "+ organizationId);
+      throw new ConflictException("DEBT_POSITION_CONFLICT", "DebtPosition's organizationId does not match the given organizationId "+ organizationId);
     }
     if(!ORDINARY_DEBTPOSITION_ORIGINS.contains(debtPosition.getDebtPositionOrigin())){
       throw new ValidationException("Invalid debtPositionOrigin "+debtPosition.getDebtPositionOrigin());
@@ -164,7 +164,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
   private DebtPositionDTO retrieveDebtPosition(Long organizationId, String iuv, String iud, Long installmentId, String accessToken) {
     int filterCount = (StringUtils.isNotBlank(iuv)?1:0) + (StringUtils.isNotBlank(iud)?1:0) + (installmentId!=null?1:0);
     if(filterCount!=1){
-      throw new InvalidParamException("Exactly one of the following parameters must be provided: iuv, iud, or installmentId");
+      throw new InvalidParamException("MISSING_IUV_OR_IUD_OR_ID","Exactly one of the following parameters must be provided: iuv, iud, or installmentId");
     }
 
     if(StringUtils.isNotBlank(iuv)){
@@ -198,7 +198,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
   private Map<Long,Organization> retrieveOrganizations(Long brokerId, String orgName, String orgFiscalCode, String accessToken){
     List<Organization> organizations = brokerOrganizationsRetrieverService.getAllOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(brokerId, orgName, orgFiscalCode, accessToken);
     if (organizations.isEmpty()){
-      throw new ResourceNotFoundException("Organizations not found with brokerId %s orgName %s and orgFiscalCode %s".formatted(brokerId, orgName, orgFiscalCode));
+      throw new ResourceNotFoundException("ORGANIZATION_NOT_FOUND", "Organizations not found with brokerId %s orgName %s and orgFiscalCode %s".formatted(brokerId, orgName, orgFiscalCode));
     }
 
     return organizations.stream()

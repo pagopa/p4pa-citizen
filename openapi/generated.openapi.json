@@ -2365,6 +2365,9 @@
           "debtPositionOrigin" : {
             "$ref" : "#/components/schemas/DebtPositionOrigin"
           },
+          "originalRemittanceInformation" : {
+            "type" : "string"
+          },
           "organizationId" : {
             "type" : "integer",
             "format" : "int64"
@@ -2632,6 +2635,9 @@
             "type" : "string"
           },
           "updateTraceId" : {
+            "type" : "string"
+          },
+          "originalRemittanceInformation" : {
             "type" : "string"
           }
         },

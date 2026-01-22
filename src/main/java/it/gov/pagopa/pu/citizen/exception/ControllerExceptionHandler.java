@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.event.Level;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -134,10 +135,14 @@ public class ControllerExceptionHandler {
     String description = message;
     String code;
 
-    ErrorMessageParser.ParsedError parsed = ErrorMessageParser.parse(message);
-    code = parsed.code();
-    if (parsed.description() != null) {
-      description = parsed.description();
+    if (ex instanceof BaseBusinessException codedEx && StringUtils.isNotBlank(codedEx.getCode())) {
+      code = codedEx.getCode();
+    } else {
+      ErrorMessageParser.ParsedError parsed = ErrorMessageParser.parse(message);
+      code = parsed.code();
+      if (parsed.description() != null) {
+        description = parsed.description();
+      }
     }
 
     ErrorDTO dto = new ErrorDTO();

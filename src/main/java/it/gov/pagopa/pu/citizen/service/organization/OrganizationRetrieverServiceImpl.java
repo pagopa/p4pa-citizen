@@ -73,7 +73,7 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
   public Organization getValidOrganization(Long organizationId, Long brokerId, String accessToken){
     Organization organization = organizationService.getOrganizationByOrganizationId(organizationId, accessToken);
     if(organization==null || !brokerId.equals(organization.getBrokerId())){
-      throw new ResourceNotFoundException("Organization having id "+organizationId+" and brokerId "+brokerId+" not found");
+      throw new ResourceNotFoundException("ORGANIZATION_NOT_FOUND", "Organization having id "+organizationId+" and brokerId "+brokerId+" not found");
     }
     return organization;
   }
@@ -81,7 +81,7 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
   public Organization getValidOrganization(String orgFiscalCode, Long brokerId, String accessToken) {
     Organization organization = organizationService.findByOrgFiscalCode(orgFiscalCode, accessToken);
     if(organization==null || !brokerId.equals(organization.getBrokerId())){
-      throw new ResourceNotFoundException("Organization having orgFiscalCode "+orgFiscalCode+" and brokerId "+brokerId+" not found");
+      throw new ResourceNotFoundException("ORGANIZATION_NOT_FOUND","Organization having orgFiscalCode "+orgFiscalCode+" and brokerId "+brokerId+" not found");
     }
     return organization;
   }
