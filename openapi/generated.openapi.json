@@ -1829,6 +1829,9 @@
           },
           "debtor" : {
             "$ref" : "#/components/schemas/PersonDTO"
+          },
+          "userRemittanceInformation" : {
+            "type" : "string"
           }
         },
         "required" : [ "amountCents", "debtor", "remittanceInformation" ]
@@ -2365,6 +2368,9 @@
           "debtPositionOrigin" : {
             "$ref" : "#/components/schemas/DebtPositionOrigin"
           },
+          "originalRemittanceInformation" : {
+            "type" : "string"
+          },
           "organizationId" : {
             "type" : "integer",
             "format" : "int64"
@@ -2632,6 +2638,9 @@
             "type" : "string"
           },
           "updateTraceId" : {
+            "type" : "string"
+          },
+          "originalRemittanceInformation" : {
             "type" : "string"
           }
         },
