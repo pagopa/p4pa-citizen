@@ -43,7 +43,7 @@ public interface PagedDebtorDebtPositionMapper {
   default Organization retrieveOrganization(Map<Long, Organization> organizationsMap, DebtorDebtPositionDTO debtorDebtPositionDTO){
     Organization organization = organizationsMap.get(debtorDebtPositionDTO.getOrganizationId());
     if (organization == null){
-      throw new IllegalStateException("No Organization found for debtPosition with Id %d".formatted(debtorDebtPositionDTO.getDebtPositionId()));
+      throw new IllegalStateException("[ORGANIZATION_NOT_FOUND] No Organization found for debtPosition with Id %d".formatted(debtorDebtPositionDTO.getDebtPositionId()));
     }
     return organization;
   }

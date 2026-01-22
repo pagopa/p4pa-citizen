@@ -122,7 +122,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
   private static void validateDebtPositionDebtor(String fiscalCode, DebtPositionDTO debtPosition) {
     Objects.requireNonNull(debtPosition).getPaymentOptions().stream().flatMap(po->po.getInstallments().stream())
         .filter(i-> fiscalCode.equals(i.getDebtor().getFiscalCode())).findAny()
-        .orElseThrow(() -> new AuthorizationDeniedException("User cannot access DebtPosition having id "+ debtPosition.getDebtPositionId()));
+        .orElseThrow(() -> new AuthorizationDeniedException("[USER_UNAUTHORIZED] User cannot access DebtPosition having id "+ debtPosition.getDebtPositionId()));
   }
 
   @Override
@@ -156,7 +156,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
       throw new ConflictException("DEBT_POSITION_CONFLICT", "DebtPosition's organizationId does not match the given organizationId "+ organizationId);
     }
     if(!ORDINARY_DEBTPOSITION_ORIGINS.contains(debtPosition.getDebtPositionOrigin())){
-      throw new ValidationException("Invalid debtPositionOrigin "+debtPosition.getDebtPositionOrigin());
+      throw new ValidationException("[INVALID_DEBT_POSITION_ORIGIN] Invalid debtPositionOrigin "+debtPosition.getDebtPositionOrigin());
     }
     validateDebtPositionDebtor(fiscalCode, debtPosition);
   }

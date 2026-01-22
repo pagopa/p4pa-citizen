@@ -71,7 +71,7 @@ public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
 
   private static void validateReceiptDebtor(String fiscalCode, ReceiptDetailDTO receipt) {
     if(!fiscalCode.equals(receipt.getDebtor().getFiscalCode())){
-      throw new AuthorizationDeniedException("User cannot access Receipt having id "+ receipt.getReceiptId());
+      throw new AuthorizationDeniedException("[USER_UNAUTHORIZED] User cannot access Receipt having id "+ receipt.getReceiptId());
     }
   }
 

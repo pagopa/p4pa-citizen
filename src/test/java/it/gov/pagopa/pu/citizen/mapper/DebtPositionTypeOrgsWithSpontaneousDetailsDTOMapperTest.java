@@ -55,7 +55,7 @@ class DebtPositionTypeOrgsWithSpontaneousDetailsDTOMapperTest {
       assertEquals(expected, formTypeEnum);
     }else {
       IllegalStateException ex = assertThrows(IllegalStateException.class, () -> mapper.calculateFormType(org));
-      assertEquals("Invalid combination of fields in DebtPositionTypeOrg", ex.getMessage());
+      assertEquals("[INVALID_DEBT_POSITION_TYPE_ORG] Invalid combination of fields in DebtPositionTypeOrg", ex.getMessage());
     }
 
   }
