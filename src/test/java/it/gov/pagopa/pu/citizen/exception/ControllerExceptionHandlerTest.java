@@ -259,13 +259,13 @@ class ControllerExceptionHandlerTest {
 
   @Test
   void handleResourceNotFoundException() throws Exception {
-    doThrow(new ResourceNotFoundException("Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+    doThrow(new ResourceNotFoundException("RESOURCE_NOT_FOUND","Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
       .andExpect(MockMvcResultMatchers.status().isNotFound())
       .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("NOT_FOUND"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -301,12 +301,12 @@ class ControllerExceptionHandlerTest {
 
   @Test
   void handleZipFileException() throws Exception {
-    doThrow(new ZipFileException("Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+    doThrow(new ZipFileException("ZIPPING_ERROR","Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
       .andExpect(MockMvcResultMatchers.status().isInternalServerError())
       .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("GENERIC_ERROR"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("ZIPPING_ERROR"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
@@ -325,24 +325,24 @@ class ControllerExceptionHandlerTest {
 
   @Test
   void handleConflictException() throws Exception {
-    doThrow(new ConflictException("Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+    doThrow(new ConflictException("CONFLICT_ERROR","Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
         .andExpect(MockMvcResultMatchers.status().isConflict())
         .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("CONFLICT"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("CONFLICT_ERROR"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
   @Test
   void handleInvalidParamException() throws Exception {
-    doThrow(new InvalidParamException("Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+    doThrow(new InvalidParamException("INVALID_PARAM","Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("INVALID_PARAM"))
         .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }

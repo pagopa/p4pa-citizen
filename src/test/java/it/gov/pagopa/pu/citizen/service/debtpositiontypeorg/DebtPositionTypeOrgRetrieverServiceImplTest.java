@@ -117,7 +117,7 @@ class DebtPositionTypeOrgRetrieverServiceImplTest {
     ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class, () ->
       debtPositionTypeOrgRetrieverService.getDebtPositionTypeOrgsWithSpontaneousDetailsDTO(brokerId, organizationId, debtPositionTypeOrgId, accessToken));
 
-    assertEquals("DebtPositionTypeOrg with deptPositionTypeOrgId 3  and organizationId 3 not found", ex.getMessage());
+    assertEquals("DebtPositionTypeOrg with deptPositionTypeOrgId 3 and organizationId 3 not found", ex.getMessage());
   }
 
   @Test
