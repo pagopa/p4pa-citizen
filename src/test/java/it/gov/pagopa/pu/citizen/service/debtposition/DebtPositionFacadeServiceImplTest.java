@@ -269,7 +269,7 @@ class DebtPositionFacadeServiceImplTest {
     AuthorizationDeniedException ex = assertThrows(AuthorizationDeniedException.class, () -> debtPositionFacadeService.getDebtPositionDetail(brokerId, fiscalCode, debtPositionId, accessToken));
 
     //then
-    assertEquals("User cannot access DebtPosition having id 2", ex.getMessage());
+    assertEquals("[USER_UNAUTHORIZED] User cannot access DebtPosition having id 2", ex.getMessage());
   }
 
   @Test

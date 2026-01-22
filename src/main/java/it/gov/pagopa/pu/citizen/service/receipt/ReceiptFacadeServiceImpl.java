@@ -51,7 +51,7 @@ public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
   private Map<String,Organization> retrieveOrganizations(Long brokerId, String orgName, String accessToken){
     List<Organization> organizations = brokerOrganizationsRetrieverService.getAllOrganizationsByBrokerIdAndOrgName(brokerId, orgName, accessToken);
     if (organizations.isEmpty()){
-      throw new ResourceNotFoundException("Organizations not found with brokerId %s and orgName %s".formatted(brokerId, orgName));
+      throw new ResourceNotFoundException("ORGANIZATION_NOT_FOUND", "Organizations not found with brokerId %s and orgName %s".formatted(brokerId, orgName));
     }
 
     return organizations.stream()
@@ -71,7 +71,7 @@ public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
 
   private static void validateReceiptDebtor(String fiscalCode, ReceiptDetailDTO receipt) {
     if(!fiscalCode.equals(receipt.getDebtor().getFiscalCode())){
-      throw new AuthorizationDeniedException("User cannot access Receipt having id "+ receipt.getReceiptId());
+      throw new AuthorizationDeniedException("[USER_UNAUTHORIZED] User cannot access Receipt having id "+ receipt.getReceiptId());
     }
   }
 

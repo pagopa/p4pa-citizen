@@ -37,7 +37,7 @@ public class InstallmentFacadeServiceImpl implements InstallmentFacadeService {
   public List<InstallmentDebtorExtendedDTO> getInstallmentByIuvOrNav(Long brokerId, String iuvOrNav,
       String debtorFiscalCode, String orgFiscalCode, String accessToken) {
     if (StringUtils.isBlank(debtorFiscalCode) && StringUtils.isBlank(orgFiscalCode)) {
-      throw new InvalidParamException("Either debtorFiscalCode or orgFiscalCode must be provided");
+      throw new InvalidParamException("MISSING_FISCAL_CODE","Either debtorFiscalCode or orgFiscalCode must be provided");
     }
     Organization organization = resolveOrganization(orgFiscalCode, brokerId, accessToken);
     Long organizationId = organization != null ? organization.getOrganizationId() : null;

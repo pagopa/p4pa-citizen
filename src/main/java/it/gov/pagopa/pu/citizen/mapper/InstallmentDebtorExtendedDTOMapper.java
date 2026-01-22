@@ -29,11 +29,11 @@ public interface InstallmentDebtorExtendedDTOMapper {
 
   private Organization getOrganization(Long organizationId, Map<Long, Organization> organizationMap) {
     if (organizationMap == null) {
-      throw new IllegalArgumentException("organizationMap must not be null");
+      throw new IllegalArgumentException("[INVALID_ARGUMENT] organizationMap must not be null");
     }
     Organization organization = organizationMap.get(organizationId);
     if (organization == null) {
-      throw new IllegalStateException("Missing Organization for organizationId " + organizationId);
+      throw new IllegalStateException("[ORGANIZATION_NOT_FOUND] Missing Organization for organizationId " + organizationId);
     }
     return organization;
   }
