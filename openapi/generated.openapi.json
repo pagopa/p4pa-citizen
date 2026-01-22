@@ -1829,6 +1829,9 @@
           },
           "debtor" : {
             "$ref" : "#/components/schemas/PersonDTO"
+          },
+          "userRemittanceInformation" : {
+            "type" : "string"
           }
         },
         "required" : [ "amountCents", "debtor", "remittanceInformation" ]

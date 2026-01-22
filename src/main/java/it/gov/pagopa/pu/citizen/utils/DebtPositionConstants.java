@@ -20,5 +20,7 @@ public class DebtPositionConstants {
     InstallmentStatus.UNPAID,
     InstallmentStatus.EXPIRED
   );
+
+  public static final String INSTALLMENT_REMITTANCE_INFORMATION_PLACEHOLDER = "Pagamento on-the-fly";
 }
 

@@ -853,6 +853,8 @@ components:
           type: string
         debtor:
           type: 'PersonDTO'
+        userRemittanceInformation:
+          type: string
       required:
         - amountCents
         - debtor
