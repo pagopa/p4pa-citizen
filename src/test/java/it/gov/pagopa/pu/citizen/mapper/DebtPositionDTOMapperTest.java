@@ -33,6 +33,7 @@ class DebtPositionDTOMapperTest {
     assertTrue(result.getFlagPuPagoPaPayment());
     assertEquals(DebtPositionOrigin.SPONTANEOUS, result.getDebtPositionOrigin());
     assertEquals(DebtPositionStatus.UNPAID, result.getStatus());
+    assertEquals(DebtPositionConstants.DEBT_POSITION_DESCRIPTION_PLACEHOLDER, result.getDescription());
 
     result.getPaymentOptions().forEach(opt -> {
       assertEquals(PaymentOptionStatus.UNPAID, opt.getStatus());
