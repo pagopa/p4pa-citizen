@@ -19,6 +19,7 @@ public interface DebtPositionDTOMapper {
   @Mapping(target = "flagPuPagoPaPayment", constant = "true")
   @Mapping(target = "debtPositionOrigin", constant = "SPONTANEOUS")
   @Mapping(target = "status", constant = "UNPAID")
+  @Mapping(target = "description", expression = ("java(it.gov.pagopa.pu.citizen.utils.DebtPositionConstants.DEBT_POSITION_DESCRIPTION_PLACEHOLDER)"))
   DebtPositionDTO mapSpontaneousDebtPositionDTO(DebtPositionRequestDTO debtPositionRequestDTO, @Context Integer expirationDays);
 
   @Mapping(target = "paymentOptionType", constant = "SINGLE_INSTALLMENT")
