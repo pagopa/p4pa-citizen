@@ -94,7 +94,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
           .stream()
           .filter(
             i ->
-              i.getStatus()!=null && PAYABLE_STATUSES.contains(i.getStatus())
+              i.getStatus()!=null && PAYABLE_STATUSES.contains(i.getStatus()) && fiscalCode.equals(i.getDebtor().getFiscalCode())
           )
       )
       .map(i ->
