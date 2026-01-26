@@ -137,7 +137,8 @@ class DebtPositionFacadeServiceImplTest {
     Long debtPositionId = 2L;
     Long organizationId = 3L;
     String fiscalCode = "fiscalCode";
-    String iuv = "1";
+    String iuv = "iuv";
+    String excludedIuv = "excludedIuv";
 
     DebtPositionDTO debtPositionDTO = new DebtPositionDTO();
     debtPositionDTO.setOrganizationId(organizationId);
@@ -146,18 +147,23 @@ class DebtPositionFacadeServiceImplTest {
     InstallmentDTO installmentDTOUNPAID = podamFactory.manufacturePojo(InstallmentDTO.class);
     installmentDTOUNPAID.setIuv(iuv);
     installmentDTOUNPAID.setStatus(InstallmentStatus.UNPAID);
+    installmentDTOUNPAID.getDebtor().setFiscalCode(fiscalCode);
     InstallmentDTO installmentDTOEXPIRED = podamFactory.manufacturePojo(InstallmentDTO.class);
     installmentDTOEXPIRED.setIuv(iuv);
     installmentDTOEXPIRED.setStatus(InstallmentStatus.EXPIRED);
     installmentDTOEXPIRED.getDebtor().setFiscalCode(fiscalCode);
+    InstallmentDTO installmentDTOEXPIREDWithWrongFiscalCode = podamFactory.manufacturePojo(InstallmentDTO.class);
+    installmentDTOEXPIREDWithWrongFiscalCode.setIuv(excludedIuv);
+    installmentDTOEXPIREDWithWrongFiscalCode.setStatus(InstallmentStatus.EXPIRED);
+    installmentDTOEXPIREDWithWrongFiscalCode.getDebtor().setFiscalCode("wrongFiscalCode");
     InstallmentDTO installmentDTOPAID = podamFactory.manufacturePojo(InstallmentDTO.class);
-    installmentDTOPAID.setIuv(iuv);
+    installmentDTOPAID.setIuv(excludedIuv);
     installmentDTOPAID.setStatus(InstallmentStatus.PAID);
     InstallmentDTO installmentDTOWithNullStatus = podamFactory.manufacturePojo(InstallmentDTO.class);
-    installmentDTOWithNullStatus.setIuv(iuv);
+    installmentDTOWithNullStatus.setIuv(excludedIuv);
     installmentDTOWithNullStatus.setStatus(null);
-    paymentOptionDTO.setInstallments(List.of(installmentDTOUNPAID, installmentDTOEXPIRED));
-    paymentOptionDTO1.setInstallments(List.of(installmentDTOPAID, installmentDTOWithNullStatus));
+    paymentOptionDTO.setInstallments(List.of(installmentDTOUNPAID, installmentDTOPAID, installmentDTOEXPIREDWithWrongFiscalCode));
+    paymentOptionDTO1.setInstallments(List.of(installmentDTOEXPIRED, installmentDTOWithNullStatus));
     debtPositionDTO.setPaymentOptions(List.of(paymentOptionDTO, paymentOptionDTO1));
 
     ByteArrayResource expectedResult = new ByteArrayResource("PDF-DATA".getBytes());
@@ -166,7 +172,7 @@ class DebtPositionFacadeServiceImplTest {
 
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPosition(debtPositionId, accessToken)).thenReturn(debtPositionDTO);
-    Mockito.when(printPaymentNoticeServiceMock.generateNotice(iuv, debtPositionDTO, accessToken)).thenReturn(fileResourceDTO);
+    Mockito.when(printPaymentNoticeServiceMock.generateNotice(Mockito.anyString(), Mockito.eq(debtPositionDTO), Mockito.eq(accessToken))).thenReturn(fileResourceDTO);
 
     Mockito.when(zipFileServiceMock.zipper(List.of(fileResourceDTO, fileResourceDTO))).thenReturn(expectedResult);
     Resource result = debtPositionFacadeService.getDebtPositionNoticesZip(brokerId, fiscalCode, debtPositionId, accessToken);
