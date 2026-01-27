@@ -11,6 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,5 +56,20 @@ class ReceiptNoPiiEntityClientTest {
     ReceiptNoPII result = receiptNoPiiEntityClient.getReceiptNoPII(receiptId, accessToken);
     //then
     assertSame(expectedResult, result);
+  }
+
+  @Test
+  void whenGetReceiptNoPIIThenReturnNull() {
+    //given
+    String accessToken = "ACCESSTOKEN";
+    Long receiptId = 1L;
+
+    Mockito.when(debtPositionApisHolderMock.getReceiptNoPiiEntityControllerApi(accessToken)).thenReturn(receiptNoPiiEntityControllerApiMock);
+    Mockito.when(receiptNoPiiEntityControllerApiMock.crudGetReceiptnopii(String.valueOf(receiptId))).thenThrow(
+      HttpClientErrorException.create(HttpStatus.NOT_FOUND, "NotFound", null, null, null));
+    //when
+    ReceiptNoPII result = receiptNoPiiEntityClient.getReceiptNoPII(receiptId, accessToken);
+    //then
+    assertNull(result);
   }
 }
