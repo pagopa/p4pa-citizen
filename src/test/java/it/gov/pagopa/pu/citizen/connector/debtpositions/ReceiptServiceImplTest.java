@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptClient;
+import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiEntityClient;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiSearchClient;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiViewSearchClient;
 import it.gov.pagopa.pu.citizen.dto.DebtorReceiptsFiltersDTO;
@@ -36,12 +37,14 @@ class ReceiptServiceImplTest {
   private ReceiptClient clientMock;
   @Mock
   private ReceiptNoPiiSearchClient receiptNoPiiSearchClientMock;
+  @Mock
+  private ReceiptNoPiiEntityClient receiptNoPiiEntityClientMock;
 
   ReceiptService receiptService;
 
   @BeforeEach
   void setUp() {
-    receiptService = new ReceiptServiceImpl(receiptNoPiiViewSearchClientMock, clientMock, receiptNoPiiSearchClientMock);
+    receiptService = new ReceiptServiceImpl(receiptNoPiiViewSearchClientMock, clientMock, receiptNoPiiSearchClientMock, receiptNoPiiEntityClientMock);
   }
 
   @AfterEach
@@ -143,6 +146,21 @@ class ReceiptServiceImplTest {
 
     List<ReceiptNoPIIView> result = receiptService.getDebtorReceipts(debtorFiscalCode, organizationId,
       debtPositionId,paymentOptionId,receiptOrigins,installmentStatuses, accessToken);
+
+    assertSame(expectedResult, result);
+  }
+
+  @Test
+  void whenGetReceiptNoPiiThenInvokeClient() {
+    String accessToken = "ACCESSTOKEN";
+    Long receiptId = 1L;
+
+    ReceiptNoPII expectedResult = podamFactory.manufacturePojo(ReceiptNoPII.class);
+
+    when(receiptNoPiiEntityClientMock.getReceiptNoPII(receiptId, accessToken))
+      .thenReturn(expectedResult);
+
+    ReceiptNoPII result = receiptService.getReceiptNoPII(receiptId, accessToken);
 
     assertSame(expectedResult, result);
   }

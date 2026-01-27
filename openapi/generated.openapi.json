@@ -2943,6 +2943,14 @@
           },
           "remittanceInformation" : {
             "type" : "string"
+          },
+          "receiptId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "paymentDateTime" : {
+            "type" : "string",
+            "format" : "date-time"
           }
         },
         "required" : [ "installmentId", "remittanceInformation", "status" ]

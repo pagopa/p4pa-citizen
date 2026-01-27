@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptClient;
+import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiEntityClient;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiSearchClient;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiViewSearchClient;
 import it.gov.pagopa.pu.citizen.dto.DebtorReceiptsFiltersDTO;
@@ -17,11 +18,13 @@ public class ReceiptServiceImpl implements ReceiptService {
   private final ReceiptNoPiiViewSearchClient receiptNoPiiViewSearchClient;
   private final ReceiptClient receiptClient;
   private final ReceiptNoPiiSearchClient receiptNoPiiSearchClient;
+  private final ReceiptNoPiiEntityClient receiptNoPiiEntityClient;
 
-  public ReceiptServiceImpl(ReceiptNoPiiViewSearchClient receiptNoPiiViewSearchClient, ReceiptClient receiptClient, ReceiptNoPiiSearchClient receiptNoPiiSearchClient) {
+  public ReceiptServiceImpl(ReceiptNoPiiViewSearchClient receiptNoPiiViewSearchClient, ReceiptClient receiptClient, ReceiptNoPiiSearchClient receiptNoPiiSearchClient, ReceiptNoPiiEntityClient receiptNoPiiEntityClient) {
     this.receiptNoPiiViewSearchClient = receiptNoPiiViewSearchClient;
     this.receiptClient = receiptClient;
     this.receiptNoPiiSearchClient = receiptNoPiiSearchClient;
+    this.receiptNoPiiEntityClient = receiptNoPiiEntityClient;
   }
 
   @Override
@@ -47,5 +50,10 @@ public class ReceiptServiceImpl implements ReceiptService {
   @Override
   public List<ReceiptNoPIIView> getDebtorReceipts(String debtorFiscalCode, Long organizationId, Long debtPositionId, Long paymentOptionId, List<ReceiptOriginType> receiptOrigins, List<InstallmentStatus> installmentStatuses, String accessToken) {
     return receiptNoPiiViewSearchClient.getDebtorReceipts(debtorFiscalCode, organizationId, debtPositionId, paymentOptionId, receiptOrigins, installmentStatuses, accessToken);
+  }
+
+  @Override
+  public ReceiptNoPII getReceiptNoPII(Long receiptId, String accessToken) {
+    return receiptNoPiiEntityClient.getReceiptNoPII(receiptId, accessToken);
   }
 }

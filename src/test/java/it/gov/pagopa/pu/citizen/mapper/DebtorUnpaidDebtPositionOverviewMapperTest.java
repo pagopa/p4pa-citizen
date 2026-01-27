@@ -1,21 +1,20 @@
 package it.gov.pagopa.pu.citizen.mapper;
 
+import it.gov.pagopa.pu.citizen.dto.generated.DebtorPaymentOptionOverviewDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionOverviewDTO;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
-import it.gov.pagopa.pu.debtpositions.dto.generated.BaseInstallment;
-import it.gov.pagopa.pu.debtpositions.dto.generated.BasePaymentOption;
-import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionStatus;
-import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.*;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DebtorUnpaidDebtPositionOverviewMapperTest {
 
@@ -48,12 +47,15 @@ class DebtorUnpaidDebtPositionOverviewMapperTest {
     dp.setStatus(DebtPositionStatus.UNPAID);
 
     BasePaymentOption po1 = buildPaymentOption(2000, LocalDate.of(2024,1,10));
+    po1.getInstallments().getFirst().setInstallmentId(1L);
     BasePaymentOption po2 = buildPaymentOption(2000, LocalDate.of(2024,1,5));
 
     dp.setPaymentOptions(List.of(po1, po2));
 
+    Map<Long, OffsetDateTime> offsetDateTimeReceiptMap = Map.of(1L, OffsetDateTime.now());
+
     // when
-    DebtorUnpaidDebtPositionOverviewDTO result = mapper.map(org, dp);
+    DebtorUnpaidDebtPositionOverviewDTO result = mapper.map(org, dp, offsetDateTimeReceiptMap);
 
     // then
     assertNotNull(result);
@@ -70,12 +72,74 @@ class DebtorUnpaidDebtPositionOverviewMapperTest {
     assertEquals(2, result.getPaymentOptions().size());
 
     result.getPaymentOptions().forEach(TestUtils::checkNotNullFields);
-    result.getPaymentOptions().forEach(po ->{
-      po.getInstallments().forEach(TestUtils::checkNotNullFields);
-      assertEquals(1, po.getInstallments().size());
-      });
+    DebtorPaymentOptionOverviewDTO firstPaymentOption = result.getPaymentOptions().getFirst();
+    DebtorPaymentOptionOverviewDTO lastPaymentOption = result.getPaymentOptions().getLast();
+
+    TestUtils.checkNotNullFields(firstPaymentOption);
+    TestUtils.checkNotNullFields(lastPaymentOption);
+    assertEquals(1, firstPaymentOption.getInstallments().size());
+    assertEquals(offsetDateTimeReceiptMap.get(1L), firstPaymentOption.getInstallments().getFirst().getPaymentDateTime());
+    assertEquals(1, lastPaymentOption.getInstallments().size());
 
     TestUtils.checkNotNullFields(result);
+  }
+
+  @Test
+  void givenNullReceiptMapWhenExtractPaymentDateTimeThenReturnNull() {
+    // when
+    OffsetDateTime result = mapper.extractPaymentDateTime(1L, null);
+
+    // then
+    assertNull(result);
+  }
+
+  @Test
+  void givenReceiptMapWithInstallmentIdWhenExtractPaymentDateTimeThenReturnMappedDate() {
+    // given
+    Long installmentId = 10L;
+    OffsetDateTime expectedDateTime = OffsetDateTime.now();
+
+    Map<Long, OffsetDateTime> receiptMap = Map.of(
+      installmentId, expectedDateTime
+    );
+
+    // when
+    OffsetDateTime result = mapper.extractPaymentDateTime(installmentId, receiptMap);
+
+    // then
+    assertEquals(expectedDateTime, result);
+  }
+
+  @Test
+  void givenReceiptMapWithoutInstallmentIdWhenExtractPaymentDateTimeThenReturnNull() {
+    // given
+    Map<Long, OffsetDateTime> receiptMap = Map.of(
+      99L, OffsetDateTime.now()
+    );
+
+    // when
+    OffsetDateTime result = mapper.extractPaymentDateTime(1L, receiptMap);
+
+    // then
+    assertNull(result);
+  }
+
+  @Test
+  void givenReportedStatus_whenMapStatus_thenReturnPaid() {
+    // when
+    InstallmentStatus result = mapper.resolveInstallmentStatus(InstallmentStatus.REPORTED);
+
+    // then
+    assertEquals(InstallmentStatus.PAID, result);
+  }
+
+  @Test
+  void givenUnpaidStatus_whenMapStatus_thenReturnSameStatus() {
+    // when
+    InstallmentStatus result = mapper.resolveInstallmentStatus(InstallmentStatus.UNPAID);
+
+    // then
+    assertEquals(InstallmentStatus.UNPAID, result);
   }
 
 }

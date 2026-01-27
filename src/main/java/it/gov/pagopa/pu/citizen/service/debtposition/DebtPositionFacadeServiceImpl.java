@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.service.debtposition;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.DebtPositionService;
+import it.gov.pagopa.pu.citizen.connector.debtpositions.ReceiptService;
 import it.gov.pagopa.pu.citizen.connector.pagopapayments.PrintPaymentNoticeService;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
@@ -17,6 +18,7 @@ import it.gov.pagopa.pu.citizen.mapper.PagedDebtorDebtPositionMapper;
 import it.gov.pagopa.pu.citizen.service.ZipFileService;
 import it.gov.pagopa.pu.citizen.service.organization.BrokerOrganizationsRetrieverService;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
+import it.gov.pagopa.pu.debtpositions.dto.generated.BaseInstallment;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositionDTO;
@@ -29,6 +31,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,6 +51,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
   private final BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverService;
   private final PagedDebtorDebtPositionMapper pagedDebtorDebtPositionMapper;
   private final DebtorUnpaidDebtPositionOverviewMapper debtorUnpaidDebtPositionOverviewMapper;
+  private final ReceiptService receiptService;
 
   public DebtPositionFacadeServiceImpl(DebtPositionService debtPositionService,
                                        DebtPositionDTOMapper debtPositionDTOMapper,
@@ -58,7 +62,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
                                        OrganizationRetrieverService organizationRetrieverService,
                                        BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverService,
                                        PagedDebtorDebtPositionMapper pagedDebtorDebtPositionMapper,
-                                       DebtorUnpaidDebtPositionOverviewMapper debtorUnpaidDebtPositionOverviewMapper
+                                       DebtorUnpaidDebtPositionOverviewMapper debtorUnpaidDebtPositionOverviewMapper, ReceiptService receiptService
   ) {
     this.debtPositionDTOMapper = debtPositionDTOMapper;
     this.debtPositionService = debtPositionService;
@@ -70,6 +74,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
     this.brokerOrganizationsRetrieverService = brokerOrganizationsRetrieverService;
     this.pagedDebtorDebtPositionMapper = pagedDebtorDebtPositionMapper;
     this.debtorUnpaidDebtPositionOverviewMapper = debtorUnpaidDebtPositionOverviewMapper;
+    this.receiptService = receiptService;
   }
 
   @Override
@@ -211,7 +216,18 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
     if (debtorDebtPosition == null){
       return null;
     }
+    Map<Long, OffsetDateTime> offsetDateTimeReceiptMap = extractPaymentDateTimeFromReceiptOnMap(accessToken, debtorDebtPosition);
 
-    return debtorUnpaidDebtPositionOverviewMapper.map(organizationRetrieverService.getValidOrganization(organizationId, brokerId, accessToken), debtorDebtPosition);
+    return debtorUnpaidDebtPositionOverviewMapper.map(organizationRetrieverService.getValidOrganization(organizationId, brokerId, accessToken), debtorDebtPosition, offsetDateTimeReceiptMap);
+  }
+
+  private Map<Long, OffsetDateTime> extractPaymentDateTimeFromReceiptOnMap(String accessToken, DebtorDebtPositionDTO debtorDebtPosition) {
+    return Objects.requireNonNull(debtorDebtPosition.getPaymentOptions()).stream()
+        .flatMap(po -> Objects.requireNonNull(po.getInstallments()).stream()
+        .filter(i -> i.getReceiptId() != null))
+        .collect(Collectors.toMap(
+          BaseInstallment::getInstallmentId,
+          i -> receiptService.getReceiptNoPII(i.getReceiptId(), accessToken).getPaymentDateTime()
+        ));
   }
 }

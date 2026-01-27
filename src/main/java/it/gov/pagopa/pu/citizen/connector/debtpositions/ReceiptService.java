@@ -13,4 +13,5 @@ public interface ReceiptService {
   boolean isReceiptDebtorValid(Long receiptId, Long organizationId, String debtorFiscalCode, String accessToken);
   FileResourceDTO getReceiptPdf(Long receiptId, Long organizationId, String accessToken);
   List<ReceiptNoPIIView> getDebtorReceipts(String debtorFiscalCode, Long organizationId, Long debtPositionId, Long paymentOptionId, List<ReceiptOriginType> receiptOrigins, List<InstallmentStatus> installmentStatuses, String accessToken);
+  ReceiptNoPII getReceiptNoPII(Long receiptId, String accessToken);
 }
