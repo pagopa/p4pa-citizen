@@ -18,10 +18,7 @@ import it.gov.pagopa.pu.citizen.mapper.PagedDebtorDebtPositionMapper;
 import it.gov.pagopa.pu.citizen.service.ZipFileService;
 import it.gov.pagopa.pu.citizen.service.organization.BrokerOrganizationsRetrieverService;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
-import it.gov.pagopa.pu.debtpositions.dto.generated.BaseInstallment;
-import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositionDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.*;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import jakarta.validation.ValidationException;
 import org.apache.commons.lang3.StringUtils;
@@ -222,12 +219,22 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
   }
 
   private Map<Long, OffsetDateTime> extractPaymentDateTimeFromReceiptOnMap(String accessToken, DebtorDebtPositionDTO debtorDebtPosition) {
-    return Objects.requireNonNull(debtorDebtPosition.getPaymentOptions()).stream()
-        .flatMap(po -> Objects.requireNonNull(po.getInstallments()).stream()
-        .filter(i -> i.getReceiptId() != null))
+
+    List<BaseInstallment> installmentsWithReceipt = Objects.requireNonNull(debtorDebtPosition.getPaymentOptions()).stream()
+      .flatMap(po -> Objects.requireNonNull(po.getInstallments()).stream())
+      .filter(i -> i.getReceiptId() != null)
+      .toList();
+
+    Map<Long, Long> receiptIdAndInstallmentIdMap = installmentsWithReceipt.stream().collect(Collectors.toMap(BaseInstallment::getReceiptId, BaseInstallment::getInstallmentId));
+
+    List<ReceiptNoPII> receiptNoPiiList = receiptService.getReceiptNoPiiList(receiptIdAndInstallmentIdMap.keySet(), accessToken);
+
+    return receiptNoPiiList.stream()
         .collect(Collectors.toMap(
-          BaseInstallment::getInstallmentId,
-          i -> receiptService.getReceiptNoPII(i.getReceiptId(), accessToken).getPaymentDateTime()
+          r -> receiptIdAndInstallmentIdMap.get(r.getReceiptId()),
+          ReceiptNoPII::getPaymentDateTime
         ));
   }
+
+
 }

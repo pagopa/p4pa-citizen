@@ -44,9 +44,6 @@ public interface DebtorUnpaidDebtPositionOverviewMapper {
 
   @Named("resolveInstallmentStatus")
   default InstallmentStatus resolveInstallmentStatus(InstallmentStatus status){
-    if(status==null){
-      return null;
-    }
     if(InstallmentStatus.REPORTED.equals(status)){
       return InstallmentStatus.PAID;
     }else{

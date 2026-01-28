@@ -38,12 +38,15 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)
 class DebtPositionFacadeServiceImplTest {
@@ -176,7 +179,7 @@ class DebtPositionFacadeServiceImplTest {
 
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPosition(debtPositionId, accessToken)).thenReturn(debtPositionDTO);
-    Mockito.when(printPaymentNoticeServiceMock.generateNotice(Mockito.anyString(), Mockito.eq(debtPositionDTO), Mockito.eq(accessToken))).thenReturn(fileResourceDTO);
+    Mockito.when(printPaymentNoticeServiceMock.generateNotice(Mockito.anyString(), eq(debtPositionDTO), eq(accessToken))).thenReturn(fileResourceDTO);
 
     Mockito.when(zipFileServiceMock.zipper(List.of(fileResourceDTO, fileResourceDTO))).thenReturn(expectedResult);
     Resource result = debtPositionFacadeService.getDebtPositionNoticesZip(brokerId, fiscalCode, debtPositionId, accessToken);
@@ -633,15 +636,29 @@ class DebtPositionFacadeServiceImplTest {
 
     DebtorUnpaidDebtPositionOverviewDTO expectedDTO = podamFactory.manufacturePojo(DebtorUnpaidDebtPositionOverviewDTO.class);
 
-    ReceiptNoPII receiptNoPII = podamFactory.manufacturePojo(ReceiptNoPII.class);
+    ReceiptNoPII receipt = podamFactory.manufacturePojo(ReceiptNoPII.class);
+    receipt.setReceiptId(inst.getReceiptId());
+
+    List<ReceiptNoPII> receiptNoPIIList = List.of(receipt);
 
     Mockito.when(debtPositionServiceMock.getDebtorDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId, accessToken))
       .thenReturn(debtPositionDTO);
     Mockito.when(organizationRetrieverServiceMock.getValidOrganization(organizationId, brokerId, accessToken))
       .thenReturn(org);
-    Mockito.when(receiptServiceMock.getReceiptNoPII(1L, accessToken)).thenReturn(receiptNoPII);
-    Mockito.when(debtorUnpaidDebtPositionOverviewMapperMock.map(org, debtPositionDTO, Map.of(inst.getInstallmentId(), receiptNoPII.getPaymentDateTime())))
-      .thenReturn(expectedDTO);
+    Mockito.when(
+      receiptServiceMock.getReceiptNoPiiList(Set.of(inst.getReceiptId()), accessToken)
+    ).thenReturn(receiptNoPIIList);
+
+    Map<Long, OffsetDateTime> expectedMap =
+      Map.of(inst.getInstallmentId(), receipt.getPaymentDateTime());
+
+    Mockito.when(
+      debtorUnpaidDebtPositionOverviewMapperMock.map(
+        org,
+        debtPositionDTO,
+        expectedMap
+      )
+    ).thenReturn(expectedDTO);
 
     // when
     DebtorUnpaidDebtPositionOverviewDTO result = debtPositionFacadeService.getDebtorUnpaidDebtPositionOverview(

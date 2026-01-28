@@ -1,7 +1,6 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptClient;
-import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiEntityClient;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiSearchClient;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiViewSearchClient;
 import it.gov.pagopa.pu.citizen.dto.DebtorReceiptsFiltersDTO;
@@ -11,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ReceiptServiceImpl implements ReceiptService {
@@ -18,13 +18,11 @@ public class ReceiptServiceImpl implements ReceiptService {
   private final ReceiptNoPiiViewSearchClient receiptNoPiiViewSearchClient;
   private final ReceiptClient receiptClient;
   private final ReceiptNoPiiSearchClient receiptNoPiiSearchClient;
-  private final ReceiptNoPiiEntityClient receiptNoPiiEntityClient;
 
-  public ReceiptServiceImpl(ReceiptNoPiiViewSearchClient receiptNoPiiViewSearchClient, ReceiptClient receiptClient, ReceiptNoPiiSearchClient receiptNoPiiSearchClient, ReceiptNoPiiEntityClient receiptNoPiiEntityClient) {
+  public ReceiptServiceImpl(ReceiptNoPiiViewSearchClient receiptNoPiiViewSearchClient, ReceiptClient receiptClient, ReceiptNoPiiSearchClient receiptNoPiiSearchClient) {
     this.receiptNoPiiViewSearchClient = receiptNoPiiViewSearchClient;
     this.receiptClient = receiptClient;
     this.receiptNoPiiSearchClient = receiptNoPiiSearchClient;
-    this.receiptNoPiiEntityClient = receiptNoPiiEntityClient;
   }
 
   @Override
@@ -53,7 +51,7 @@ public class ReceiptServiceImpl implements ReceiptService {
   }
 
   @Override
-  public ReceiptNoPII getReceiptNoPII(Long receiptId, String accessToken) {
-    return receiptNoPiiEntityClient.getReceiptNoPII(receiptId, accessToken);
+  public List<ReceiptNoPII> getReceiptNoPiiList(Set<Long> receiptIds, String accessToken) {
+    return receiptNoPiiSearchClient.getReceiptNoPiiList(receiptIds, accessToken);
   }
 }

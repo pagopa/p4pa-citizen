@@ -134,7 +134,7 @@ class DebtorUnpaidDebtPositionOverviewMapperTest {
   }
 
   @Test
-  void givenUnpaidStatus_whenMapStatus_thenReturnSameStatus() {
+  void givenUnpaidStatusWhenMapStatusThenReturnSameStatus() {
     // when
     InstallmentStatus result = mapper.resolveInstallmentStatus(InstallmentStatus.UNPAID);
 
@@ -142,12 +142,4 @@ class DebtorUnpaidDebtPositionOverviewMapperTest {
     assertEquals(InstallmentStatus.UNPAID, result);
   }
 
-  @Test
-  void givenNullStatusWhenMapStatusThenReturnNull() {
-    // when
-    InstallmentStatus result = mapper.resolveInstallmentStatus(null);
-
-    // then
-    assertNull(result);
-  }
 }

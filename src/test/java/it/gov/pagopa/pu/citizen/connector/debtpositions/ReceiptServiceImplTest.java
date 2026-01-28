@@ -1,7 +1,6 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptClient;
-import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiEntityClient;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiSearchClient;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiViewSearchClient;
 import it.gov.pagopa.pu.citizen.dto.DebtorReceiptsFiltersDTO;
@@ -21,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.util.List;
+import java.util.Set;
 
 import static it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptOriginType.RECEIPT_PAGOPA;
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,14 +37,12 @@ class ReceiptServiceImplTest {
   private ReceiptClient clientMock;
   @Mock
   private ReceiptNoPiiSearchClient receiptNoPiiSearchClientMock;
-  @Mock
-  private ReceiptNoPiiEntityClient receiptNoPiiEntityClientMock;
 
   ReceiptService receiptService;
 
   @BeforeEach
   void setUp() {
-    receiptService = new ReceiptServiceImpl(receiptNoPiiViewSearchClientMock, clientMock, receiptNoPiiSearchClientMock, receiptNoPiiEntityClientMock);
+    receiptService = new ReceiptServiceImpl(receiptNoPiiViewSearchClientMock, clientMock, receiptNoPiiSearchClientMock);
   }
 
   @AfterEach
@@ -151,16 +149,16 @@ class ReceiptServiceImplTest {
   }
 
   @Test
-  void whenGetReceiptNoPiiThenInvokeClient() {
+  void whenGetReceiptNoPiiListThenInvokeClient() {
     String accessToken = "ACCESSTOKEN";
-    Long receiptId = 1L;
+    Set<Long> receiptIds = Set.of(1L);
 
-    ReceiptNoPII expectedResult = podamFactory.manufacturePojo(ReceiptNoPII.class);
+    List<ReceiptNoPII> expectedResult = podamFactory.manufacturePojo(List.class, ReceiptNoPII.class);
 
-    when(receiptNoPiiEntityClientMock.getReceiptNoPII(receiptId, accessToken))
+    when(receiptNoPiiSearchClientMock.getReceiptNoPiiList(receiptIds, accessToken))
       .thenReturn(expectedResult);
 
-    ReceiptNoPII result = receiptService.getReceiptNoPII(receiptId, accessToken);
+    List<ReceiptNoPII> result = receiptService.getReceiptNoPiiList(receiptIds, accessToken);
 
     assertSame(expectedResult, result);
   }
