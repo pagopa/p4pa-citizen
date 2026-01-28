@@ -25,21 +25,21 @@ public interface DebtorUnpaidDebtPositionOverviewMapper {
   @Mapping(target = "iupd", source = "debtorDebtPosition.iupdOrg")
   @Mapping(target = "status", source = "debtorDebtPosition.status")
   @Mapping(target = "debtPositionDescription", source = "debtorDebtPosition.debtPositionDescription")
-  DebtorUnpaidDebtPositionOverviewDTO map(Organization organization, DebtorDebtPositionDTO debtorDebtPosition, @Context Map<Long, OffsetDateTime> offsetDateTimeReceiptMap);
+  DebtorUnpaidDebtPositionOverviewDTO map(Organization organization, DebtorDebtPositionDTO debtorDebtPosition, @Context Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap);
 
-  DebtorPaymentOptionOverviewDTO map(BasePaymentOption paymentOption, @Context Map<Long, OffsetDateTime> offsetDateTimeReceiptMap);
+  DebtorPaymentOptionOverviewDTO map(BasePaymentOption paymentOption, @Context Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap);
 
   @Mapping(
     target = "paymentDateTime", source = "installmentId", qualifiedByName = "extractPaymentDateTime")
   @Mapping(target = "status", source = "status", qualifiedByName = "resolveInstallmentStatus")
-  DebtorInstallmentsOverviewDTO map(BaseInstallment installment, @Context Map<Long, OffsetDateTime> offsetDateTimeReceiptMap);
+  DebtorInstallmentsOverviewDTO map(BaseInstallment installment, @Context Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap);
 
   @Named("extractPaymentDateTime")
-  default OffsetDateTime extractPaymentDateTime(Long installmentId, @Context Map<Long, OffsetDateTime> offsetDateTimeReceiptMap) {
-    if (offsetDateTimeReceiptMap == null){
+  default OffsetDateTime extractPaymentDateTime(Long installmentId, @Context Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap) {
+    if (installmentIdAndPaymentDateTimeMap == null){
       return null;
     }
-    return offsetDateTimeReceiptMap.get(installmentId);
+    return installmentIdAndPaymentDateTimeMap.get(installmentId);
   }
 
   @Named("resolveInstallmentStatus")

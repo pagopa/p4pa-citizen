@@ -213,9 +213,9 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
     if (debtorDebtPosition == null){
       return null;
     }
-    Map<Long, OffsetDateTime> offsetDateTimeReceiptMap = extractPaymentDateTimeFromReceiptOnMap(accessToken, debtorDebtPosition);
+    Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap = extractPaymentDateTimeFromReceiptOnMap(accessToken, debtorDebtPosition);
 
-    return debtorUnpaidDebtPositionOverviewMapper.map(organizationRetrieverService.getValidOrganization(organizationId, brokerId, accessToken), debtorDebtPosition, offsetDateTimeReceiptMap);
+    return debtorUnpaidDebtPositionOverviewMapper.map(organizationRetrieverService.getValidOrganization(organizationId, brokerId, accessToken), debtorDebtPosition, installmentIdAndPaymentDateTimeMap);
   }
 
   private Map<Long, OffsetDateTime> extractPaymentDateTimeFromReceiptOnMap(String accessToken, DebtorDebtPositionDTO debtorDebtPosition) {
