@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.util.List;
+import java.util.Set;
 
 import static it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptOriginType.RECEIPT_PAGOPA;
 import static org.junit.jupiter.api.Assertions.*;
@@ -143,6 +144,21 @@ class ReceiptServiceImplTest {
 
     List<ReceiptNoPIIView> result = receiptService.getDebtorReceipts(debtorFiscalCode, organizationId,
       debtPositionId,paymentOptionId,receiptOrigins,installmentStatuses, accessToken);
+
+    assertSame(expectedResult, result);
+  }
+
+  @Test
+  void whenGetReceiptNoPiiListThenInvokeClient() {
+    String accessToken = "ACCESSTOKEN";
+    Set<Long> receiptIds = Set.of(1L);
+
+    List<ReceiptNoPII> expectedResult = podamFactory.manufacturePojo(List.class, ReceiptNoPII.class);
+
+    when(receiptNoPiiSearchClientMock.getReceiptNoPiiList(receiptIds, accessToken))
+      .thenReturn(expectedResult);
+
+    List<ReceiptNoPII> result = receiptService.getReceiptNoPiiList(receiptIds, accessToken);
 
     assertSame(expectedResult, result);
   }

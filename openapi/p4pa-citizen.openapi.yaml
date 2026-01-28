@@ -1176,6 +1176,12 @@ components:
           format: int64
         remittanceInformation:
           type: string
+        receiptId:
+          type: integer
+          format: int64
+        paymentDateTime:
+          type: string
+          format: date-time
     ErrorDTO:
       type: object
       required:
