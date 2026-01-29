@@ -853,6 +853,8 @@ components:
           type: string
         debtor:
           type: 'PersonDTO'
+        userRemittanceInformation:
+          type: string
       required:
         - amountCents
         - debtor
@@ -1174,23 +1176,33 @@ components:
           format: int64
         remittanceInformation:
           type: string
+        receiptId:
+          type: integer
+          format: int64
+        paymentDateTime:
+          type: string
+          format: date-time
     ErrorDTO:
       type: object
       required:
-        - code
-        - message
+        - title
+        - description
       properties:
-        code:
+        title:
           type: string
+          description: The title describing the error
           enum:
             - NOT_FOUND
             - BAD_REQUEST
             - GENERIC_ERROR
             - FORBIDDEN
             - CONFLICT
-        message:
+        description:
           type: string
+          description: Description of the error
         traceId:
+          type: string
+        code:
           type: string
     BrokerInfoDTO:
       type: object

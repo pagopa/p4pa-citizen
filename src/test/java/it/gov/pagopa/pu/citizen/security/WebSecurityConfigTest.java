@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.security;
 
 import it.gov.pagopa.pu.citizen.controller.OrganizationController;
+import it.gov.pagopa.pu.citizen.mapper.UpstreamErrorMapper;
 import it.gov.pagopa.pu.citizen.service.AuthorizationService;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,9 @@ class WebSecurityConfigTest {
 
   @Autowired
   private MockMvc mockMvc;
+
+  @MockitoBean
+  private UpstreamErrorMapper upstreamErrorMapperMock;
 
   @MockitoBean
   private OrganizationRetrieverService organizationRetrieverService;

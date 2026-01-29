@@ -48,7 +48,7 @@ public class DebtPositionTypeOrgRetrieverServiceImpl implements DebtPositionType
     DebtPositionTypeOrg debtPositionTypeOrg = debtPositionTypeOrgService.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken);
 
     if (debtPositionTypeOrg == null || !Objects.equals(organizationId, debtPositionTypeOrg.getOrganizationId())){
-      throw new ResourceNotFoundException("DebtPositionTypeOrg with deptPositionTypeOrgId %d  and organizationId %d not found".formatted(debtPositionTypeOrgId, organizationId));
+      throw new ResourceNotFoundException("DEBT_POSITION_TYPE_ORG_NOT_FOUND","DebtPositionTypeOrg with deptPositionTypeOrgId %d and organizationId %d not found".formatted(debtPositionTypeOrgId, organizationId));
     }
 
     return debtPositionTypeOrgsWithSpontaneousDetailsDTOMapper.map(debtPositionTypeOrg, getSpontaneousForm(accessToken, debtPositionTypeOrg));

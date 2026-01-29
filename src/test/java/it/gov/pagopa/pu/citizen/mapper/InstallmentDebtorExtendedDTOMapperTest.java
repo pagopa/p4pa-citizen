@@ -1,11 +1,14 @@
 package it.gov.pagopa.pu.citizen.mapper;
 
 import it.gov.pagopa.pu.citizen.dto.InstallmentDebtorExtendedDTO;
+import it.gov.pagopa.pu.citizen.utils.InstallmentUtils;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentDebtorDTO;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.util.HashMap;
@@ -27,23 +30,27 @@ class InstallmentDebtorExtendedDTOMapperTest {
     List<InstallmentDebtorDTO> installments = podam.manufacturePojo(List.class, InstallmentDebtorDTO.class);
     Map<Long, InstallmentDebtorDTO> installmentMap = installments.stream().collect(Collectors.toMap(InstallmentDebtorDTO::getInstallmentId, Function.identity()));
     Map<Long, Organization> organizationMap = new HashMap<>();
-    for (InstallmentDebtorDTO installment : installments) {
-      organizationMap.put(installment.getOrganizationId(),podam.manufacturePojo(Organization.class));
-    }
+    try(MockedStatic<InstallmentUtils> installmentUtilsMock = Mockito.mockStatic(InstallmentUtils.class)) {
+      for (InstallmentDebtorDTO installment : installments) {
+        organizationMap.put(installment.getOrganizationId(),podam.manufacturePojo(Organization.class));
+        installmentUtilsMock.when(()->InstallmentUtils.resolveInstallmentStatus(installment.getStatus())).thenReturn(installment.getStatus());
+      }
 
-    List<InstallmentDebtorExtendedDTO> result = mapper.map(installments,organizationMap);
+      List<InstallmentDebtorExtendedDTO> result = mapper.map(installments, organizationMap);
 
-    assertNotNull(result);
-    assertEquals(installments.size(),result.size());
-    for (InstallmentDebtorExtendedDTO installmentDebtorDTO : result) {
-      TestUtils.checkNotNullFields(installmentDebtorDTO);
-      Long installmentId = installmentDebtorDTO.getInstallmentId();
-      assertTrue(installmentMap.containsKey(installmentId));
-      TestUtils.reflectionEqualsByName(installmentMap.get(installmentId),installmentDebtorDTO);
-      Long organizationId = installmentDebtorDTO.getOrganizationId();
-      assertTrue(organizationMap.containsKey(organizationId));
-      assertEquals(organizationMap.get(organizationId).getOrgName(),installmentDebtorDTO.getOrgName());
-      assertEquals(organizationMap.get(organizationId).getOrgFiscalCode(),installmentDebtorDTO.getOrgFiscalCode());
+      assertNotNull(result);
+      assertEquals(installments.size(), result.size());
+      for (InstallmentDebtorExtendedDTO installmentDebtorDTO : result) {
+        TestUtils.checkNotNullFields(installmentDebtorDTO);
+        Long installmentId = installmentDebtorDTO.getInstallmentId();
+        assertTrue(installmentMap.containsKey(installmentId));
+        TestUtils.reflectionEqualsByName(installmentMap.get(installmentId), installmentDebtorDTO);
+        Long organizationId = installmentDebtorDTO.getOrganizationId();
+        assertTrue(organizationMap.containsKey(organizationId));
+        assertEquals(organizationMap.get(organizationId).getOrgName(), installmentDebtorDTO.getOrgName());
+        assertEquals(organizationMap.get(organizationId).getOrgFiscalCode(), installmentDebtorDTO.getOrgFiscalCode());
+      }
+      installmentUtilsMock.verify(()->InstallmentUtils.resolveInstallmentStatus(Mockito.any()), Mockito.times(installments.size()));
     }
   }
 

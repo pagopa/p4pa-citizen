@@ -52,7 +52,7 @@ public interface PagedDebtorReceiptsDTOMapper{
   default Organization retrieveOrganization(Map<String, Organization> organizationsMap, ReceiptNoPIIView receiptNoPIIView){
     Organization organization = organizationsMap.get(receiptNoPIIView.getOrgFiscalCode());
     if (organization == null){
-      throw new IllegalStateException("No Organization found for receipt with Id %d".formatted(receiptNoPIIView.getReceiptId()));
+      throw new IllegalStateException("[ORGANIZATION_NOT_FOUND] No Organization found for receipt with Id %d".formatted(receiptNoPIIView.getReceiptId()));
     }
    return organization;
   }

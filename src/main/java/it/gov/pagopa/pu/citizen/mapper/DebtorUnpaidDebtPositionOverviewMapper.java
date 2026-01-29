@@ -3,14 +3,20 @@ package it.gov.pagopa.pu.citizen.mapper;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorInstallmentsOverviewDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorPaymentOptionOverviewDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionOverviewDTO;
+import it.gov.pagopa.pu.citizen.utils.InstallmentUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.BaseInstallment;
 import it.gov.pagopa.pu.debtpositions.dto.generated.BasePaymentOption;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
-@Mapper(componentModel = "spring")
+import java.time.OffsetDateTime;
+import java.util.Map;
+
+@Mapper(componentModel = "spring", imports = {InstallmentUtils.class})
 public interface DebtorUnpaidDebtPositionOverviewMapper {
 
   @Mapping(target = "organizationId", source = "organization.organizationId")
@@ -19,10 +25,20 @@ public interface DebtorUnpaidDebtPositionOverviewMapper {
   @Mapping(target = "iupd", source = "debtorDebtPosition.iupdOrg")
   @Mapping(target = "status", source = "debtorDebtPosition.status")
   @Mapping(target = "debtPositionDescription", source = "debtorDebtPosition.debtPositionDescription")
-  DebtorUnpaidDebtPositionOverviewDTO map(Organization organization, DebtorDebtPositionDTO debtorDebtPosition);
+  DebtorUnpaidDebtPositionOverviewDTO map(Organization organization, DebtorDebtPositionDTO debtorDebtPosition, @Context Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap);
 
-  DebtorPaymentOptionOverviewDTO map(BasePaymentOption paymentOption);
+  DebtorPaymentOptionOverviewDTO map(BasePaymentOption paymentOption, @Context Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap);
 
-  DebtorInstallmentsOverviewDTO map(BaseInstallment installment);
+  @Mapping(
+    target = "paymentDateTime", source = "installmentId", qualifiedByName = "extractPaymentDateTime")
+  @Mapping(target = "status", expression = "java(InstallmentUtils.resolveInstallmentStatus(installment.getStatus()))")
+  DebtorInstallmentsOverviewDTO map(BaseInstallment installment, @Context Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap);
 
+  @Named("extractPaymentDateTime")
+  default OffsetDateTime extractPaymentDateTime(Long installmentId, @Context Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap) {
+    if (installmentIdAndPaymentDateTimeMap == null){
+      return null;
+    }
+    return installmentIdAndPaymentDateTimeMap.get(installmentId);
+  }
 }

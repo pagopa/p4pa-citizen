@@ -3,6 +3,7 @@ package it.gov.pagopa.pu.citizen.mapper;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.InstallmentRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PaymentOptionRequestDTO;
+import it.gov.pagopa.pu.citizen.utils.DebtPositionConstants;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.*;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,7 @@ class DebtPositionDTOMapperTest {
     assertTrue(result.getFlagPuPagoPaPayment());
     assertEquals(DebtPositionOrigin.SPONTANEOUS, result.getDebtPositionOrigin());
     assertEquals(DebtPositionStatus.UNPAID, result.getStatus());
+    assertEquals(DebtPositionConstants.DEBT_POSITION_DESCRIPTION_PLACEHOLDER, result.getDescription());
 
     result.getPaymentOptions().forEach(opt -> {
       assertEquals(PaymentOptionStatus.UNPAID, opt.getStatus());
@@ -83,6 +85,29 @@ class DebtPositionDTOMapperTest {
     assertEquals(InstallmentStatus.UNPAID, result.getStatus());
     assertEquals(LocalDate.now().plusDays(expirationDays), result.getDueDate());
     assertTrue(result.getSwitchToExpired());
+    assertEquals(request.getRemittanceInformation(),result.getOriginalRemittanceInformation());
+    assertEquals(DebtPositionConstants.INSTALLMENT_REMITTANCE_INFORMATION_PLACEHOLDER +" "+request.getUserRemittanceInformation(),result.getRemittanceInformation());
+    TestUtils.checkNotNullFields(result, "updateTraceId", "nav", "updateDate", "iun", "iur", "iuv", "creationDate", "iupdPagopa", "ingestionFlowFileId", "ingestionFlowFileLineNumber", "installmentId", "balance", "transfers", "iud", "iuf", "legacyPaymentMetadata", "sourceFlowName", "updateOperatorExternalId", "receiptId", "syncStatus", "ingestionFlowFileAction", "paymentOptionId", "notificationDate");
+  }
+
+  @Test
+  void givenInstallmentRequestDTOWithNoUserRemittanceInformationWhenMapSpontaneousInstallmentDTOThenReturnInstallmentDTO() {
+    // given
+    InstallmentRequestDTO request = podamFactory.manufacturePojo(InstallmentRequestDTO.class);
+    request.setUserRemittanceInformation(null);
+    int expirationDays = 7;
+
+    // when
+    InstallmentDTO result = mapper.mapSpontaneousInstallmentDTO(request, expirationDays);
+
+    // then
+    assertNotNull(result);
+    assertTrue(result.getGenerateNotice());
+    assertEquals(InstallmentStatus.UNPAID, result.getStatus());
+    assertEquals(LocalDate.now().plusDays(expirationDays), result.getDueDate());
+    assertTrue(result.getSwitchToExpired());
+    assertEquals(request.getRemittanceInformation(),result.getOriginalRemittanceInformation());
+    assertEquals(DebtPositionConstants.INSTALLMENT_REMITTANCE_INFORMATION_PLACEHOLDER,result.getRemittanceInformation());
     TestUtils.checkNotNullFields(result, "updateTraceId", "nav", "updateDate", "iun", "iur", "iuv", "creationDate", "iupdPagopa", "ingestionFlowFileId", "ingestionFlowFileLineNumber", "installmentId", "balance", "transfers", "iud", "iuf", "legacyPaymentMetadata", "sourceFlowName", "updateOperatorExternalId", "receiptId", "syncStatus", "ingestionFlowFileAction", "paymentOptionId", "notificationDate");
   }
 
@@ -100,6 +125,8 @@ class DebtPositionDTOMapperTest {
     assertTrue(result.getGenerateNotice());
     assertEquals(InstallmentStatus.UNPAID, result.getStatus());
     assertTrue(result.getSwitchToExpired());
+    assertEquals(request.getRemittanceInformation(),result.getOriginalRemittanceInformation());
+    assertEquals(DebtPositionConstants.INSTALLMENT_REMITTANCE_INFORMATION_PLACEHOLDER +" "+request.getUserRemittanceInformation(),result.getRemittanceInformation());
     TestUtils.checkNotNullFields(result, "updateTraceId", "nav", "updateDate", "iun", "iur", "iuv", "creationDate", "iupdPagopa", "ingestionFlowFileId", "ingestionFlowFileLineNumber", "installmentId", "balance", "transfers", "iud", "iuf", "legacyPaymentMetadata", "sourceFlowName", "updateOperatorExternalId", "receiptId", "syncStatus", "ingestionFlowFileAction", "paymentOptionId", "notificationDate");
   }
 

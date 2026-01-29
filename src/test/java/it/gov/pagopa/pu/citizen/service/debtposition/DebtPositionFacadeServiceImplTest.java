@@ -2,6 +2,7 @@ package it.gov.pagopa.pu.citizen.service.debtposition;
 
 import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.DebtPositionService;
+import it.gov.pagopa.pu.citizen.connector.debtpositions.ReceiptService;
 import it.gov.pagopa.pu.citizen.connector.pagopapayments.PrintPaymentNoticeService;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
@@ -36,12 +37,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import uk.co.jemos.podam.api.PodamFactory;
 
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)
 class DebtPositionFacadeServiceImplTest {
@@ -64,6 +69,8 @@ class DebtPositionFacadeServiceImplTest {
   private PagedDebtorDebtPositionMapper pagedDebtorDebtPositionMapperMock;
   @Mock
   private DebtorUnpaidDebtPositionOverviewMapper debtorUnpaidDebtPositionOverviewMapperMock;
+  @Mock
+  private ReceiptService receiptServiceMock;
 
   private DebtPositionFacadeService debtPositionFacadeService;
 
@@ -74,7 +81,7 @@ class DebtPositionFacadeServiceImplTest {
   @BeforeEach
   void setUp() {
     debtPositionFacadeService = new DebtPositionFacadeServiceImpl(debtPositionServiceMock, debtPositionDTOMapperMock, 1,
-        debtPositionResponseDTOMapperMock, printPaymentNoticeServiceMock, zipFileServiceMock, organizationRetrieverServiceMock, brokerOrganizationsRetrieverServiceMock, pagedDebtorDebtPositionMapperMock, debtorUnpaidDebtPositionOverviewMapperMock);
+        debtPositionResponseDTOMapperMock, printPaymentNoticeServiceMock, zipFileServiceMock, organizationRetrieverServiceMock, brokerOrganizationsRetrieverServiceMock, pagedDebtorDebtPositionMapperMock, debtorUnpaidDebtPositionOverviewMapperMock, receiptServiceMock);
   }
 
   @AfterEach
@@ -137,7 +144,8 @@ class DebtPositionFacadeServiceImplTest {
     Long debtPositionId = 2L;
     Long organizationId = 3L;
     String fiscalCode = "fiscalCode";
-    String iuv = "1";
+    String iuv = "iuv";
+    String excludedIuv = "excludedIuv";
 
     DebtPositionDTO debtPositionDTO = new DebtPositionDTO();
     debtPositionDTO.setOrganizationId(organizationId);
@@ -146,18 +154,23 @@ class DebtPositionFacadeServiceImplTest {
     InstallmentDTO installmentDTOUNPAID = podamFactory.manufacturePojo(InstallmentDTO.class);
     installmentDTOUNPAID.setIuv(iuv);
     installmentDTOUNPAID.setStatus(InstallmentStatus.UNPAID);
+    installmentDTOUNPAID.getDebtor().setFiscalCode(fiscalCode);
     InstallmentDTO installmentDTOEXPIRED = podamFactory.manufacturePojo(InstallmentDTO.class);
     installmentDTOEXPIRED.setIuv(iuv);
     installmentDTOEXPIRED.setStatus(InstallmentStatus.EXPIRED);
     installmentDTOEXPIRED.getDebtor().setFiscalCode(fiscalCode);
+    InstallmentDTO installmentDTOEXPIREDWithWrongFiscalCode = podamFactory.manufacturePojo(InstallmentDTO.class);
+    installmentDTOEXPIREDWithWrongFiscalCode.setIuv(excludedIuv);
+    installmentDTOEXPIREDWithWrongFiscalCode.setStatus(InstallmentStatus.EXPIRED);
+    installmentDTOEXPIREDWithWrongFiscalCode.getDebtor().setFiscalCode("wrongFiscalCode");
     InstallmentDTO installmentDTOPAID = podamFactory.manufacturePojo(InstallmentDTO.class);
-    installmentDTOPAID.setIuv(iuv);
+    installmentDTOPAID.setIuv(excludedIuv);
     installmentDTOPAID.setStatus(InstallmentStatus.PAID);
     InstallmentDTO installmentDTOWithNullStatus = podamFactory.manufacturePojo(InstallmentDTO.class);
-    installmentDTOWithNullStatus.setIuv(iuv);
+    installmentDTOWithNullStatus.setIuv(excludedIuv);
     installmentDTOWithNullStatus.setStatus(null);
-    paymentOptionDTO.setInstallments(List.of(installmentDTOUNPAID, installmentDTOEXPIRED));
-    paymentOptionDTO1.setInstallments(List.of(installmentDTOPAID, installmentDTOWithNullStatus));
+    paymentOptionDTO.setInstallments(List.of(installmentDTOUNPAID, installmentDTOPAID, installmentDTOEXPIREDWithWrongFiscalCode));
+    paymentOptionDTO1.setInstallments(List.of(installmentDTOEXPIRED, installmentDTOWithNullStatus));
     debtPositionDTO.setPaymentOptions(List.of(paymentOptionDTO, paymentOptionDTO1));
 
     ByteArrayResource expectedResult = new ByteArrayResource("PDF-DATA".getBytes());
@@ -166,7 +179,7 @@ class DebtPositionFacadeServiceImplTest {
 
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPosition(debtPositionId, accessToken)).thenReturn(debtPositionDTO);
-    Mockito.when(printPaymentNoticeServiceMock.generateNotice(iuv, debtPositionDTO, accessToken)).thenReturn(fileResourceDTO);
+    Mockito.when(printPaymentNoticeServiceMock.generateNotice(Mockito.anyString(), eq(debtPositionDTO), eq(accessToken))).thenReturn(fileResourceDTO);
 
     Mockito.when(zipFileServiceMock.zipper(List.of(fileResourceDTO, fileResourceDTO))).thenReturn(expectedResult);
     Resource result = debtPositionFacadeService.getDebtPositionNoticesZip(brokerId, fiscalCode, debtPositionId, accessToken);
@@ -242,7 +255,9 @@ class DebtPositionFacadeServiceImplTest {
     String fiscalCode = "fiscalCode";
 
     DebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTO.class);
-    debtPositionDTO.getPaymentOptions().getFirst().getInstallments().getFirst().getDebtor().setFiscalCode(fiscalCode);
+    InstallmentDTO installment = debtPositionDTO.getPaymentOptions().getFirst().getInstallments().getFirst();
+    installment.getDebtor().setFiscalCode(fiscalCode);
+    installment.setStatus(InstallmentStatus.REPORTED);
 
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(debtPositionDTO.getOrganizationId(), brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPosition(debtPositionId, accessToken)).thenReturn(debtPositionDTO);
@@ -251,6 +266,7 @@ class DebtPositionFacadeServiceImplTest {
     //then
     assertNotNull(result);
     assertEquals(debtPositionDTO, result);
+    assertEquals(InstallmentStatus.PAID, result.getPaymentOptions().getFirst().getInstallments().getFirst().getStatus());
   }
 
   @Test
@@ -269,7 +285,7 @@ class DebtPositionFacadeServiceImplTest {
     AuthorizationDeniedException ex = assertThrows(AuthorizationDeniedException.class, () -> debtPositionFacadeService.getDebtPositionDetail(brokerId, fiscalCode, debtPositionId, accessToken));
 
     //then
-    assertEquals("User cannot access DebtPosition having id 2", ex.getMessage());
+    assertEquals("[USER_UNAUTHORIZED] User cannot access DebtPosition having id 2", ex.getMessage());
   }
 
   @Test
@@ -609,14 +625,43 @@ class DebtPositionFacadeServiceImplTest {
 
     Organization org = podamFactory.manufacturePojo(Organization.class);
     DebtorDebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtorDebtPositionDTO.class);
+    BasePaymentOption po = podamFactory.manufacturePojo(BasePaymentOption.class);
+    po.setTotalAmountCents(20L);
+    po.setInstallments(new java.util.ArrayList<>());
+
+    BaseInstallment inst = podamFactory.manufacturePojo(BaseInstallment.class);
+    inst.setAmountCents(20L);
+    inst.setDueDate(LocalDate.of(2024,1,10));
+    inst.setReceiptId(1L);
+    po.getInstallments().add(inst);
+
+    debtPositionDTO.setPaymentOptions(List.of(po));
+
     DebtorUnpaidDebtPositionOverviewDTO expectedDTO = podamFactory.manufacturePojo(DebtorUnpaidDebtPositionOverviewDTO.class);
+
+    ReceiptNoPII receipt = podamFactory.manufacturePojo(ReceiptNoPII.class);
+    receipt.setReceiptId(inst.getReceiptId());
+
+    List<ReceiptNoPII> receiptNoPIIList = List.of(receipt);
 
     Mockito.when(debtPositionServiceMock.getDebtorDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId, accessToken))
       .thenReturn(debtPositionDTO);
     Mockito.when(organizationRetrieverServiceMock.getValidOrganization(organizationId, brokerId, accessToken))
       .thenReturn(org);
-    Mockito.when(debtorUnpaidDebtPositionOverviewMapperMock.map(org, debtPositionDTO))
-      .thenReturn(expectedDTO);
+    Mockito.when(
+      receiptServiceMock.getReceiptNoPiiList(Set.of(inst.getReceiptId()), accessToken)
+    ).thenReturn(receiptNoPIIList);
+
+    Map<Long, OffsetDateTime> expectedMap =
+      Map.of(inst.getInstallmentId(), receipt.getPaymentDateTime());
+
+    Mockito.when(
+      debtorUnpaidDebtPositionOverviewMapperMock.map(
+        org,
+        debtPositionDTO,
+        expectedMap
+      )
+    ).thenReturn(expectedDTO);
 
     // when
     DebtorUnpaidDebtPositionOverviewDTO result = debtPositionFacadeService.getDebtorUnpaidDebtPositionOverview(

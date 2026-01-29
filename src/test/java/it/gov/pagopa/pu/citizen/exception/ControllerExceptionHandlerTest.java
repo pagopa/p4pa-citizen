@@ -2,6 +2,7 @@ package it.gov.pagopa.pu.citizen.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.pu.citizen.config.json.JsonConfig;
+import it.gov.pagopa.pu.citizen.mapper.UpstreamErrorMapper;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.citizen.utils.UtilitiesTest;
 import jakarta.servlet.ServletException;
@@ -22,10 +23,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,12 +44,16 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ServerErrorException;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
 @ExtendWith({SpringExtension.class})
 @WebMvcTest(value = {ControllerExceptionHandlerTest.TestController.class})
@@ -57,209 +64,250 @@ import static org.mockito.Mockito.doThrow;
         JsonConfig.class})
 class ControllerExceptionHandlerTest {
 
-    public static final String DATA = "data";
-    public static final TestRequestBody BODY = new TestRequestBody("bodyData", null, "abc", LocalDateTime.now());
+  public static final String DATA = "data";
+  public static final TestRequestBody BODY = new TestRequestBody("bodyData", null, "abc", LocalDateTime.now());
 
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired
+  private MockMvc mockMvc;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    @MockitoSpyBean
-    private TestController testControllerSpy;
-    @MockitoSpyBean
-    private RequestMappingHandlerAdapter requestMappingHandlerAdapterSpy;
+  @MockitoBean
+  private UpstreamErrorMapper upstreamErrorMapper;
 
-    @RestController
-    @Slf4j
-    static class TestController {
-        @PostMapping(value = "/test", produces = MediaType.APPLICATION_JSON_VALUE)
-        String testEndpoint(@RequestParam(DATA) String data, @Valid @RequestBody TestRequestBody body) {
-            return "OK";
-        }
-    }
+  @MockitoSpyBean
+  private TestController testControllerSpy;
+  @MockitoSpyBean
+  private RequestMappingHandlerAdapter requestMappingHandlerAdapterSpy;
 
-    @BeforeEach
-    void init() {
-      TestUtils.clearDefaultTimezone();
-    }
+  @RestController
+  @Slf4j
+  static class TestController {
+      @PostMapping(value = "/test", produces = MediaType.APPLICATION_JSON_VALUE)
+      String testEndpoint(@RequestParam(DATA) String data, @Valid @RequestBody TestRequestBody body) {
+          return "OK";
+      }
+  }
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class TestRequestBody {
-        @NotNull
-        private String requiredField;
-        private String notRequiredField;
-        @Pattern(regexp = "[a-z]+")
-        private String lowerCaseAlphabeticField;
-        private LocalDateTime dateTimeField;
-    }
+  @BeforeEach
+  void init() {
+    TestUtils.clearDefaultTimezone();
+  }
 
-    private final String traceId = "TRACEID";
-    @BeforeEach
-    void setTraceId(){
-      UtilitiesTest.setTraceId(traceId);
-    }
-    @AfterEach
-    void clearTraceId(){
-      UtilitiesTest.clearTraceIdContext();
-    }
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class TestRequestBody {
+      @NotNull
+      private String requiredField;
+      private String notRequiredField;
+      @Pattern(regexp = "[a-z]+")
+      private String lowerCaseAlphabeticField;
+      private LocalDateTime dateTimeField;
+  }
 
-    private ResultActions performRequest(String data, MediaType accept) throws Exception {
-        return performRequest(data, accept, objectMapper.writeValueAsString(ControllerExceptionHandlerTest.BODY));
-    }
+  private final String traceId = "TRACEID";
+  @BeforeEach
+  void setTraceId(){
+    UtilitiesTest.setTraceId(traceId);
+  }
+  @AfterEach
+  void clearTraceId(){
+    UtilitiesTest.clearTraceIdContext();
+  }
 
-    private ResultActions performRequest(String data, MediaType accept, String body) throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/test")
-                .param(DATA, data)
-                .accept(accept);
+  private ResultActions performRequest(String data, MediaType accept) throws Exception {
+      return performRequest(data, accept, objectMapper.writeValueAsString(ControllerExceptionHandlerTest.BODY));
+  }
 
-        if (body != null) {
-            requestBuilder
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(body);
-        }
+  private ResultActions performRequest(String data, MediaType accept, String body) throws Exception {
+      MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/test")
+              .param(DATA, data)
+              .accept(accept);
 
-        return mockMvc.perform(requestBuilder);
-    }
+      if (body != null) {
+          requestBuilder
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(body);
+      }
 
-    @Test
-    void handleMissingServletRequestParameterException() throws Exception {
+      return mockMvc.perform(requestBuilder);
+  }
 
-        performRequest(null, MediaType.APPLICATION_JSON)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("BAD_REQUEST"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Required request parameter 'data' for method parameter type String is not present"))
-          .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
+  @Test
+  void handleMissingServletRequestParameterException() throws Exception {
 
-    }
+    performRequest(null, MediaType.APPLICATION_JSON)
+      .andExpect(MockMvcResultMatchers.status().isBadRequest())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Required request parameter 'data' for method parameter type String is not present"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
 
-    @Test
-    void handleRuntimeExceptionError() throws Exception {
-        doThrow(new RuntimeException("Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+  }
 
-        performRequest(DATA, MediaType.APPLICATION_JSON)
-                .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
-          .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
-    }
+  @Test
+  void handleRuntimeExceptionError() throws Exception {
+    doThrow(new RuntimeException("Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
 
-    @Test
-    void handleGenericServletException() throws Exception {
-        doThrow(new ServletException("Error"))
-                .when(requestMappingHandlerAdapterSpy).handle(any(), any(), any());
+    performRequest(DATA, MediaType.APPLICATION_JSON)
+      .andExpect(MockMvcResultMatchers.status().isInternalServerError())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
+  }
 
-        performRequest(DATA, MediaType.APPLICATION_JSON)
-                .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
-          .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
-    }
+  @Test
+  void handleGenericServletException() throws Exception {
+    doThrow(new ServletException("Error"))
+      .when(requestMappingHandlerAdapterSpy).handle(any(), any(), any());
 
-    @Test
-    void handle4xxHttpServletException() throws Exception {
-        performRequest(DATA, MediaType.parseMediaType("application/hal+json"))
-                .andExpect(MockMvcResultMatchers.status().isNotAcceptable())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("BAD_REQUEST"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("No acceptable representation"))
-          .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
-    }
+    performRequest(DATA, MediaType.APPLICATION_JSON)
+      .andExpect(MockMvcResultMatchers.status().isInternalServerError())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
+  }
+
+  @Test
+  void handle4xxHttpServletException() throws Exception {
+    performRequest(DATA, MediaType.parseMediaType("application/hal+json"))
+      .andExpect(MockMvcResultMatchers.status().isNotAcceptable())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("No acceptable representation"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
+  }
 
   @Test
   void handleUrlNotFound() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.post("/NOTEXISTENTURL"))
       .andExpect(MockMvcResultMatchers.status().isNotFound())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("NOT_FOUND"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("No static resource NOTEXISTENTURL for request '/NOTEXISTENTURL'."))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("NOT_FOUND"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("No static resource NOTEXISTENTURL for request '/NOTEXISTENTURL'."))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
-    @Test
-    void handleNoBodyException() throws Exception {
-        performRequest(DATA, MediaType.APPLICATION_JSON, null)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("BAD_REQUEST"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Required request body is missing"))
-          .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
-    }
+  @Test
+  void handleNoBodyException() throws Exception {
+    performRequest(DATA, MediaType.APPLICATION_JSON, null)
+      .andExpect(MockMvcResultMatchers.status().isBadRequest())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Required request body is missing"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
+  }
 
-    @Test
-    void handleInvalidBodyException() throws Exception {
-        performRequest(DATA, MediaType.APPLICATION_JSON,
-                "{\"notRequiredField\":\"notRequired\",\"lowerCaseAlphabeticField\":\"ABC\"}")
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("BAD_REQUEST"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Invalid request content. lowerCaseAlphabeticField: must match \"[a-z]+\"; requiredField: must not be null"))
-          .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
-    }
+  @Test
+  void handleInvalidBodyException() throws Exception {
+    performRequest(DATA, MediaType.APPLICATION_JSON,
+      "{\"notRequiredField\":\"notRequired\",\"lowerCaseAlphabeticField\":\"ABC\"}")
+      .andExpect(MockMvcResultMatchers.status().isBadRequest())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(allOf(
+        containsString("Invalid request content."),
+        containsString("lowerCaseAlphabeticField:"),
+        containsString("must match"),
+        containsString("requiredField: must not be null")
+      )))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
+  }
 
-    @Test
-    void handleNotParsableBodyException() throws Exception {
-        performRequest(DATA, MediaType.APPLICATION_JSON,
-                "{\"notRequiredField\":\"notRequired\",\"dateTimeField\":\"2025-02-05\"}")
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("BAD_REQUEST"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Cannot parse body. dateTimeField: Text '2025-02-05' could not be parsed at index 10"));
-    }
+  @Test
+  void handleNotParsableBodyException() throws Exception {
+    performRequest(DATA, MediaType.APPLICATION_JSON,
+      "{\"notRequiredField\":\"notRequired\",\"dateTimeField\":\"2025-02-05\"}")
+      .andExpect(MockMvcResultMatchers.status().isBadRequest())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Cannot parse body. dateTimeField: Text '2025-02-05' could not be parsed at index 10"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
+  }
 
-    @Test
-    void handle5xxHttpServletException() throws Exception {
-        doThrow(new ServerErrorException("Error", new RuntimeException("Error")))
-                .when(requestMappingHandlerAdapterSpy).handle(any(), any(), any());
+  @Test
+  void handle5xxHttpServletException() throws Exception {
+    doThrow(new ServerErrorException("Error", new RuntimeException("Error")))
+      .when(requestMappingHandlerAdapterSpy).handle(any(), any(), any());
 
-        performRequest(DATA, MediaType.APPLICATION_JSON)
-                .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("500 INTERNAL_SERVER_ERROR \"Error\""))
-          .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
-    }
+    performRequest(DATA, MediaType.APPLICATION_JSON)
+      .andExpect(MockMvcResultMatchers.status().isInternalServerError())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("500 INTERNAL_SERVER_ERROR \"Error\""))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
+  }
 
-    private final ConstraintViolationException constraintViolationException = new ConstraintViolationException("Error", Set.of(ConstraintViolationImpl.forParameterValidation(
-      "error message template", Map.of(), Map.of(), "resolved message", null, null, null, null, PathImpl.createPathFromString("fieldName"), null, null, null
-    )));
+  private final ConstraintViolationException constraintViolationException = new ConstraintViolationException("Error", Set.of(ConstraintViolationImpl.forParameterValidation(
+  "error message template", Map.of(), Map.of(), "resolved message", null, null, null, null, PathImpl.createPathFromString("fieldName"), null, null, null
+  )));
 
-    @Test
-    void handleViolationException() throws Exception {
-        doThrow(constraintViolationException).when(testControllerSpy).testEndpoint(DATA, BODY);
+  @Test
+  void handleViolationException() throws Exception {
+    doThrow(constraintViolationException).when(testControllerSpy).testEndpoint(DATA, BODY);
 
-        performRequest(DATA, MediaType.APPLICATION_JSON)
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("BAD_REQUEST"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Invalid request content. fieldName: resolved message"))
-          .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
-    }
+    performRequest(DATA, MediaType.APPLICATION_JSON)
+      .andExpect(MockMvcResultMatchers.status().isBadRequest())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Invalid request content. fieldName: resolved message"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
+  }
 
   @Test
   void handleResourceNotFoundException() throws Exception {
-    doThrow(new ResourceNotFoundException("Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+    doThrow(new ResourceNotFoundException("RESOURCE_NOT_FOUND","Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
       .andExpect(MockMvcResultMatchers.status().isNotFound())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("NOT_FOUND"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"));
+      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("NOT_FOUND"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
   @Test
   void handleHttpClientErrorException() throws Exception {
-    doThrow(new HttpClientErrorException(HttpStatus.FORBIDDEN, "Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+    String upstreamBody = """
+  {"code":"SOME_UPSTREAM_CODE","message":"[INVALID_IBAN] eltjhreigjpo","traceId":"slfjhdio"}
+  """;
+
+    HttpClientErrorException ex = HttpClientErrorException.create(
+      HttpStatus.BAD_REQUEST,
+      "Error",
+      HttpHeaders.EMPTY,
+      upstreamBody.getBytes(StandardCharsets.UTF_8),
+      StandardCharsets.UTF_8
+    );
+
+    when(upstreamErrorMapper.from(any(HttpClientErrorException.class)))
+      .thenReturn(new UpstreamErrorMapper.MappedUpstreamError(
+        "INVALID_IBAN",
+        "eltjhreigjpo"
+      ));
+
+    doThrow(ex).when(testControllerSpy).testEndpoint(DATA, BODY);
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
-      .andExpect(MockMvcResultMatchers.status().isForbidden())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(HttpStatus.FORBIDDEN.value()+" Error"))
+      .andExpect(MockMvcResultMatchers.status().isBadRequest())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("INVALID_IBAN"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("eltjhreigjpo"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
   @Test
   void handleZipFileException() throws Exception {
-    doThrow(new ZipFileException("Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+    doThrow(new ZipFileException("ZIPPING_ERROR","Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
-        .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
+      .andExpect(MockMvcResultMatchers.status().isInternalServerError())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("ZIPPING_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -269,30 +317,46 @@ class ControllerExceptionHandlerTest {
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
         .andExpect(MockMvcResultMatchers.status().isForbidden())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("FORBIDDEN"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("FORBIDDEN"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
   @Test
   void handleConflictException() throws Exception {
-    doThrow(new ConflictException("Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+    doThrow(new ConflictException("CONFLICT_ERROR","Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
         .andExpect(MockMvcResultMatchers.status().isConflict())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("CONFLICT"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("CONFLICT"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("CONFLICT_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
   @Test
   void handleInvalidParamException() throws Exception {
-    doThrow(new InvalidParamException("Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+    doThrow(new InvalidParamException("INVALID_PARAM","Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("BAD_REQUEST"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("INVALID_PARAM"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
+
+  @Test
+  void handleInvalidAccessTokenException() throws Exception {
+    doThrow(new InvalidAccessTokenException("INVALID_ACCESS_TOKEN", "Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+
+    performRequest(DATA, MediaType.APPLICATION_JSON)
+      .andExpect(MockMvcResultMatchers.status().isBadRequest())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("INVALID_ACCESS_TOKEN"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
+  }
+
 }

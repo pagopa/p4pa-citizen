@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ReceiptServiceImpl implements ReceiptService {
@@ -47,5 +48,10 @@ public class ReceiptServiceImpl implements ReceiptService {
   @Override
   public List<ReceiptNoPIIView> getDebtorReceipts(String debtorFiscalCode, Long organizationId, Long debtPositionId, Long paymentOptionId, List<ReceiptOriginType> receiptOrigins, List<InstallmentStatus> installmentStatuses, String accessToken) {
     return receiptNoPiiViewSearchClient.getDebtorReceipts(debtorFiscalCode, organizationId, debtPositionId, paymentOptionId, receiptOrigins, installmentStatuses, accessToken);
+  }
+
+  @Override
+  public List<ReceiptNoPII> getReceiptNoPiiList(Set<Long> receiptIds, String accessToken) {
+    return receiptNoPiiSearchClient.getReceiptNoPiiList(receiptIds, accessToken);
   }
 }

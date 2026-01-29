@@ -44,7 +44,7 @@ public class DebtPositionTypeOrgController implements DebtPositionTypeOrgApi {
   public ResponseEntity<List<DebtPositionTypeOrgsWithSpontaneousDTO>> getMostUsedSpontaneousDebtPositionTypeOrgs(Long brokerId, Long organizationId, OffsetDateTime creationDateFrom, OffsetDateTime creationDateTo, Pageable pageable) {
     log.info("Requested getMostUsedSpontaneousDebtPositionTypeOrgs on brokerId {} and organizationId {}", brokerId, organizationId);
     if (pageable != null && pageable.getPageSize() > pageMaxSize) {
-      throw new InvalidParamException(
+      throw new InvalidParamException("INVALID_SIZE",
         "The size query parameter must not exceed " + pageMaxSize
       );
     }

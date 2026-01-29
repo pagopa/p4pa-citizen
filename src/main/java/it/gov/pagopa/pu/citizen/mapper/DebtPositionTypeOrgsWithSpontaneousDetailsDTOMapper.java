@@ -21,7 +21,7 @@ public interface DebtPositionTypeOrgsWithSpontaneousDetailsDTOMapper {
     boolean hasForm = org.getSpontaneousFormId() != null;
 
     if (hasUrl && (hasAmount || hasForm)) {
-      throw new IllegalStateException("Invalid combination of fields in DebtPositionTypeOrg");
+      throw new IllegalStateException("[INVALID_DEBT_POSITION_TYPE_ORG] Invalid combination of fields in DebtPositionTypeOrg");
     }
 
     if (hasAmount && hasForm) {

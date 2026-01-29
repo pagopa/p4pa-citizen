@@ -1829,6 +1829,9 @@
           },
           "debtor" : {
             "$ref" : "#/components/schemas/PersonDTO"
+          },
+          "userRemittanceInformation" : {
+            "type" : "string"
           }
         },
         "required" : [ "amountCents", "debtor", "remittanceInformation" ]
@@ -2365,6 +2368,9 @@
           "debtPositionOrigin" : {
             "$ref" : "#/components/schemas/DebtPositionOrigin"
           },
+          "originalRemittanceInformation" : {
+            "type" : "string"
+          },
           "organizationId" : {
             "type" : "integer",
             "format" : "int64"
@@ -2378,24 +2384,29 @@
         },
         "required" : [ "debtPositionOrigin", "debtPositionTypeOrgDescription", "debtor", "iud", "paymentAmountCents", "pspCompanyName", "receiptId", "receiptOrigin", "remittanceInformation" ]
       },
-      "CodeEnum" : {
-        "type" : "string",
-        "enum" : [ "NOT_FOUND", "BAD_REQUEST", "GENERIC_ERROR", "FORBIDDEN", "CONFLICT" ]
-      },
       "ErrorDTO" : {
         "type" : "object",
         "properties" : {
-          "code" : {
-            "$ref" : "#/components/schemas/CodeEnum"
+          "title" : {
+            "$ref" : "#/components/schemas/TitleEnum",
+            "description" : "The title describing the error"
           },
-          "message" : {
-            "type" : "string"
+          "description" : {
+            "type" : "string",
+            "description" : "Description of the error"
           },
           "traceId" : {
             "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
           }
         },
-        "required" : [ "code", "message" ]
+        "required" : [ "description", "title" ]
+      },
+      "TitleEnum" : {
+        "type" : "string",
+        "enum" : [ "NOT_FOUND", "BAD_REQUEST", "GENERIC_ERROR", "FORBIDDEN", "CONFLICT" ]
       },
       "InstallmentDebtorExtendedDTO" : {
         "type" : "object",
@@ -2627,6 +2638,9 @@
             "type" : "string"
           },
           "updateTraceId" : {
+            "type" : "string"
+          },
+          "originalRemittanceInformation" : {
             "type" : "string"
           }
         },
@@ -2929,6 +2943,14 @@
           },
           "remittanceInformation" : {
             "type" : "string"
+          },
+          "receiptId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "paymentDateTime" : {
+            "type" : "string",
+            "format" : "date-time"
           }
         },
         "required" : [ "installmentId", "remittanceInformation", "status" ]
