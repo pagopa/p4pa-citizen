@@ -1,18 +1,22 @@
 package it.gov.pagopa.pu.citizen.mapper;
 
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionInstallmentsDTO;
+import it.gov.pagopa.pu.citizen.utils.InstallmentUtils;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentNoPII;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DebtorUnpaidDebtPositionInstallmentsMapperTest {
 
@@ -30,22 +34,26 @@ class DebtorUnpaidDebtPositionInstallmentsMapperTest {
 
     Long debtPositionId = 1L;
 
-    InstallmentNoPII installment = podam.manufacturePojo(InstallmentNoPII.class);
-    installment.setStatus(InstallmentStatus.UNPAID);
+    try(MockedStatic<InstallmentUtils> installmentUtilsMock = Mockito.mockStatic(InstallmentUtils.class)) {
+      InstallmentNoPII installment = podam.manufacturePojo(InstallmentNoPII.class);
+      installment.setStatus(InstallmentStatus.UNPAID);
+      installmentUtilsMock.when(()->InstallmentUtils.resolveInstallmentStatus(installment.getStatus())).thenReturn(installment.getStatus());
 
-    // when
-    DebtorUnpaidDebtPositionInstallmentsDTO result = mapper.map(org, installment, debtPositionId);
+      // when
+      DebtorUnpaidDebtPositionInstallmentsDTO result = mapper.map(org, installment, debtPositionId);
 
-    // then
-    assertNotNull(result);
+      // then
+      assertNotNull(result);
 
-    assertEquals(org.getOrganizationId(), result.getOrganizationId());
-    assertEquals(org.getOrgName(), result.getOrgName());
-    assertEquals(org.getOrgFiscalCode(), result.getOrgFiscalCode());
+      assertEquals(org.getOrganizationId(), result.getOrganizationId());
+      assertEquals(org.getOrgName(), result.getOrgName());
+      assertEquals(org.getOrgFiscalCode(), result.getOrgFiscalCode());
 
-    assertEquals(installment.getStatus(), result.getStatus());
+      assertEquals(installment.getStatus(), result.getStatus());
 
-    TestUtils.checkNotNullFields(result);
+      TestUtils.checkNotNullFields(result);
+      installmentUtilsMock.verify(()->InstallmentUtils.resolveInstallmentStatus(installment.getStatus()));
+    }
   }
 
   @Test

@@ -18,6 +18,7 @@ import it.gov.pagopa.pu.citizen.mapper.PagedDebtorDebtPositionMapper;
 import it.gov.pagopa.pu.citizen.service.ZipFileService;
 import it.gov.pagopa.pu.citizen.service.organization.BrokerOrganizationsRetrieverService;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
+import it.gov.pagopa.pu.citizen.utils.InstallmentUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.*;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import jakarta.validation.ValidationException;
@@ -118,7 +119,17 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
     }
     organizationRetrieverService.validateOrganization(debtPosition.getOrganizationId(), brokerId, accessToken);
     validateDebtPositionDebtor(fiscalCode, debtPosition);
+    resolveInstallmentStatus(debtPosition);
     return debtPosition;
+  }
+
+  private void resolveInstallmentStatus(DebtPositionDTO debtPosition) {
+    if(debtPosition==null){
+      return;
+    }
+    debtPosition.getPaymentOptions().forEach(
+      po->po.getInstallments().forEach(
+        i-> i.setStatus(InstallmentUtils.resolveInstallmentStatus(i.getStatus()))));
   }
 
   private static void validateDebtPositionDebtor(String fiscalCode, DebtPositionDTO debtPosition) {

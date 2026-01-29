@@ -255,7 +255,9 @@ class DebtPositionFacadeServiceImplTest {
     String fiscalCode = "fiscalCode";
 
     DebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTO.class);
-    debtPositionDTO.getPaymentOptions().getFirst().getInstallments().getFirst().getDebtor().setFiscalCode(fiscalCode);
+    InstallmentDTO installment = debtPositionDTO.getPaymentOptions().getFirst().getInstallments().getFirst();
+    installment.getDebtor().setFiscalCode(fiscalCode);
+    installment.setStatus(InstallmentStatus.REPORTED);
 
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(debtPositionDTO.getOrganizationId(), brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPosition(debtPositionId, accessToken)).thenReturn(debtPositionDTO);
@@ -264,6 +266,7 @@ class DebtPositionFacadeServiceImplTest {
     //then
     assertNotNull(result);
     assertEquals(debtPositionDTO, result);
+    assertEquals(InstallmentStatus.PAID, result.getPaymentOptions().getFirst().getInstallments().getFirst().getStatus());
   }
 
   @Test
