@@ -4,6 +4,7 @@ import it.gov.pagopa.pu.citizen.connector.debtpositions.client.InstallmentClient
 import it.gov.pagopa.pu.citizen.connector.debtpositions.client.InstallmentNoPIISearchClient;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentDebtorDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentNoPII;
+import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,8 +22,8 @@ public class InstallmentServiceImpl implements InstallmentService {
   }
 
   @Override
-  public List<InstallmentDebtorDTO> getInstallmentByIuvOrNav(String iuvOrNav, String debtorFiscalCode, Long organizationId, String accessToken) {
-    return installmentClient.getInstallmentByIuvOrNav(iuvOrNav, debtorFiscalCode, organizationId, accessToken);
+  public List<InstallmentDebtorDTO> getInstallmentByIuvOrNav(String iuvOrNav, String debtorFiscalCode, Long organizationId, List<InstallmentStatus> statuses, String accessToken) {
+    return installmentClient.getInstallmentByIuvOrNav(iuvOrNav, debtorFiscalCode, organizationId, statuses, accessToken);
   }
 
   @Override

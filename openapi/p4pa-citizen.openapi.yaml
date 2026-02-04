@@ -724,6 +724,13 @@ paths:
           required: false
           schema:
             type: string
+        - name: statuses
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: 'InstallmentStatus'
       responses:
         "200":
           description: Ok

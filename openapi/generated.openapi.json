@@ -1178,6 +1178,16 @@
           "schema" : {
             "type" : "string"
           }
+        }, {
+          "name" : "statuses",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/InstallmentStatus"
+            }
+          }
         } ],
         "responses" : {
           "200" : {
