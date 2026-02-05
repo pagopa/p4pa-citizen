@@ -4,6 +4,7 @@ import it.gov.pagopa.pu.citizen.connector.debtpositions.config.DebtPositionsApis
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.controller.generated.InstallmentApi;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentDebtorDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,13 +50,14 @@ class InstallmentClientTest {
     String debtorFiscalCode = "debtorFiscalCode";
     Long organizationId = 1L;
     List<InstallmentDebtorDTO> expectedResult = podamFactory.manufacturePojo(List.class,InstallmentDebtorDTO.class);
+    List<InstallmentStatus> statuses = List.of(InstallmentStatus.PAID);
 
     when(debtPositionApisHolderMock.getInstallmentApi(accessToken))
       .thenReturn(installmentApiMock);
-    when(installmentApiMock.getInstallmentsByIuvOrNav(iuvOrNav,debtorFiscalCode,organizationId))
+    when(installmentApiMock.getInstallmentsByIuvOrNav(iuvOrNav,debtorFiscalCode,organizationId, statuses))
       .thenReturn(expectedResult);
 
-    List<InstallmentDebtorDTO> result = installmentClient.getInstallmentByIuvOrNav(iuvOrNav, debtorFiscalCode, organizationId, accessToken);
+    List<InstallmentDebtorDTO> result = installmentClient.getInstallmentByIuvOrNav(iuvOrNav, debtorFiscalCode, organizationId, statuses, accessToken);
 
     assertSame(expectedResult, result);
   }
