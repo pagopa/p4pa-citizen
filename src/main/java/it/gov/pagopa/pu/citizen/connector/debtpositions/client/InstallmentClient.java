@@ -2,6 +2,7 @@ package it.gov.pagopa.pu.citizen.connector.debtpositions.client;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.config.DebtPositionsApisHolder;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentDebtorDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +18,8 @@ public class InstallmentClient {
     this.debtPositionsApisHolder = debtPositionsApisHolder;
   }
 
-  public List<InstallmentDebtorDTO> getInstallmentByIuvOrNav(String iuvOrNav, String debtorFiscalCode, Long organizationId, String accessToken){
+  public List<InstallmentDebtorDTO> getInstallmentByIuvOrNav(String iuvOrNav, String debtorFiscalCode, Long organizationId, List<InstallmentStatus> statuses, String accessToken){
       return debtPositionsApisHolder.getInstallmentApi(accessToken)
-        .getInstallmentsByIuvOrNav(iuvOrNav,debtorFiscalCode,organizationId);
+        .getInstallmentsByIuvOrNav(iuvOrNav,debtorFiscalCode,organizationId, statuses);
   }
 }

@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions.config;
 
 import it.gov.pagopa.pu.citizen.connector.BaseApiHolderTest;
+import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus;
 import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptOriginType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -133,7 +134,7 @@ class DebtPositionsApisHolderTest extends BaseApiHolderTest {
     assertAuthenticationShouldBeSetInThreadSafeMode(
       accessToken -> apisHolder.getInstallmentApi(accessToken)
         .getInstallmentsByIuvOrNav(
-          "iuvOrNav","debtorFiscalCode",1L),
+          "iuvOrNav","debtorFiscalCode",1L, List.of(InstallmentStatus.PAID)),
       new ParameterizedTypeReference<>() {
       },
       apisHolder::unload);
