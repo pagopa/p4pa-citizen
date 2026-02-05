@@ -22,10 +22,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.jemos.podam.api.PodamFactory;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -128,10 +125,12 @@ class InstallmentFacadeServiceImplTest {
     String debtorFiscalCode = "debtorFiscalCode";
     String orgFiscalCode = "orgFiscalCode";
     Organization organization = podamFactory.manufacturePojo(Organization.class);
-    List<InstallmentStatus> statuses = List.of(InstallmentStatus.PAID, InstallmentStatus.REPORTED);
+    List<InstallmentStatus> statuses = new ArrayList<>(List.of(InstallmentStatus.PAID));
+    List<InstallmentStatus> expectedStatuses = new ArrayList<>(statuses);
+    expectedStatuses.add(InstallmentStatus.REPORTED);
 
     Mockito.when(organizationRetrieverServiceMock.getValidOrganization(orgFiscalCode,brokerId,accessToken)).thenReturn(organization);
-    Mockito.when(installmentServiceMock.getInstallmentByIuvOrNav(iuvOrNav,debtorFiscalCode,organization.getOrganizationId(), statuses, accessToken)).thenReturn(Collections.emptyList());
+    Mockito.when(installmentServiceMock.getInstallmentByIuvOrNav(iuvOrNav,debtorFiscalCode,organization.getOrganizationId(), expectedStatuses, accessToken)).thenReturn(Collections.emptyList());
 
     List<InstallmentDebtorExtendedDTO> result = installmentFacadeService.getInstallmentByIuvOrNav(brokerId,iuvOrNav, debtorFiscalCode, orgFiscalCode, statuses, accessToken);
 
