@@ -90,8 +90,8 @@ class PagedDebtorDebtPositionMapperTest {
     DebtorUnpaidDebtPositionDTO first = result.getContent().get(0);
     DebtorUnpaidDebtPositionDTO second = result.getContent().get(1);
 
-    assertEquals(o1.getOrganizationId(), first.getOrganizationId());
-    assertEquals(o2.getOrganizationId(), second.getOrganizationId());
+    assertEquals(o2.getOrganizationId(), first.getOrganizationId());
+    assertEquals(o1.getOrganizationId(), second.getOrganizationId());
 
     assertEquals(page.getTotalPages(), result.getTotalPages());
     assertEquals(page.getSize(), result.getSize());
@@ -105,7 +105,123 @@ class PagedDebtorDebtPositionMapperTest {
       item.getPaymentOptions().forEach(TestUtils::checkNotNullFields);
     });
 
+    assertTrue(
+      first.getPaymentOptions().getFirst().getDueDate()
+        .isBefore(second.getPaymentOptions().getFirst().getDueDate())
+    );
+
     TestUtils.checkNotNullFields(result);
+  }
+
+  @Test
+  void givenDifferentDueDatesWhenMapThenOrderByDueDateAsc() {
+    Organization org = podamFactory.manufacturePojo(Organization.class);
+    org.setOrganizationId(1L);
+
+    Map<Long, Organization> organizationsMap = Map.of(1L, org);
+
+    DebtorDebtPositionDTO dpEarly = podamFactory.manufacturePojo(DebtorDebtPositionDTO.class);
+    dpEarly.setOrganizationId(1L);
+    dpEarly.setPaymentOptions(List.of(
+      buildPaymentOption(1000, LocalDate.of(2024, 1, 10))
+    ));
+
+    DebtorDebtPositionDTO dpLate = podamFactory.manufacturePojo(DebtorDebtPositionDTO.class);
+    dpLate.setOrganizationId(1L);
+    dpLate.setPaymentOptions(List.of(
+      buildPaymentOption(1000, LocalDate.of(2024, 3, 10))
+    ));
+
+    PagedDebtorUnpaidDebtPositionDTO page = podamFactory.manufacturePojo(PagedDebtorUnpaidDebtPositionDTO.class);
+    page.setContent(List.of(dpLate, dpEarly));
+
+    // when
+    PagedDebtorDebtPositionDTO result = mapper.map(organizationsMap, page);
+
+    // then
+    List<DebtorUnpaidDebtPositionDTO> content = result.getContent();
+    assertEquals(2, content.size());
+
+    assertEquals(
+      LocalDate.of(2024, 1, 10),
+      content.getFirst().getPaymentOptions().getFirst().getDueDate()
+    );
+  }
+
+  @Test
+  void givenSameDueDateWhenMapThenOrderByTotalAmountDesc() {
+    Organization org = podamFactory.manufacturePojo(Organization.class);
+    org.setOrganizationId(1L);
+
+    Map<Long, Organization> organizationsMap = Map.of(1L, org);
+
+    LocalDate sameDate = LocalDate.of(2024, 2, 10);
+
+    DebtorDebtPositionDTO dpLowAmount = podamFactory.manufacturePojo(DebtorDebtPositionDTO.class);
+    dpLowAmount.setOrganizationId(1L);
+    dpLowAmount.setPaymentOptions(List.of(
+      buildPaymentOption(1000, sameDate)
+    ));
+
+    DebtorDebtPositionDTO dpHighAmount = podamFactory.manufacturePojo(DebtorDebtPositionDTO.class);
+    dpHighAmount.setOrganizationId(1L);
+    dpHighAmount.setPaymentOptions(List.of(
+      buildPaymentOption(3000, sameDate)
+    ));
+
+    PagedDebtorUnpaidDebtPositionDTO page = podamFactory.manufacturePojo(PagedDebtorUnpaidDebtPositionDTO.class);
+    page.setContent(List.of(dpLowAmount, dpHighAmount));
+
+    // when
+    PagedDebtorDebtPositionDTO result = mapper.map(organizationsMap, page);
+
+    // then
+    List<DebtorUnpaidDebtPositionDTO> content = result.getContent();
+    assertEquals(2, content.size());
+
+    assertEquals(
+      3000L,
+      content.getFirst().getPaymentOptions().getFirst().getTotalAmountCents()
+    );
+  }
+
+  @Test
+  void givenNullDueDateWhenMapThenNullsAreLast() {
+    Organization org = podamFactory.manufacturePojo(Organization.class);
+    org.setOrganizationId(1L);
+
+    Map<Long, Organization> organizationsMap = Map.of(1L, org);
+
+    BasePaymentOption poWithNullDate = buildPaymentOption(2000, LocalDate.of(2024, 1, 10));
+    poWithNullDate.getInstallments().forEach(i -> i.setDueDate(null));
+
+    DebtorDebtPositionDTO dpNullDate = podamFactory.manufacturePojo(DebtorDebtPositionDTO.class);
+    dpNullDate.setOrganizationId(1L);
+    dpNullDate.setPaymentOptions(List.of(poWithNullDate));
+
+    DebtorDebtPositionDTO dpWithDate = podamFactory.manufacturePojo(DebtorDebtPositionDTO.class);
+    dpWithDate.setOrganizationId(1L);
+    dpWithDate.setPaymentOptions(List.of(
+      buildPaymentOption(1000, LocalDate.of(2024, 1, 1))
+    ));
+
+    PagedDebtorUnpaidDebtPositionDTO page = podamFactory.manufacturePojo(PagedDebtorUnpaidDebtPositionDTO.class);
+    page.setContent(List.of(dpNullDate, dpWithDate));
+
+    // when
+    PagedDebtorDebtPositionDTO result = mapper.map(organizationsMap, page);
+
+    // then
+    List<DebtorUnpaidDebtPositionDTO> content = result.getContent();
+    assertEquals(2, content.size());
+
+    LocalDate firstDueDate =
+      content.get(0).getPaymentOptions().getFirst().getDueDate();
+    LocalDate secondDueDate =
+      content.get(1).getPaymentOptions().getFirst().getDueDate();
+
+    assertNotNull(firstDueDate);
+    assertNull(secondDueDate);
   }
 
   @Test
