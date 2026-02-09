@@ -139,9 +139,9 @@ class ControllerExceptionHandlerTest {
 
     performRequest(null, MediaType.APPLICATION_JSON)
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("BAD_REQUEST"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Required request parameter 'data' for method parameter type String is not present"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Required request parameter 'data' for method parameter type String is not present"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
 
   }
@@ -152,9 +152,9 @@ class ControllerExceptionHandlerTest {
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
       .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("GENERIC_ERROR"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -165,9 +165,9 @@ class ControllerExceptionHandlerTest {
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
       .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("GENERIC_ERROR"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -175,9 +175,9 @@ class ControllerExceptionHandlerTest {
   void handle4xxHttpServletException() throws Exception {
     performRequest(DATA, MediaType.parseMediaType("application/hal+json"))
       .andExpect(MockMvcResultMatchers.status().isNotAcceptable())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("BAD_REQUEST"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("No acceptable representation"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("No acceptable representation"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -185,9 +185,9 @@ class ControllerExceptionHandlerTest {
   void handleUrlNotFound() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.post("/NOTEXISTENTURL"))
       .andExpect(MockMvcResultMatchers.status().isNotFound())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("NOT_FOUND"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("NOT_FOUND"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("No static resource NOTEXISTENTURL for request '/NOTEXISTENTURL'."))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("No static resource NOTEXISTENTURL for request '/NOTEXISTENTURL'."))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -195,9 +195,9 @@ class ControllerExceptionHandlerTest {
   void handleNoBodyException() throws Exception {
     performRequest(DATA, MediaType.APPLICATION_JSON, null)
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("BAD_REQUEST"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Required request body is missing"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Required request body is missing"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -206,9 +206,9 @@ class ControllerExceptionHandlerTest {
     performRequest(DATA, MediaType.APPLICATION_JSON,
       "{\"notRequiredField\":\"notRequired\",\"lowerCaseAlphabeticField\":\"ABC\"}")
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("BAD_REQUEST"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value(allOf(
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(allOf(
         containsString("Invalid request content."),
         containsString("lowerCaseAlphabeticField:"),
         containsString("must match"),
@@ -222,9 +222,9 @@ class ControllerExceptionHandlerTest {
     performRequest(DATA, MediaType.APPLICATION_JSON,
       "{\"notRequiredField\":\"notRequired\",\"dateTimeField\":\"2025-02-05\"}")
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("BAD_REQUEST"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Cannot parse body. dateTimeField: Text '2025-02-05' could not be parsed at index 10"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Cannot parse body. dateTimeField: Text '2025-02-05' could not be parsed at index 10"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -235,9 +235,9 @@ class ControllerExceptionHandlerTest {
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
       .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("GENERIC_ERROR"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("500 INTERNAL_SERVER_ERROR \"Error\""))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("500 INTERNAL_SERVER_ERROR \"Error\""))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -251,9 +251,9 @@ class ControllerExceptionHandlerTest {
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("BAD_REQUEST"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Invalid request content. fieldName: resolved message"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Invalid request content. fieldName: resolved message"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -263,8 +263,8 @@ class ControllerExceptionHandlerTest {
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
       .andExpect(MockMvcResultMatchers.status().isNotFound())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("NOT_FOUND"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("NOT_FOUND"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
@@ -293,9 +293,9 @@ class ControllerExceptionHandlerTest {
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("BAD_REQUEST"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("INVALID_IBAN"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("eltjhreigjpo"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("eltjhreigjpo"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -305,9 +305,9 @@ class ControllerExceptionHandlerTest {
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
       .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("GENERIC_ERROR"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("GENERIC_ERROR"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("ZIPPING_ERROR"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -317,9 +317,9 @@ class ControllerExceptionHandlerTest {
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
         .andExpect(MockMvcResultMatchers.status().isForbidden())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("FORBIDDEN"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("FORBIDDEN"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("GENERIC_ERROR"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -329,9 +329,9 @@ class ControllerExceptionHandlerTest {
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
         .andExpect(MockMvcResultMatchers.status().isConflict())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("CONFLICT"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("CONFLICT"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("CONFLICT_ERROR"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -341,9 +341,9 @@ class ControllerExceptionHandlerTest {
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("BAD_REQUEST"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("INVALID_PARAM"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -353,8 +353,8 @@ class ControllerExceptionHandlerTest {
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
       .andExpect(MockMvcResultMatchers.status().isBadRequest())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("BAD_REQUEST"))
-      .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Error"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("INVALID_ACCESS_TOKEN"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
