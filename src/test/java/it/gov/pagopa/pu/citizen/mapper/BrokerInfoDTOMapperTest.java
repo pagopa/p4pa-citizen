@@ -15,23 +15,45 @@ class BrokerInfoDTOMapperTest {
   private final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
   @Test
-  void whenMapFromOrganizationThenOk() {
+  void whenMapThenOk() {
     Organization organization = podamFactory.manufacturePojo(Organization.class);
+    String arpuConfig = "arpuConfig";
 
-    BrokerInfoDTO result = mapper.mapFromOrganization(organization);
+    BrokerInfoDTO result = mapper.map(organization, arpuConfig);
 
     assertNotNull(result);
     TestUtils.checkNotNullFields(result);
     assertEquals(organization.getOrgName(), result.getBrokerName());
     assertEquals(organization.getOrgFiscalCode(), result.getBrokerFiscalCode());
     assertEquals(organization.getOrgLogo(), result.getBrokerLogo());
+    assertEquals(arpuConfig, result.getConfig());
   }
 
   @Test
-  void givenNullOrganizationWhenMapFromOrganizationThenNull() {
-
-    BrokerInfoDTO result = mapper.mapFromOrganization(null);
+  void givenNullOrganizationWhenMapThenNull() {
+    BrokerInfoDTO result = mapper.map(null, null);
 
     assertNull(result);
+  }
+
+  @Test
+  void givenArpuConfigAndNoOrganizationWhenMapThenNull() {
+    BrokerInfoDTO result = mapper.map(null, "arpuConfig");
+
+    assertNull(result);
+  }
+
+  @Test
+  void givenOrganizationAndNoArpuConfigWhenMapThenOk() {
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+
+    BrokerInfoDTO result = mapper.map(organization, null);
+
+    assertNotNull(result);
+    TestUtils.checkNotNullFields(result, "config");
+    assertEquals(organization.getOrgName(), result.getBrokerName());
+    assertEquals(organization.getOrgFiscalCode(), result.getBrokerFiscalCode());
+    assertEquals(organization.getOrgLogo(), result.getBrokerLogo());
+    assertNull(result.getConfig());
   }
 }

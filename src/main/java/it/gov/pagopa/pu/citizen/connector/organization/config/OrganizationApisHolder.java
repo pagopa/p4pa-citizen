@@ -4,6 +4,7 @@ package it.gov.pagopa.pu.citizen.connector.organization.config;
 import it.gov.pagopa.pu.citizen.config.rest.RestTemplateConfig;
 import it.gov.pagopa.pu.organization.controller.ApiClient;
 import it.gov.pagopa.pu.organization.controller.BaseApi;
+import it.gov.pagopa.pu.organization.controller.generated.BrokerEntityControllerApi;
 import it.gov.pagopa.pu.organization.controller.generated.OrganizationEntityControllerApi;
 import it.gov.pagopa.pu.organization.controller.generated.OrganizationSearchControllerApi;
 import jakarta.annotation.PreDestroy;
@@ -15,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 public class OrganizationApisHolder {
   private final OrganizationSearchControllerApi organizationSearchControllerApi;
   private final OrganizationEntityControllerApi organizationEntityControllerApi;
+  private final BrokerEntityControllerApi brokerEntityControllerApi;
   private final ThreadLocal<String> bearerTokenHolder = new ThreadLocal<>();
 
   public OrganizationApisHolder(OrganizationApiClientConfig clientConfig, RestTemplateBuilder restTemplateBuilder){
@@ -31,6 +33,7 @@ public class OrganizationApisHolder {
 
     this.organizationSearchControllerApi = new OrganizationSearchControllerApi(apiClient);
     this.organizationEntityControllerApi = new OrganizationEntityControllerApi(apiClient);
+    this.brokerEntityControllerApi = new BrokerEntityControllerApi(apiClient);
   }
 
   @PreDestroy
@@ -46,6 +49,11 @@ public class OrganizationApisHolder {
   /** It will return a {@link OrganizationEntityControllerApi} instrumented with the provided accessToken. Use null if auth is not required */
   public OrganizationEntityControllerApi getOrganizationEntityControllerApi(String accessToken){
     return getApi(accessToken,organizationEntityControllerApi);
+  }
+
+  /** It will return a {@link BrokerEntityControllerApi} instrumented with the provided accessToken. Use null if auth is not required */
+  public BrokerEntityControllerApi getBrokerEntityControllerApi(String accessToken){
+    return getApi(accessToken,brokerEntityControllerApi);
   }
 
 

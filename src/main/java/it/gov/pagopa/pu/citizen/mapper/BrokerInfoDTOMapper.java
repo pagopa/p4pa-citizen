@@ -8,8 +8,16 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface BrokerInfoDTOMapper {
 
-  @Mapping(target = "brokerLogo", source = "orgLogo")
-  @Mapping(target = "brokerName", source = "orgName")
-  @Mapping(target = "brokerFiscalCode", source = "orgFiscalCode")
-  BrokerInfoDTO mapFromOrganization(Organization organization);
+  @Mapping(target = "brokerLogo", source = "organization.orgLogo")
+  @Mapping(target = "brokerName", source = "organization.orgName")
+  @Mapping(target = "brokerFiscalCode", source = "organization.orgFiscalCode")
+  @Mapping(target = "config", source = "arpuConfig")
+  BrokerInfoDTO innerMap(Organization organization, String arpuConfig);
+
+  default BrokerInfoDTO map(Organization organization, String arpuConfig) {
+    if (organization == null) {
+      return null;
+    }
+    return innerMap(organization, arpuConfig);
+  }
 }

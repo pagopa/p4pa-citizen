@@ -1225,3 +1225,5 @@ components:
           type: string
           format: base64
           description: Base64 encoded logo of the organization
+        config:
+          type: string
