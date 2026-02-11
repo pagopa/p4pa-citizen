@@ -11,7 +11,7 @@ public interface BrokerInfoDTOMapper {
   @Mapping(target = "brokerLogo", source = "organization.orgLogo")
   @Mapping(target = "brokerName", source = "organization.orgName")
   @Mapping(target = "brokerFiscalCode", source = "organization.orgFiscalCode")
-  @Mapping(target = "config", expression = "java(organization!=null?arpuConfig:null)")
+  @Mapping(target = "config", source = "arpuConfig")
   BrokerInfoDTO innerMap(Organization organization, String arpuConfig);
 
   default BrokerInfoDTO map(Organization organization, String arpuConfig) {
