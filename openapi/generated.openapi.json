@@ -1914,6 +1914,9 @@
           "brokerLogo" : {
             "type" : "string",
             "description" : "Base64 encoded logo of the organization"
+          },
+          "config" : {
+            "type" : "string"
           }
         },
         "required" : [ "brokerFiscalCode", "brokerName" ]
