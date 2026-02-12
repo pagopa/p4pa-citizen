@@ -3,7 +3,10 @@ package it.gov.pagopa.pu.citizen.mapper;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorPaymentOptionDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorDebtPositionDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.*;
+import it.gov.pagopa.pu.debtpositions.dto.generated.BaseInstallment;
+import it.gov.pagopa.pu.debtpositions.dto.generated.BasePaymentOption;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositionDTO;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -37,7 +40,28 @@ public interface PagedDebtorDebtPositionMapper {
   default List<DebtorUnpaidDebtPositionDTO> mapDebtorDebtPositionDTOWithOrganizationAndPagedDebtorUnpaidDebtPositionDTO(Map<Long, Organization> organizationsMap, PagedDebtorUnpaidDebtPositionDTO source){
     List<DebtorDebtPositionDTO> debtorDebtPositionDTOList = source.getContent();
     return debtorDebtPositionDTOList.stream()
-      .map(debtPosition -> map(retrieveOrganization(organizationsMap, debtPosition), debtPosition)).toList();
+      .map(debtPosition -> map(retrieveOrganization(organizationsMap, debtPosition), debtPosition))
+      .sorted(
+        Comparator
+          .comparing(
+            (DebtorUnpaidDebtPositionDTO dp) ->
+              dp.getPaymentOptions()
+                .stream().map(DebtorPaymentOptionDTO::getDueDate)
+                .filter(Objects::nonNull)
+                .min(LocalDate::compareTo)
+                .orElse(null),
+            Comparator.nullsLast(Comparator.naturalOrder())
+          )
+          .thenComparing((DebtorUnpaidDebtPositionDTO dp) ->
+            dp.getPaymentOptions().stream()
+              .map(DebtorPaymentOptionDTO::getTotalAmountCents)
+              .filter(Objects::nonNull)
+              .max(Long::compareTo)
+              .orElse(null),
+          Comparator.nullsLast(Comparator.reverseOrder())
+        )
+    )
+      .toList();
   }
 
   default Organization retrieveOrganization(Map<Long, Organization> organizationsMap, DebtorDebtPositionDTO debtorDebtPositionDTO){

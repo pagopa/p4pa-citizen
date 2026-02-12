@@ -724,6 +724,13 @@ paths:
           required: false
           schema:
             type: string
+        - name: statuses
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: 'InstallmentStatus'
       responses:
         "200":
           description: Ok
@@ -1185,10 +1192,10 @@ components:
     ErrorDTO:
       type: object
       required:
-        - title
-        - description
+        - category
+        - message
       properties:
-        title:
+        category:
           type: string
           description: The title describing the error
           enum:
@@ -1197,7 +1204,7 @@ components:
             - GENERIC_ERROR
             - FORBIDDEN
             - CONFLICT
-        description:
+        message:
           type: string
           description: Description of the error
         traceId:
@@ -1218,3 +1225,5 @@ components:
           type: string
           format: base64
           description: Base64 encoded logo of the organization
+        config:
+          type: string

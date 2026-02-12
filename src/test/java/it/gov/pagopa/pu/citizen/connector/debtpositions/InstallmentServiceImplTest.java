@@ -5,6 +5,7 @@ import it.gov.pagopa.pu.citizen.connector.debtpositions.client.InstallmentNoPIIS
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentDebtorDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentNoPII;
+import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,10 +49,12 @@ class InstallmentServiceImplTest {
     String iuvOrNav = "iuvOrNav";
     String debtorFiscalCode = "debtorFiscalCode";
     Long organizationId = 1L;
-    List<InstallmentDebtorDTO> expectedResult = podamFactory.manufacturePojo(List.class,InstallmentDebtorDTO.class);
-    Mockito.when(installmentClientMock.getInstallmentByIuvOrNav(iuvOrNav,debtorFiscalCode,organizationId,accessToken)).thenReturn(expectedResult);
+    List<InstallmentStatus> statuses = List.of(InstallmentStatus.PAID);
 
-    List<InstallmentDebtorDTO> result = installmentService.getInstallmentByIuvOrNav(iuvOrNav,debtorFiscalCode,organizationId, accessToken);
+    List<InstallmentDebtorDTO> expectedResult = podamFactory.manufacturePojo(List.class,InstallmentDebtorDTO.class);
+    Mockito.when(installmentClientMock.getInstallmentByIuvOrNav(iuvOrNav,debtorFiscalCode,organizationId, statuses, accessToken)).thenReturn(expectedResult);
+
+    List<InstallmentDebtorDTO> result = installmentService.getInstallmentByIuvOrNav(iuvOrNav,debtorFiscalCode,organizationId, statuses, accessToken);
 
     assertNotNull(result);
     assertEquals(expectedResult, result);

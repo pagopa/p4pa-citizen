@@ -10,6 +10,7 @@ import it.gov.pagopa.pu.citizen.mapper.InstallmentDebtorExtendedDTOMapper;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentDebtorDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentNoPII;
+import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -35,14 +36,19 @@ public class InstallmentFacadeServiceImpl implements InstallmentFacadeService {
 
   @Override
   public List<InstallmentDebtorExtendedDTO> getInstallmentByIuvOrNav(Long brokerId, String iuvOrNav,
-      String debtorFiscalCode, String orgFiscalCode, String accessToken) {
+                                                                     String debtorFiscalCode, String orgFiscalCode, List<InstallmentStatus> statuses, String accessToken) {
     if (StringUtils.isBlank(debtorFiscalCode) && StringUtils.isBlank(orgFiscalCode)) {
       throw new InvalidParamException("MISSING_FISCAL_CODE","Either debtorFiscalCode or orgFiscalCode must be provided");
     }
     Organization organization = resolveOrganization(orgFiscalCode, brokerId, accessToken);
     Long organizationId = organization != null ? organization.getOrganizationId() : null;
 
-    List<InstallmentDebtorDTO> installments = installmentService.getInstallmentByIuvOrNav(iuvOrNav, debtorFiscalCode, organizationId, accessToken);
+    if (statuses!= null && statuses.contains(InstallmentStatus.PAID)
+      && !statuses.contains(InstallmentStatus.REPORTED)){
+      statuses.add(InstallmentStatus.REPORTED);
+    }
+
+    List<InstallmentDebtorDTO> installments = installmentService.getInstallmentByIuvOrNav(iuvOrNav, debtorFiscalCode, organizationId, statuses, accessToken);
     if (CollectionUtils.isEmpty(installments)) {
       return Collections.emptyList();
     }
