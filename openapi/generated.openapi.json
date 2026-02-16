@@ -1984,6 +1984,9 @@
           "flagAnonymousFiscalCode" : {
             "type" : "boolean"
           },
+          "allowedEntityType" : {
+            "$ref" : "#/components/schemas/PersonEntityType"
+          },
           "formType" : {
             "$ref" : "#/components/schemas/FormTypeEnum"
           },

@@ -816,6 +816,8 @@ components:
           type: string
         flagAnonymousFiscalCode:
           type: boolean
+        allowedEntityType:
+          type: 'PersonEntityType'
         formType:
           type: string
           enum:
