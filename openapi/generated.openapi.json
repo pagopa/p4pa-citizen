@@ -1819,6 +1819,10 @@
             "items" : {
               "$ref" : "#/components/schemas/PaymentOptionRequestDTO"
             }
+          },
+          "fieldValues" : {
+            "type" : "object",
+            "additionalProperties" : { }
           }
         },
         "required" : [ "debtPositionTypeOrgId", "organizationId", "paymentOptions" ]
