@@ -845,6 +845,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PaymentOptionRequestDTO'
+        fieldValues:
+          type: object
+          additionalProperties:
+            type: object
       required:
         - debtPositionTypeOrgId
         - organizationId
