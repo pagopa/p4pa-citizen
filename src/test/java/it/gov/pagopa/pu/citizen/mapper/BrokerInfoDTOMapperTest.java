@@ -22,7 +22,7 @@ class BrokerInfoDTOMapperTest {
     BrokerInfoDTO result = mapper.map(organization, arpuConfig);
 
     assertNotNull(result);
-    TestUtils.checkNotNullFields(result);
+    TestUtils.checkNotNullFields(result, "externalId");
     assertEquals(organization.getOrgName(), result.getBrokerName());
     assertEquals(organization.getOrgFiscalCode(), result.getBrokerFiscalCode());
     assertEquals(organization.getOrgLogo(), result.getBrokerLogo());
@@ -50,7 +50,7 @@ class BrokerInfoDTOMapperTest {
     BrokerInfoDTO result = mapper.map(organization, null);
 
     assertNotNull(result);
-    TestUtils.checkNotNullFields(result, "config");
+    TestUtils.checkNotNullFields(result, "config", "externalId");
     assertEquals(organization.getOrgName(), result.getBrokerName());
     assertEquals(organization.getOrgFiscalCode(), result.getBrokerFiscalCode());
     assertEquals(organization.getOrgLogo(), result.getBrokerLogo());

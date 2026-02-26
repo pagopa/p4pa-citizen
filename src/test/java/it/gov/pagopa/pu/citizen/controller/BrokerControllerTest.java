@@ -54,10 +54,10 @@ class BrokerControllerTest {
     Long brokerId = 1L;
     BrokerInfoDTO expectedResult = podamFactory.manufacturePojo(BrokerInfoDTO.class);
 
-    Mockito.when(brokerRetrieverServiceMock.getBrokerInfo(brokerId,accessToken))
+    Mockito.when(brokerRetrieverServiceMock.getBrokerInfo(brokerId, null, accessToken))
       .thenReturn(expectedResult);
 
-    ResponseEntity<BrokerInfoDTO> response = brokerController.getBrokerInfo(brokerId);
+    ResponseEntity<BrokerInfoDTO> response = brokerController.getBrokerInfo(brokerId, null);
 
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     Assertions.assertNotNull(response.getBody());
@@ -68,10 +68,10 @@ class BrokerControllerTest {
   void givenNoBrokerInfoDTOWhenGetBrokerInfoThenNotFound() {
     Long brokerId = 1L;
 
-    Mockito.when(brokerRetrieverServiceMock.getBrokerInfo(brokerId,accessToken))
+    Mockito.when(brokerRetrieverServiceMock.getBrokerInfo(brokerId, null, accessToken))
       .thenReturn(null);
 
-    ResponseEntity<BrokerInfoDTO> response = brokerController.getBrokerInfo(brokerId);
+    ResponseEntity<BrokerInfoDTO> response = brokerController.getBrokerInfo(brokerId, null);
 
     Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Assertions.assertNull(response.getBody());
