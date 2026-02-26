@@ -5,6 +5,7 @@ import it.gov.pagopa.pu.citizen.config.rest.RestTemplateConfig;
 import it.gov.pagopa.pu.organization.controller.ApiClient;
 import it.gov.pagopa.pu.organization.controller.BaseApi;
 import it.gov.pagopa.pu.organization.controller.generated.BrokerEntityControllerApi;
+import it.gov.pagopa.pu.organization.controller.generated.BrokerSearchControllerApi;
 import it.gov.pagopa.pu.organization.controller.generated.OrganizationEntityControllerApi;
 import it.gov.pagopa.pu.organization.controller.generated.OrganizationSearchControllerApi;
 import jakarta.annotation.PreDestroy;
@@ -17,6 +18,7 @@ public class OrganizationApisHolder {
   private final OrganizationSearchControllerApi organizationSearchControllerApi;
   private final OrganizationEntityControllerApi organizationEntityControllerApi;
   private final BrokerEntityControllerApi brokerEntityControllerApi;
+  private final BrokerSearchControllerApi brokerSearchControllerApi;
   private final ThreadLocal<String> bearerTokenHolder = new ThreadLocal<>();
 
   public OrganizationApisHolder(OrganizationApiClientConfig clientConfig, RestTemplateBuilder restTemplateBuilder){
@@ -34,6 +36,7 @@ public class OrganizationApisHolder {
     this.organizationSearchControllerApi = new OrganizationSearchControllerApi(apiClient);
     this.organizationEntityControllerApi = new OrganizationEntityControllerApi(apiClient);
     this.brokerEntityControllerApi = new BrokerEntityControllerApi(apiClient);
+    this.brokerSearchControllerApi = new BrokerSearchControllerApi(apiClient);
   }
 
   @PreDestroy
@@ -56,6 +59,10 @@ public class OrganizationApisHolder {
     return getApi(accessToken,brokerEntityControllerApi);
   }
 
+  /** It will return a {@link BrokerSearchControllerApi} instrumented with the provided accessToken. Use null if auth is not required */
+  public BrokerSearchControllerApi getBrokerSearchControllerApi(String accessToken){
+    return getApi(accessToken, brokerSearchControllerApi);
+  }
 
   private <T extends BaseApi> T getApi(String accessToken, T api) {
     bearerTokenHolder.set(accessToken);

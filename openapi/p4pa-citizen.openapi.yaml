@@ -7,18 +7,23 @@ servers:
   - url: "http://localhost:8080"
     description: Generated server url
 paths:
-  /brokers/{brokerId}:
+  /brokers:
     get:
       tags:
         - Broker
       operationId: getBrokerInfo
       parameters:
         - name: brokerId
-          in: path
-          required: true
+          in: query
+          required: false
           schema:
             type: integer
             format: int64
+        - name: externalId
+          in: query
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -1220,9 +1225,15 @@ components:
     BrokerInfoDTO:
       type: object
       required:
+        - brokerId
         - brokerName
         - brokerFiscalCode
       properties:
+        brokerId:
+          type: integer
+          format: int64
+        externalId:
+          type: string
         brokerName:
           type: string
         brokerFiscalCode:
