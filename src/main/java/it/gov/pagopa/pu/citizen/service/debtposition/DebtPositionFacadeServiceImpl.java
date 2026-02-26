@@ -16,6 +16,7 @@ import it.gov.pagopa.pu.citizen.mapper.DebtPositionResponseDTOMapper;
 import it.gov.pagopa.pu.citizen.mapper.DebtorUnpaidDebtPositionOverviewMapper;
 import it.gov.pagopa.pu.citizen.mapper.PagedDebtorDebtPositionMapper;
 import it.gov.pagopa.pu.citizen.service.ZipFileService;
+import it.gov.pagopa.pu.citizen.service.debtposition.cie.CieDebtPositionFacadeService;
 import it.gov.pagopa.pu.citizen.service.organization.BrokerOrganizationsRetrieverService;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import it.gov.pagopa.pu.citizen.utils.InstallmentUtils;
@@ -50,6 +51,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
   private final PagedDebtorDebtPositionMapper pagedDebtorDebtPositionMapper;
   private final DebtorUnpaidDebtPositionOverviewMapper debtorUnpaidDebtPositionOverviewMapper;
   private final ReceiptService receiptService;
+  private final CieDebtPositionFacadeService cieDebtPositionFacadeService;
 
   public DebtPositionFacadeServiceImpl(DebtPositionService debtPositionService,
                                        DebtPositionDTOMapper debtPositionDTOMapper,
@@ -60,8 +62,10 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
                                        OrganizationRetrieverService organizationRetrieverService,
                                        BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverService,
                                        PagedDebtorDebtPositionMapper pagedDebtorDebtPositionMapper,
-                                       DebtorUnpaidDebtPositionOverviewMapper debtorUnpaidDebtPositionOverviewMapper, ReceiptService receiptService
-  ) {
+                                       DebtorUnpaidDebtPositionOverviewMapper debtorUnpaidDebtPositionOverviewMapper,
+                                       ReceiptService receiptService,
+                                       CieDebtPositionFacadeService cieDebtPositionFacadeService
+                                       ) {
     this.debtPositionDTOMapper = debtPositionDTOMapper;
     this.debtPositionService = debtPositionService;
     this.expirationDays = expirationDays;
@@ -73,13 +77,18 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
     this.pagedDebtorDebtPositionMapper = pagedDebtorDebtPositionMapper;
     this.debtorUnpaidDebtPositionOverviewMapper = debtorUnpaidDebtPositionOverviewMapper;
     this.receiptService = receiptService;
+    this.cieDebtPositionFacadeService = cieDebtPositionFacadeService;
   }
 
   @Override
   public DebtPositionResponseDTO createSpontaneousDebtPosition(Long brokerId, DebtPositionRequestDTO debtPositionRequestDTO, String accessToken) {
-    DebtPositionDTO debtPosition = debtPositionService.createDebtPosition(debtPositionDTOMapper.mapSpontaneousDebtPositionDTO(debtPositionRequestDTO, expirationDays), false, accessToken);
+    boolean cieBroker = organizationRetrieverService.isCieBroker(brokerId, accessToken);
+    if(cieBroker) {
+      return cieDebtPositionFacadeService.createSpontaneousDebtPosition(debtPositionRequestDTO,accessToken);
+    }
     Organization organization = organizationRetrieverService.getValidOrganization(debtPositionRequestDTO.getOrganizationId(),brokerId,accessToken);
-    return debtPositionResponseDTOMapper.map(debtPosition, organization);
+    DebtPositionDTO debtPosition = debtPositionService.createDebtPosition(debtPositionDTOMapper.mapSpontaneousDebtPositionDTO(debtPositionRequestDTO, expirationDays), false, accessToken);
+    return debtPositionResponseDTOMapper.map(debtPosition, organization, false);
   }
 
   @Override

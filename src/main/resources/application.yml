@@ -111,3 +111,7 @@ rest:
     max-attempts: "\${CIE_MAX_ATTEMPTS:3}" # It's counting also the first attempt
     wait-time-millis: "\${CIE_WAIT_TIME_MILLIS:500}"
     print-body-when-error: "\${CIE_PRINT_BODY_WHEN_ERROR:true}"
+
+cie:
+  organization:
+    fiscal-code: "\${CIE_ORGANIZATION_FISCAL_CODE:}"

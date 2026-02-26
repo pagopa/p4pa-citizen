@@ -11,4 +11,5 @@ public interface DebtPositionTypeOrgRetrieverService {
   List<DebtPositionTypeOrgsWithSpontaneousDTO> getDebtPositionTypeOrgsWithSpontaneous(Long brokerId, Long organizationId, String accessToken);
   DebtPositionTypeOrgsWithSpontaneousDetailsDTO getDebtPositionTypeOrgsWithSpontaneousDetailsDTO(Long brokerId, Long organizationId, Long debtPositionTypeOrgId, String accessToken);
   List<DebtPositionTypeOrgsWithSpontaneousDTO> getMostUsedSpontaneousDebtPositionTypeOrgs(Long brokerId, Long organizationId, OffsetDateTime creationDateFrom, OffsetDateTime creationDateTo, Pageable pageable, String accessToken);
+  String getDebtPositionTypeOrgCode(Long debtPositionTypeOrgId, Long organizationId, String accessToken);
 }

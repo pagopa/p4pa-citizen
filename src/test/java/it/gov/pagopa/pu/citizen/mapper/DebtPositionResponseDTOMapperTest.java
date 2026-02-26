@@ -5,12 +5,16 @@ import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.PaymentOptionDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.TransferDTO;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,7 +37,7 @@ class DebtPositionResponseDTOMapperTest {
     debtPositionDTO.setPaymentOptions(java.util.List.of(paymentOption));
 
     // when
-    DebtPositionResponseDTO result = mapper.map(debtPositionDTO, organization);
+    DebtPositionResponseDTO result = mapper.map(debtPositionDTO, organization, false);
 
     // then
     assertNotNull(result);
@@ -56,7 +60,7 @@ class DebtPositionResponseDTOMapperTest {
     Organization organization = podamFactory.manufacturePojo(Organization.class);
 
     // when
-    DebtPositionResponseDTO result = mapper.map(debtPositionDTO, organization);
+    DebtPositionResponseDTO result = mapper.map(debtPositionDTO, organization, false);
 
     // then
     assertNotNull(result);
@@ -75,7 +79,7 @@ class DebtPositionResponseDTOMapperTest {
     Organization organization = podamFactory.manufacturePojo(Organization.class);
 
     // when
-    DebtPositionResponseDTO result = mapper.map(debtPositionDTO, organization);
+    DebtPositionResponseDTO result = mapper.map(debtPositionDTO, organization, false);
 
     // then
     assertNotNull(result);
@@ -84,18 +88,90 @@ class DebtPositionResponseDTOMapperTest {
 
   @Test
   void givenNullDebtPositionWhenMapThenPaymentDetailsIsNullButOrganizationMapped() {
-    // given
     Organization organization = podamFactory.manufacturePojo(Organization.class);
 
-    // when
-    DebtPositionResponseDTO result = mapper.map(null, organization);
+    DebtPositionResponseDTO result = mapper.map(null, organization, false);
 
-    // then
     assertNotNull(result);
     assertEquals(organization.getOrganizationId(), result.getOrganizationId());
     assertEquals(organization.getOrgFiscalCode(), result.getOrgFiscalCode());
     assertEquals(organization.getOrgName(), result.getOrgName());
     assertNull(result.getPaymentDetails());
+  }
+
+  @Test
+  void givenDelegateWhenMapThenOk() {
+    DebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTO.class);
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+
+    PaymentOptionDTO paymentOption = new PaymentOptionDTO();
+    InstallmentDTO installment = new InstallmentDTO();
+    installment.setAmountCents(100L);
+    installment.setDueDate(LocalDate.now().plusDays(5));
+    TransferDTO transfer = podamFactory.manufacturePojo(TransferDTO.class);
+    transfer.setFlagOwner(true);
+    installment.setTransfers(List.of(transfer));
+    paymentOption.setInstallments(java.util.List.of(installment));
+    debtPositionDTO.setPaymentOptions(java.util.List.of(paymentOption));
+
+    DebtPositionResponseDTO result = mapper.map(debtPositionDTO, organization, true);
+
+    assertNotNull(result);
+    assertEquals(debtPositionDTO.getDebtPositionId(), result.getDebtPositionId());
+    assertEquals(organization.getOrganizationId(), result.getOrganizationId());
+    assertEquals(transfer.getOrgFiscalCode(), result.getOrgFiscalCode());
+    assertEquals(transfer.getOrgName(), result.getOrgName());
+
+    assertNotNull(result.getPaymentDetails());
+    assertEquals(installment.getAmountCents(), result.getPaymentDetails().getAmountCents());
+    assertEquals(installment.getDueDate(), result.getPaymentDetails().getDueDate());
+    TestUtils.checkNotNullFields(result);
+  }
+
+  @Test
+  void givenDelegateAndNoFlagOwnerWhenMapThenIllegalStateException() {
+    DebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTO.class);
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+
+    PaymentOptionDTO paymentOption = new PaymentOptionDTO();
+    InstallmentDTO installment = new InstallmentDTO();
+    installment.setAmountCents(100L);
+    installment.setDueDate(LocalDate.now().plusDays(5));
+    TransferDTO transfer = podamFactory.manufacturePojo(TransferDTO.class);
+    transfer.setFlagOwner(false);
+    installment.setTransfers(List.of(transfer));
+    paymentOption.setInstallments(java.util.List.of(installment));
+    debtPositionDTO.setPaymentOptions(java.util.List.of(paymentOption));
+
+    Assertions.assertThrows(IllegalStateException.class, ()->mapper.map(debtPositionDTO, organization, true));
+  }
+
+  @Test
+  void givenDelegateAndNoTransferWhenMapThenIllegalStateException() {
+    DebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTO.class);
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+
+    PaymentOptionDTO paymentOption = new PaymentOptionDTO();
+    InstallmentDTO installment = new InstallmentDTO();
+    installment.setAmountCents(100L);
+    installment.setDueDate(LocalDate.now().plusDays(5));
+    installment.setTransfers(Collections.emptyList());
+    paymentOption.setInstallments(java.util.List.of(installment));
+    debtPositionDTO.setPaymentOptions(java.util.List.of(paymentOption));
+
+    Assertions.assertThrows(IllegalStateException.class, ()->mapper.map(debtPositionDTO, organization, true));
+  }
+
+  @Test
+  void givenDelegateAndNoInstallmentWhenMapThenIllegalStateException() {
+    DebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTO.class);
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+
+    PaymentOptionDTO paymentOption = new PaymentOptionDTO();
+    paymentOption.setInstallments(Collections.emptyList());
+    debtPositionDTO.setPaymentOptions(java.util.List.of(paymentOption));
+
+    Assertions.assertThrows(IllegalStateException.class, ()->mapper.map(debtPositionDTO, organization, true));
   }
 }
 
