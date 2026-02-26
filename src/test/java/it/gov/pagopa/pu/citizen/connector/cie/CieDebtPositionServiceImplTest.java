@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.connector.cie;
 
 import it.gov.pagopa.pu.cie.dto.generated.DebtPositionCieRequestDTO;
+import it.gov.pagopa.pu.citizen.connector.auth.AuthnService;
 import it.gov.pagopa.pu.citizen.connector.cie.client.CieDebtPositionClient;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
@@ -19,6 +20,9 @@ class CieDebtPositionServiceImplTest {
 
   @Mock
   private CieDebtPositionClient cieDebtPositionClientMock;
+  @Mock
+  private AuthnService authnServiceMock;
+  private final String cieOrgIpaCode = "cieOrgIpaCode";
 
   private final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
@@ -26,7 +30,7 @@ class CieDebtPositionServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    cieDebtPositionService = new CieDebtPositionServiceImpl(cieDebtPositionClientMock);
+    cieDebtPositionService = new CieDebtPositionServiceImpl(cieDebtPositionClientMock,authnServiceMock,cieOrgIpaCode);
   }
 
   @AfterEach
@@ -40,9 +44,10 @@ class CieDebtPositionServiceImplTest {
     DebtPositionCieRequestDTO debtPositionCieRequestDTO = podamFactory.manufacturePojo(DebtPositionCieRequestDTO.class);
     DebtPositionDTO expectedResult = podamFactory.manufacturePojo(DebtPositionDTO.class);
 
+    Mockito.when(authnServiceMock.getAccessToken(cieOrgIpaCode)).thenReturn(accessToken);
     Mockito.when(cieDebtPositionClientMock.createDebtPositionCie(debtPositionCieRequestDTO,accessToken)).thenReturn(expectedResult);
 
-    DebtPositionDTO result = cieDebtPositionService.createDebtPositionCie(debtPositionCieRequestDTO,accessToken);
+    DebtPositionDTO result = cieDebtPositionService.createDebtPositionCie(debtPositionCieRequestDTO);
 
     Assertions.assertNotNull(result);
     Assertions.assertSame(expectedResult, result);

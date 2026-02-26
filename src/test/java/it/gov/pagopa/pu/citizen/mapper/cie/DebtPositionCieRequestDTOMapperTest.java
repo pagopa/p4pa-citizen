@@ -7,6 +7,7 @@ import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.InstallmentRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PaymentOptionRequestDTO;
 import it.gov.pagopa.pu.citizen.exception.DebtPositionInvalidFieldValuesException;
+import it.gov.pagopa.pu.citizen.exception.InvalidRequestBodyException;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -121,10 +122,10 @@ class DebtPositionCieRequestDTOMapperTest {
     paymentOptionRequestDTO.setInstallments(List.of(installmentRequestDTO));
     debtPositionRequestDTO.setPaymentOptions(List.of(paymentOptionRequestDTO));
 
-    DebtPositionCieRequestDTO result = mapper.map(debtPositionRequestDTO, null);
+    InvalidRequestBodyException invalidRequestBodyException = Assertions.assertThrows(InvalidRequestBodyException.class,
+      () -> mapper.map(debtPositionRequestDTO, null));
 
-    Assertions.assertNull(result);
-    Mockito.verifyNoInteractions(jsonMapperMock);
+    Assertions.assertEquals("DEBT_POSITION_REQUEST_BODY_INVALID",invalidRequestBodyException.getCode());
   }
 
   @Test
@@ -135,10 +136,10 @@ class DebtPositionCieRequestDTOMapperTest {
     paymentOptionRequestDTO.setInstallments(Collections.emptyList());
     debtPositionRequestDTO.setPaymentOptions(List.of(paymentOptionRequestDTO));
 
-    DebtPositionCieRequestDTO result = mapper.map(debtPositionRequestDTO, debtPositionTypeOrgCode);
+    InvalidRequestBodyException invalidRequestBodyException = Assertions.assertThrows(InvalidRequestBodyException.class,
+      () -> mapper.map(debtPositionRequestDTO, debtPositionTypeOrgCode));
 
-    Assertions.assertNull(result);
-    Mockito.verifyNoInteractions(jsonMapperMock);
+    Assertions.assertEquals("DEBT_POSITION_REQUEST_BODY_INVALID",invalidRequestBodyException.getCode());
   }
 
   @Test
@@ -147,19 +148,19 @@ class DebtPositionCieRequestDTOMapperTest {
     DebtPositionRequestDTO debtPositionRequestDTO = podamFactory.manufacturePojo(DebtPositionRequestDTO.class);
     debtPositionRequestDTO.setPaymentOptions(Collections.emptyList());
 
-    DebtPositionCieRequestDTO result = mapper.map(debtPositionRequestDTO, debtPositionTypeOrgCode);
+    InvalidRequestBodyException invalidRequestBodyException = Assertions.assertThrows(InvalidRequestBodyException.class,
+      () -> mapper.map(debtPositionRequestDTO, debtPositionTypeOrgCode));
 
-    Assertions.assertNull(result);
-    Mockito.verifyNoInteractions(jsonMapperMock);
+    Assertions.assertEquals("DEBT_POSITION_REQUEST_BODY_INVALID",invalidRequestBodyException.getCode());
   }
 
   @Test
   void givenNoDebtPositionRequestDTOWhenMapThenNull(){
     String debtPositionTypeOrgCode = "debtPositionTypeOrgCode";
 
-    DebtPositionCieRequestDTO result = mapper.map(null, debtPositionTypeOrgCode);
+    InvalidRequestBodyException invalidRequestBodyException = Assertions.assertThrows(InvalidRequestBodyException.class,
+      () -> mapper.map(null, debtPositionTypeOrgCode));
 
-    Assertions.assertNull(result);
-    Mockito.verifyNoInteractions(jsonMapperMock);
+    Assertions.assertEquals("DEBT_POSITION_REQUEST_BODY_INVALID",invalidRequestBodyException.getCode());
   }
 }

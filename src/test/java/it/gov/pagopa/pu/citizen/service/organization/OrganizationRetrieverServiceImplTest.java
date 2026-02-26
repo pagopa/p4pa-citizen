@@ -235,7 +235,7 @@ class OrganizationRetrieverServiceImplTest {
   }
 
   @Test
-  void whenIsIpzsBrokerThenOk() {
+  void whenIsCieBrokerThenOk() {
     String accessToken = "ACCESS_TOKEN";
     Long brokerId = 1L;
     Organization organization = podamFactory.manufacturePojo(Organization.class);
@@ -243,13 +243,13 @@ class OrganizationRetrieverServiceImplTest {
 
     Mockito.when(organizationServiceMock.findByOrgFiscalCode(cieOrgFiscalCode, accessToken)).thenReturn(organization);
 
-    boolean result = organizationRetrieverService.isIpzsBroker(brokerId,accessToken);
+    boolean result = organizationRetrieverService.isCieBroker(brokerId,accessToken);
 
     Assertions.assertTrue(result);
   }
 
   @Test
-  void givenWrongBrokerIdWhenIsIpzsBrokerThenOk() {
+  void givenWrongBrokerIdWhenIsCieBrokerThenOk() {
     String accessToken = "ACCESS_TOKEN";
     Long brokerId = 1L;
     Organization organization = podamFactory.manufacturePojo(Organization.class);
@@ -257,13 +257,13 @@ class OrganizationRetrieverServiceImplTest {
 
     Mockito.when(organizationServiceMock.findByOrgFiscalCode(cieOrgFiscalCode, accessToken)).thenReturn(organization);
 
-    boolean result = organizationRetrieverService.isIpzsBroker(brokerId,accessToken);
+    boolean result = organizationRetrieverService.isCieBroker(brokerId,accessToken);
 
     Assertions.assertFalse(result);
   }
 
   @Test
-  void givenMultipleInvocationWhenisIpzsBrokerThenReturnCachedValue() {
+  void givenMultipleInvocationWhenisCieBrokerThenReturnCachedValue() {
     String accessToken = "ACCESS_TOKEN";
     Long brokerId = 1L;
     Organization organization = podamFactory.manufacturePojo(Organization.class);
@@ -272,11 +272,11 @@ class OrganizationRetrieverServiceImplTest {
     Mockito.when(organizationServiceMock.findByOrgFiscalCode(cieOrgFiscalCode, accessToken)).thenReturn(organization);
 
     //populate cached value
-    organizationRetrieverService.isIpzsBroker(brokerId,accessToken);
+    organizationRetrieverService.isCieBroker(brokerId,accessToken);
 
     Mockito.clearInvocations(organizationServiceMock);
 
-    boolean result = organizationRetrieverService.isIpzsBroker(brokerId,accessToken);
+    boolean result = organizationRetrieverService.isCieBroker(brokerId,accessToken);
 
     Assertions.assertTrue(result);
     verifyNoInteractions(organizationServiceMock);

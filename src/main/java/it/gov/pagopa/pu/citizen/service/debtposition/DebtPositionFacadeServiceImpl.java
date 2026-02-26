@@ -82,8 +82,8 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
 
   @Override
   public DebtPositionResponseDTO createSpontaneousDebtPosition(Long brokerId, DebtPositionRequestDTO debtPositionRequestDTO, String accessToken) {
-    boolean ipzsBroker = organizationRetrieverService.isIpzsBroker(brokerId, accessToken);
-    if(ipzsBroker) {
+    boolean cieBroker = organizationRetrieverService.isCieBroker(brokerId, accessToken);
+    if(cieBroker) {
       return cieDebtPositionFacadeService.createSpontaneousDebtPosition(debtPositionRequestDTO,accessToken);
     }
     DebtPositionDTO debtPosition = debtPositionService.createDebtPosition(debtPositionDTOMapper.mapSpontaneousDebtPositionDTO(debtPositionRequestDTO, expirationDays), false, accessToken);

@@ -138,6 +138,11 @@ public class ControllerExceptionHandler {
     return handleException(ex, request, HttpStatus.BAD_REQUEST, ErrorDTO.CategoryEnum.BAD_REQUEST);
   }
 
+  @ExceptionHandler({InvalidRequestBodyException.class})
+  public ResponseEntity<ErrorDTO> handleInvalidRequestBodyException(InvalidRequestBodyException ex, HttpServletRequest request) {
+    return handleException(ex, request, HttpStatus.BAD_REQUEST, ErrorDTO.CategoryEnum.BAD_REQUEST);
+  }
+
   static ResponseEntity<ErrorDTO> handleException(Exception ex, HttpServletRequest request, HttpStatusCode httpStatus, ErrorDTO.CategoryEnum category) {
     logException(ex, request, httpStatus);
 

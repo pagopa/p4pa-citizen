@@ -113,7 +113,7 @@ class DebtPositionFacadeServiceImplTest {
     Organization organization = podamFactory.manufacturePojo(Organization.class);
     DebtPositionResponseDTO expectedResult = podamFactory.manufacturePojo(DebtPositionResponseDTO.class);
 
-    Mockito.when(organizationRetrieverServiceMock.isIpzsBroker(brokerId,accessToken)).thenReturn(false);
+    Mockito.when(organizationRetrieverServiceMock.isCieBroker(brokerId,accessToken)).thenReturn(false);
     Mockito.when(organizationRetrieverServiceMock.getValidOrganization(requestDTO.getOrganizationId(), brokerId, accessToken)).thenReturn(organization);
     Mockito.when(debtPositionDTOMapperMock.mapSpontaneousDebtPositionDTO(requestDTO, 1)).thenReturn(debtPosition);
     Mockito.when(debtPositionServiceMock.createDebtPosition(debtPosition, false, accessToken))
@@ -134,7 +134,7 @@ class DebtPositionFacadeServiceImplTest {
     loggedUser.setMappedExternalUserId("mappedExternalUserId");
     DebtPositionDTO debtPosition = podamFactory.manufacturePojo(DebtPositionDTO.class);
 
-    Mockito.when(organizationRetrieverServiceMock.isIpzsBroker(brokerId,accessToken)).thenReturn(false);
+    Mockito.when(organizationRetrieverServiceMock.isCieBroker(brokerId,accessToken)).thenReturn(false);
     Mockito.when(organizationRetrieverServiceMock.getValidOrganization(requestDTO.getOrganizationId(), brokerId, accessToken)).thenThrow(ResourceNotFoundException.class);
     Mockito.when(debtPositionDTOMapperMock.mapSpontaneousDebtPositionDTO(requestDTO, 1)).thenReturn(debtPosition);
     Mockito.when(debtPositionServiceMock.createDebtPosition(debtPosition, false, accessToken))
@@ -145,12 +145,12 @@ class DebtPositionFacadeServiceImplTest {
   }
 
   @Test
-  void givenIpzsBrokerIdWhenCreateDebtPositionThenOk() {
+  void givenCieBrokerIdWhenCreateDebtPositionThenOk() {
     Long brokerId =1L;
     DebtPositionRequestDTO requestDTO = podamFactory.manufacturePojo(DebtPositionRequestDTO.class);
     DebtPositionResponseDTO expectedResult = podamFactory.manufacturePojo(DebtPositionResponseDTO.class);
 
-    Mockito.when(organizationRetrieverServiceMock.isIpzsBroker(brokerId,accessToken)).thenReturn(true);
+    Mockito.when(organizationRetrieverServiceMock.isCieBroker(brokerId,accessToken)).thenReturn(true);
     Mockito.when(cieDebtPositionFacadeServiceMock.createSpontaneousDebtPosition(requestDTO,accessToken)).thenReturn(expectedResult);
 
     DebtPositionResponseDTO result = debtPositionFacadeService.createSpontaneousDebtPosition(brokerId, requestDTO, accessToken);

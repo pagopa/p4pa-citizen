@@ -1,7 +1,6 @@
 package it.gov.pagopa.pu.citizen.service.debtposition.cie;
 
 import it.gov.pagopa.pu.cie.dto.generated.DebtPositionCieRequestDTO;
-import it.gov.pagopa.pu.citizen.connector.auth.AuthnService;
 import it.gov.pagopa.pu.citizen.connector.cie.CieDebtPositionService;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
@@ -32,15 +31,12 @@ class CieDebtPositionFacadeServiceImplTest {
   private DebtPositionTypeOrgRetrieverService debtPositionTypeOrgRetrieverServiceMock;
   @Mock
   private DebtPositionResponseDTOMapper debtPositionResponseDTOMapperMock;
-  @Mock
-  private AuthnService authnServiceMock;
 
   private CieDebtPositionFacadeService cieDebtPositionFacadeService;
 
   private final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
   private final String accessToken = "TOKEN";
-  private final String cieOrgIpaCode = "cieOrgIpaCode";
 
   @BeforeEach
   void setUp() {
@@ -48,9 +44,7 @@ class CieDebtPositionFacadeServiceImplTest {
       cieDebtPositionServiceMock,
       debtPositionCieRequestDTOMapperMock,
       debtPositionTypeOrgRetrieverServiceMock,
-      debtPositionResponseDTOMapperMock,
-      authnServiceMock,
-      cieOrgIpaCode
+      debtPositionResponseDTOMapperMock
     );
   }
 
@@ -60,8 +54,7 @@ class CieDebtPositionFacadeServiceImplTest {
       cieDebtPositionServiceMock,
       debtPositionCieRequestDTOMapperMock,
       debtPositionTypeOrgRetrieverServiceMock,
-      debtPositionResponseDTOMapperMock,
-      authnServiceMock
+      debtPositionResponseDTOMapperMock
     );
   }
 
@@ -72,13 +65,11 @@ class CieDebtPositionFacadeServiceImplTest {
     DebtPositionDTO debtPosition = podamFactory.manufacturePojo(DebtPositionDTO.class);
     DebtPositionResponseDTO expectedResult = podamFactory.manufacturePojo(DebtPositionResponseDTO.class);
     String debtPositionTypeOrgCode = "debtPositionTypeOrgCode";
-    String cieAccessToken = "cieAccessToken";
 
     Mockito.when(debtPositionTypeOrgRetrieverServiceMock.getDebtPositionTypeOrgCode(requestDTO.getDebtPositionTypeOrgId(), requestDTO.getOrganizationId(),accessToken)).thenReturn(debtPositionTypeOrgCode);
     Mockito.when(debtPositionCieRequestDTOMapperMock.map(requestDTO,debtPositionTypeOrgCode)).thenReturn(debtPositionCieRequestDTO);
-    Mockito.when(cieDebtPositionServiceMock.createDebtPositionCie(debtPositionCieRequestDTO, cieAccessToken)).thenReturn(debtPosition);
+    Mockito.when(cieDebtPositionServiceMock.createDebtPositionCie(debtPositionCieRequestDTO)).thenReturn(debtPosition);
     Mockito.when(debtPositionResponseDTOMapperMock.map(debtPosition, null, true)).thenReturn(expectedResult);
-    Mockito.when(authnServiceMock.getAccessToken(cieOrgIpaCode)).thenReturn(cieAccessToken);
 
 
     DebtPositionResponseDTO result = cieDebtPositionFacadeService.createSpontaneousDebtPosition( requestDTO, accessToken);

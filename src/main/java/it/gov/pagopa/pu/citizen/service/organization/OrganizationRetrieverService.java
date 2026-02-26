@@ -10,5 +10,5 @@ public interface OrganizationRetrieverService {
   void validateOrganization(Long organizationId, Long brokerId, String accessToken);
   Organization getValidOrganization(Long organizationId, Long brokerId, String accessToken);
   Organization getValidOrganization(String orgFiscalCode, Long brokerId, String accessToken);
-  boolean isIpzsBroker(Long brokerId, String accessToken);
+  boolean isCieBroker(Long brokerId, String accessToken);
 }

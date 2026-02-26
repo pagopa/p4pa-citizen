@@ -4,5 +4,5 @@ import it.gov.pagopa.pu.cie.dto.generated.DebtPositionCieRequestDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 
 public interface CieDebtPositionService {
-  DebtPositionDTO createDebtPositionCie(DebtPositionCieRequestDTO debtPositionCieRequestDTO, String accessToken);
+  DebtPositionDTO createDebtPositionCie(DebtPositionCieRequestDTO debtPositionCieRequestDTO);
 }

@@ -25,7 +25,7 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
   private final OrganizationsWithSpontaneousDTOMapper organizationsWithSpontaneousDTOMapper;
   private final OrganizationService organizationService;
   private final String cieOrgFiscalCode;
-  private volatile Long ipzsBrokerId = null;
+  private volatile Long cieBrokerId = null;
 
   public OrganizationRetrieverServiceImpl(BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverService, DebtPositionTypeOrgService debtPositionTypeOrgService,
                                           OrganizationsWithSpontaneousDTOMapper organizationsWithSpontaneousDTOMapper, OrganizationService organizationService,
@@ -90,27 +90,27 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
   }
 
   @Override
-  public boolean isIpzsBroker(Long brokerId, String accessToken) {
+  public boolean isCieBroker(Long brokerId, String accessToken) {
     if(brokerId == null){
       return false;
     }
-    return brokerId.equals(getIpzsBrokerId(accessToken));
+    return brokerId.equals(getCieBrokerId(accessToken));
   }
 
-  private Long getIpzsBrokerId(String accessToken){
-    if(ipzsBrokerId == null) {
-      setIpzsBrokerId(accessToken);
+  private Long getCieBrokerId(String accessToken){
+    if(cieBrokerId == null) {
+      setCieBrokerId(accessToken);
     }
-    return ipzsBrokerId;
+    return cieBrokerId;
   }
 
-  private synchronized void setIpzsBrokerId(String accessToken){
-    if(ipzsBrokerId == null) {
+  private synchronized void setCieBrokerId(String accessToken){
+    if(cieBrokerId == null) {
       Organization organization = organizationService.findByOrgFiscalCode(cieOrgFiscalCode, accessToken);
       if (organization == null) {
-        throw new ResourceNotFoundException("ORGANIZATION_NOT_FOUND", "Ipzs organization not found");
+        throw new ResourceNotFoundException("ORGANIZATION_NOT_FOUND", "Cie organization not found");
       }
-      ipzsBrokerId = organization.getBrokerId();
+      cieBrokerId = organization.getBrokerId();
     }
   }
 }

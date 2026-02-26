@@ -6,6 +6,7 @@ import it.gov.pagopa.pu.citizen.dto.cie.CieFieldValuesDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.InstallmentRequestDTO;
 import it.gov.pagopa.pu.citizen.exception.DebtPositionInvalidFieldValuesException;
+import it.gov.pagopa.pu.citizen.exception.InvalidRequestBodyException;
 import it.gov.pagopa.pu.debtpositions.dto.generated.PersonDTO;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -16,6 +17,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -30,7 +32,7 @@ public class DebtPositionCieRequestDTOMapper {
 
   public DebtPositionCieRequestDTO map(DebtPositionRequestDTO dto, String debtPositionTypeOrgCode) {
     if (!isValid(dto, debtPositionTypeOrgCode)) {
-      return null;
+      throw new InvalidRequestBodyException("DEBT_POSITION_REQUEST_BODY_INVALID","Invalid DebtPositionRequestDTO. Missing installments or debtPositionTypeOrgCode");
     }
     InstallmentRequestDTO installment = extractFirstInstallment(dto);
     return buildDebtPositionCieRequest(installment, dto.getFieldValues(), debtPositionTypeOrgCode);
@@ -54,7 +56,12 @@ public class DebtPositionCieRequestDTOMapper {
   private void validateFieldValues(CieFieldValuesDTO cieFieldValuesDTO) {
     Set<ConstraintViolation<CieFieldValuesDTO>> violations = validator.validate(cieFieldValuesDTO);
     if(!violations.isEmpty()){
-      throw new DebtPositionInvalidFieldValuesException("DEBT_POSITION_FIELD_VALUES_MISSING","Required fields missing from CieFieldValuesDTO");
+      String violationsDescription = violations
+        .stream()
+        .map(e -> " " + e.getPropertyPath() + ": " + e.getMessage())
+        .sorted()
+        .collect(Collectors.joining(";"));
+      throw new DebtPositionInvalidFieldValuesException("DEBT_POSITION_FIELD_VALUES_MISSING", "Required fields missing from CieFieldValuesDTO. [%s]".formatted(violationsDescription));
     }
   }
 
