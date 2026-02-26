@@ -25,7 +25,7 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
   private final OrganizationsWithSpontaneousDTOMapper organizationsWithSpontaneousDTOMapper;
   private final OrganizationService organizationService;
   private final String cieOrgFiscalCode;
-  private Long cieBrokerId = null;
+  private Organization cieOrganization = null;
 
   public OrganizationRetrieverServiceImpl(BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverService, DebtPositionTypeOrgService debtPositionTypeOrgService,
                                           OrganizationsWithSpontaneousDTOMapper organizationsWithSpontaneousDTOMapper, OrganizationService organizationService,
@@ -94,23 +94,24 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
     if(brokerId == null){
       return false;
     }
-    return brokerId.equals(getCieBrokerId(accessToken));
+    return brokerId.equals(getCieOrganization(accessToken).getBrokerId());
   }
 
-  private Long getCieBrokerId(String accessToken){
-    if(cieBrokerId == null) {
-      setCieBrokerId(accessToken);
+  @Override
+  public Organization getCieOrganization(String accessToken){
+    if(cieOrganization == null) {
+      setCieOrganization(accessToken);
     }
-    return cieBrokerId;
+    return cieOrganization;
   }
 
-  private synchronized void setCieBrokerId(String accessToken){
-    if(cieBrokerId == null) {
+  private synchronized void setCieOrganization(String accessToken){
+    if(cieOrganization == null) {
       Organization organization = organizationService.findByOrgFiscalCode(cieOrgFiscalCode, accessToken);
       if (organization == null) {
         throw new ResourceNotFoundException("ORGANIZATION_NOT_FOUND", "Cie organization not found");
       }
-      cieBrokerId = organization.getBrokerId();
+      cieOrganization = organization;
     }
   }
 }

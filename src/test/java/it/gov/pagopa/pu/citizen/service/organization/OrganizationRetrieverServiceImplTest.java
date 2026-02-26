@@ -235,7 +235,7 @@ class OrganizationRetrieverServiceImplTest {
   }
 
   @Test
-  void whenIsCieBrokerThenOk() {
+  void whenIsCieBrokerThenTrue() {
     String accessToken = "ACCESS_TOKEN";
     Long brokerId = 1L;
     Organization organization = podamFactory.manufacturePojo(Organization.class);
@@ -249,7 +249,7 @@ class OrganizationRetrieverServiceImplTest {
   }
 
   @Test
-  void givenWrongBrokerIdWhenIsCieBrokerThenOk() {
+  void givenWrongBrokerIdWhenIsCieBrokerThenFalse() {
     String accessToken = "ACCESS_TOKEN";
     Long brokerId = 1L;
     Organization organization = podamFactory.manufacturePojo(Organization.class);
@@ -279,6 +279,53 @@ class OrganizationRetrieverServiceImplTest {
     boolean result = organizationRetrieverService.isCieBroker(brokerId,accessToken);
 
     Assertions.assertTrue(result);
+    verifyNoInteractions(organizationServiceMock);
+  }
+
+  @Test
+  void whenGetCieOrganizationThenOk() {
+    String accessToken = "ACCESS_TOKEN";
+    Long brokerId = 1L;
+    Organization expectedResult = podamFactory.manufacturePojo(Organization.class);
+    expectedResult.setBrokerId(brokerId);
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(cieOrgFiscalCode, accessToken)).thenReturn(expectedResult);
+
+    Organization result = organizationRetrieverService.getCieOrganization(accessToken);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(expectedResult,result);
+  }
+
+  @Test
+  void givenNoOrganizationWhenGetCieOrganizationThenOk() {
+    String accessToken = "ACCESS_TOKEN";
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(cieOrgFiscalCode, accessToken)).thenReturn(null);
+
+    ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> organizationRetrieverService.getCieOrganization(accessToken));
+
+    Assertions.assertEquals("ORGANIZATION_NOT_FOUND",resourceNotFoundException.getCode());
+  }
+
+  @Test
+  void givenMultipleInvocationWhenGetCieOrganizationThenReturnCachedValue() {
+    String accessToken = "ACCESS_TOKEN";
+    Long brokerId = 1L;
+    Organization expectedResult = podamFactory.manufacturePojo(Organization.class);
+    expectedResult.setBrokerId(brokerId);
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(cieOrgFiscalCode, accessToken)).thenReturn(expectedResult);
+
+    //populate cached value
+    organizationRetrieverService.getCieOrganization(accessToken);
+
+    Mockito.clearInvocations(organizationServiceMock);
+
+    Organization result = organizationRetrieverService.getCieOrganization(accessToken);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(expectedResult,result);
     verifyNoInteractions(organizationServiceMock);
   }
 }

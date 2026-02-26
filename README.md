@@ -111,7 +111,6 @@ See [application.yml](src/main/resources/application.yml) for each configurable 
 |------------------------------|--------------------------------|--------------|
 | SPONTANEOUS_EXPIRATION_DAYS  | Spontaneous expiration days    | 1            |
 | CIE_ORGANIZATION_FISCAL_CODE | Cie's organization fiscal code | 00399810589  |
-| CIE_ORGANIZATION_IPA_CODE    | Cie's organization ipa code    | ipzsspa      |
 
 
 ## 🛠️ Getting Started

@@ -16,7 +16,7 @@ import java.util.Optional;
 @Mapper(componentModel = "spring")
 public interface DebtPositionResponseDTOMapper {
 
-  @Mapping(target = "organizationId", expression = "java(organization!=null?organization.getOrganizationId():debtPositionDTO.getOrganizationId())")
+  @Mapping(target = "organizationId", source = "organization.organizationId")
   @Mapping(target = "orgFiscalCode", expression = "java(mapOrgFiscalCode(debtPositionDTO, organization, delegate))")
   @Mapping(target = "orgName", expression = "java(mapOrgName(debtPositionDTO, organization, delegate))")
   @Mapping(target = "paymentDetails", expression = "java(mapFromDebtPosition(debtPositionDTO))")

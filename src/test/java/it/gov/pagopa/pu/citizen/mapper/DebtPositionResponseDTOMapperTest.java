@@ -102,6 +102,7 @@ class DebtPositionResponseDTOMapperTest {
   @Test
   void givenDelegateWhenMapThenOk() {
     DebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTO.class);
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
 
     PaymentOptionDTO paymentOption = new PaymentOptionDTO();
     InstallmentDTO installment = new InstallmentDTO();
@@ -113,11 +114,11 @@ class DebtPositionResponseDTOMapperTest {
     paymentOption.setInstallments(java.util.List.of(installment));
     debtPositionDTO.setPaymentOptions(java.util.List.of(paymentOption));
 
-    DebtPositionResponseDTO result = mapper.map(debtPositionDTO, null, true);
+    DebtPositionResponseDTO result = mapper.map(debtPositionDTO, organization, true);
 
     assertNotNull(result);
     assertEquals(debtPositionDTO.getDebtPositionId(), result.getDebtPositionId());
-    assertEquals(debtPositionDTO.getOrganizationId(), result.getOrganizationId());
+    assertEquals(organization.getOrganizationId(), result.getOrganizationId());
     assertEquals(transfer.getOrgFiscalCode(), result.getOrgFiscalCode());
     assertEquals(transfer.getOrgName(), result.getOrgName());
 

@@ -115,4 +115,3 @@ rest:
 cie:
   organization:
     fiscal-code: "\${CIE_ORGANIZATION_FISCAL_CODE:00399810589}"
-    ipa-code: "\${CIE_ORGANIZATION_IPA_CODE:ipzsspa}"
