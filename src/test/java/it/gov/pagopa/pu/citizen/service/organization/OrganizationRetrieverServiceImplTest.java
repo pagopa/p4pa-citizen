@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class OrganizationRetrieverServiceImplTest {
@@ -34,6 +35,7 @@ class OrganizationRetrieverServiceImplTest {
   private OrganizationsWithSpontaneousDTOMapper organizationsWithSpontaneousDTOMapperMock;
   @Mock
   private OrganizationService organizationServiceMock;
+  private final String cieOrgFiscalCode = "cieOrgFiscalCode";
 
   private static final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
@@ -41,7 +43,7 @@ class OrganizationRetrieverServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    organizationRetrieverService = new OrganizationRetrieverServiceImpl(brokerOrganizationsRetrieverServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock, organizationServiceMock);
+    organizationRetrieverService = new OrganizationRetrieverServiceImpl(brokerOrganizationsRetrieverServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock, organizationServiceMock, cieOrgFiscalCode);
   }
 
   @AfterEach
@@ -230,5 +232,53 @@ class OrganizationRetrieverServiceImplTest {
     Mockito.when(organizationServiceMock.findByOrgFiscalCode(orgFiscalCode,accessToken)).thenReturn(organization);
 
     Assertions.assertThrows(ResourceNotFoundException.class,() -> organizationRetrieverService.getValidOrganization(orgFiscalCode,brokerId,accessToken));
+  }
+
+  @Test
+  void whenIsIpzsBrokerThenOk() {
+    String accessToken = "ACCESS_TOKEN";
+    Long brokerId = 1L;
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    organization.setBrokerId(brokerId);
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(cieOrgFiscalCode, accessToken)).thenReturn(organization);
+
+    boolean result = organizationRetrieverService.isIpzsBroker(brokerId,accessToken);
+
+    Assertions.assertTrue(result);
+  }
+
+  @Test
+  void givenWrongBrokerIdWhenIsIpzsBrokerThenOk() {
+    String accessToken = "ACCESS_TOKEN";
+    Long brokerId = 1L;
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    organization.setBrokerId(brokerId+1);
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(cieOrgFiscalCode, accessToken)).thenReturn(organization);
+
+    boolean result = organizationRetrieverService.isIpzsBroker(brokerId,accessToken);
+
+    Assertions.assertFalse(result);
+  }
+
+  @Test
+  void givenMultipleInvocationWhenisIpzsBrokerThenReturnCachedValue() {
+    String accessToken = "ACCESS_TOKEN";
+    Long brokerId = 1L;
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    organization.setBrokerId(brokerId);
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(cieOrgFiscalCode, accessToken)).thenReturn(organization);
+
+    //populate cached value
+    organizationRetrieverService.isIpzsBroker(brokerId,accessToken);
+
+    Mockito.clearInvocations(organizationServiceMock);
+
+    boolean result = organizationRetrieverService.isIpzsBroker(brokerId,accessToken);
+
+    Assertions.assertTrue(result);
+    verifyNoInteractions(organizationServiceMock);
   }
 }

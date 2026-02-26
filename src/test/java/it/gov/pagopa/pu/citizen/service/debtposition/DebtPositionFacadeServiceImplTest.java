@@ -17,6 +17,7 @@ import it.gov.pagopa.pu.citizen.mapper.DebtPositionResponseDTOMapper;
 import it.gov.pagopa.pu.citizen.mapper.DebtorUnpaidDebtPositionOverviewMapper;
 import it.gov.pagopa.pu.citizen.mapper.PagedDebtorDebtPositionMapper;
 import it.gov.pagopa.pu.citizen.service.ZipFileService;
+import it.gov.pagopa.pu.citizen.service.debtposition.cie.CieDebtPositionFacadeService;
 import it.gov.pagopa.pu.citizen.service.organization.BrokerOrganizationsRetrieverService;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
@@ -71,6 +72,8 @@ class DebtPositionFacadeServiceImplTest {
   private DebtorUnpaidDebtPositionOverviewMapper debtorUnpaidDebtPositionOverviewMapperMock;
   @Mock
   private ReceiptService receiptServiceMock;
+  @Mock
+  private CieDebtPositionFacadeService cieDebtPositionFacadeServiceMock;
 
   private DebtPositionFacadeService debtPositionFacadeService;
 
@@ -81,7 +84,9 @@ class DebtPositionFacadeServiceImplTest {
   @BeforeEach
   void setUp() {
     debtPositionFacadeService = new DebtPositionFacadeServiceImpl(debtPositionServiceMock, debtPositionDTOMapperMock, 1,
-        debtPositionResponseDTOMapperMock, printPaymentNoticeServiceMock, zipFileServiceMock, organizationRetrieverServiceMock, brokerOrganizationsRetrieverServiceMock, pagedDebtorDebtPositionMapperMock, debtorUnpaidDebtPositionOverviewMapperMock, receiptServiceMock);
+        debtPositionResponseDTOMapperMock, printPaymentNoticeServiceMock, zipFileServiceMock, organizationRetrieverServiceMock,
+      brokerOrganizationsRetrieverServiceMock, pagedDebtorDebtPositionMapperMock, debtorUnpaidDebtPositionOverviewMapperMock,
+      receiptServiceMock, cieDebtPositionFacadeServiceMock);
   }
 
   @AfterEach
@@ -93,7 +98,8 @@ class DebtPositionFacadeServiceImplTest {
       printPaymentNoticeServiceMock,
       zipFileServiceMock,
       organizationRetrieverServiceMock,
-      debtorUnpaidDebtPositionOverviewMapperMock
+      debtorUnpaidDebtPositionOverviewMapperMock,
+      cieDebtPositionFacadeServiceMock
     );
   }
 
@@ -107,11 +113,12 @@ class DebtPositionFacadeServiceImplTest {
     Organization organization = podamFactory.manufacturePojo(Organization.class);
     DebtPositionResponseDTO expectedResult = podamFactory.manufacturePojo(DebtPositionResponseDTO.class);
 
+    Mockito.when(organizationRetrieverServiceMock.isIpzsBroker(brokerId,accessToken)).thenReturn(false);
     Mockito.when(organizationRetrieverServiceMock.getValidOrganization(requestDTO.getOrganizationId(), brokerId, accessToken)).thenReturn(organization);
     Mockito.when(debtPositionDTOMapperMock.mapSpontaneousDebtPositionDTO(requestDTO, 1)).thenReturn(debtPosition);
     Mockito.when(debtPositionServiceMock.createDebtPosition(debtPosition, false, accessToken))
         .thenReturn(debtPosition);
-    Mockito.when(debtPositionResponseDTOMapperMock.map(debtPosition, organization)).thenReturn(expectedResult);
+    Mockito.when(debtPositionResponseDTOMapperMock.map(debtPosition, organization, false)).thenReturn(expectedResult);
 
     DebtPositionResponseDTO result = debtPositionFacadeService.createSpontaneousDebtPosition(brokerId, requestDTO, accessToken);
 
@@ -127,6 +134,7 @@ class DebtPositionFacadeServiceImplTest {
     loggedUser.setMappedExternalUserId("mappedExternalUserId");
     DebtPositionDTO debtPosition = podamFactory.manufacturePojo(DebtPositionDTO.class);
 
+    Mockito.when(organizationRetrieverServiceMock.isIpzsBroker(brokerId,accessToken)).thenReturn(false);
     Mockito.when(organizationRetrieverServiceMock.getValidOrganization(requestDTO.getOrganizationId(), brokerId, accessToken)).thenThrow(ResourceNotFoundException.class);
     Mockito.when(debtPositionDTOMapperMock.mapSpontaneousDebtPositionDTO(requestDTO, 1)).thenReturn(debtPosition);
     Mockito.when(debtPositionServiceMock.createDebtPosition(debtPosition, false, accessToken))
@@ -134,6 +142,21 @@ class DebtPositionFacadeServiceImplTest {
 
     assertThrows(ResourceNotFoundException.class, () -> debtPositionFacadeService.createSpontaneousDebtPosition(brokerId, requestDTO, accessToken));
     Mockito.verifyNoInteractions(debtPositionResponseDTOMapperMock);
+  }
+
+  @Test
+  void givenIpzsBrokerIdWhenCreateDebtPositionThenOk() {
+    Long brokerId =1L;
+    DebtPositionRequestDTO requestDTO = podamFactory.manufacturePojo(DebtPositionRequestDTO.class);
+    DebtPositionResponseDTO expectedResult = podamFactory.manufacturePojo(DebtPositionResponseDTO.class);
+
+    Mockito.when(organizationRetrieverServiceMock.isIpzsBroker(brokerId,accessToken)).thenReturn(true);
+    Mockito.when(cieDebtPositionFacadeServiceMock.createSpontaneousDebtPosition(requestDTO,accessToken)).thenReturn(expectedResult);
+
+    DebtPositionResponseDTO result = debtPositionFacadeService.createSpontaneousDebtPosition(brokerId, requestDTO, accessToken);
+
+    assertNotNull(result);
+    assertSame(expectedResult, result);
   }
 
   @Test

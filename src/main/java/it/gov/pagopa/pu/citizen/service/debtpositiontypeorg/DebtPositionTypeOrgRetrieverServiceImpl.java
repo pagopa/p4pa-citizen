@@ -66,4 +66,13 @@ public class DebtPositionTypeOrgRetrieverServiceImpl implements DebtPositionType
     }
     return null;
   }
+
+  @Override
+  public String getDebtPositionTypeOrgCode(Long debtPositionTypeOrgId, Long organizationId, String accessToken) {
+    DebtPositionTypeOrg debtPositionTypeOrg = debtPositionTypeOrgService.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken);
+    if(debtPositionTypeOrg==null || !debtPositionTypeOrg.getOrganizationId().equals(organizationId)){
+      throw new ResourceNotFoundException("DEBT_POSITION_TYPE_ORG_NOT_FOUND","DebtPositionTypeOrg with deptPositionTypeOrgId %d and organizationId %d not found".formatted(debtPositionTypeOrgId, organizationId));
+    }
+    return debtPositionTypeOrg.getCode();
+  }
 }
