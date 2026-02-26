@@ -114,4 +114,4 @@ rest:
 
 cie:
   organization:
-    fiscal-code: "\${CIE_ORGANIZATION_FISCAL_CODE:00399810589}"
+    fiscal-code: "\${CIE_ORGANIZATION_FISCAL_CODE:}"
