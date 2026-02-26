@@ -19,10 +19,10 @@ class BrokerInfoDTOMapperTest {
     Organization organization = podamFactory.manufacturePojo(Organization.class);
     String arpuConfig = "arpuConfig";
 
-    BrokerInfoDTO result = mapper.map(organization, arpuConfig);
+    BrokerInfoDTO result = mapper.map(organization, "externalId", arpuConfig);
 
     assertNotNull(result);
-    TestUtils.checkNotNullFields(result, "externalId");
+    TestUtils.checkNotNullFields(result);
     assertEquals(organization.getOrgName(), result.getBrokerName());
     assertEquals(organization.getOrgFiscalCode(), result.getBrokerFiscalCode());
     assertEquals(organization.getOrgLogo(), result.getBrokerLogo());
@@ -31,14 +31,14 @@ class BrokerInfoDTOMapperTest {
 
   @Test
   void givenNullOrganizationWhenMapThenNull() {
-    BrokerInfoDTO result = mapper.map(null, null);
+    BrokerInfoDTO result = mapper.map(null,"externalId", null);
 
     assertNull(result);
   }
 
   @Test
   void givenArpuConfigAndNoOrganizationWhenMapThenNull() {
-    BrokerInfoDTO result = mapper.map(null, "arpuConfig");
+    BrokerInfoDTO result = mapper.map(null, "externalId", "arpuConfig");
 
     assertNull(result);
   }
@@ -47,10 +47,10 @@ class BrokerInfoDTOMapperTest {
   void givenOrganizationAndNoArpuConfigWhenMapThenOk() {
     Organization organization = podamFactory.manufacturePojo(Organization.class);
 
-    BrokerInfoDTO result = mapper.map(organization, null);
+    BrokerInfoDTO result = mapper.map(organization, "externalId" , null);
 
     assertNotNull(result);
-    TestUtils.checkNotNullFields(result, "config", "externalId");
+    TestUtils.checkNotNullFields(result, "config");
     assertEquals(organization.getOrgName(), result.getBrokerName());
     assertEquals(organization.getOrgFiscalCode(), result.getBrokerFiscalCode());
     assertEquals(organization.getOrgLogo(), result.getBrokerLogo());

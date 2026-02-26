@@ -3,12 +3,14 @@ package it.gov.pagopa.pu.citizen.service.broker;
 import it.gov.pagopa.pu.citizen.connector.organization.BrokerService;
 import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
 import it.gov.pagopa.pu.citizen.dto.generated.BrokerInfoDTO;
+import it.gov.pagopa.pu.citizen.exception.InvalidParamException;
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.BrokerInfoDTOMapper;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.organization.dto.generated.Broker;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -69,7 +71,7 @@ class BrokerRetrieverServiceImplTest {
     Mockito.when(organizationServiceMock.getBrokerOrganization(brokerId, accessToken))
       .thenReturn(organization);
 
-    Mockito.when(brokerInfoDTOMapperMock.map(organization, broker.getArpuConfig()))
+    Mockito.when(brokerInfoDTOMapperMock.map(organization, broker.getExternalId(), broker.getArpuConfig()))
       .thenReturn(expectedResult);
 
     BrokerInfoDTO result =
@@ -98,7 +100,7 @@ class BrokerRetrieverServiceImplTest {
     Mockito.when(organizationServiceMock.getBrokerOrganization(broker.getBrokerId(), accessToken))
       .thenReturn(organization);
 
-    Mockito.when(brokerInfoDTOMapperMock.map(organization, broker.getArpuConfig()))
+    Mockito.when(brokerInfoDTOMapperMock.map(organization, broker.getExternalId(), broker.getArpuConfig()))
       .thenReturn(expectedResult);
 
     BrokerInfoDTO result =
@@ -147,5 +149,16 @@ class BrokerRetrieverServiceImplTest {
       .getBrokerByExternalId(externalId, accessToken);
 
     Mockito.verifyNoInteractions(organizationServiceMock, brokerInfoDTOMapperMock);
+  }
+
+  @Test
+  void givenBothBrokerIdAndExternalIdNullWhenGetBrokerInfoThenThrowInvalidParamException() {
+    InvalidParamException ex = Assertions.assertThrows(
+      InvalidParamException.class,
+      () -> brokerRetrieverService.getBrokerInfo(null, null, "token")
+    );
+
+    Assertions.assertEquals("INVALID_FIELDS", ex.getCode());
+    Mockito.verifyNoInteractions(brokerServiceMock);
   }
 }

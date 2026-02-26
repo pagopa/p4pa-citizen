@@ -2,7 +2,6 @@ package it.gov.pagopa.pu.citizen.controller;
 
 import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
 import it.gov.pagopa.pu.citizen.dto.generated.BrokerInfoDTO;
-import it.gov.pagopa.pu.citizen.exception.InvalidParamException;
 import it.gov.pagopa.pu.citizen.security.SecurityUtilsTest;
 import it.gov.pagopa.pu.citizen.service.broker.BrokerRetrieverService;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
@@ -91,17 +90,6 @@ class BrokerControllerTest {
 
     Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     Assertions.assertNull(response.getBody());
-  }
-
-  @Test
-  void givenBothBrokerIdAndExternalIdNullWhenGetBrokerInfoThenThrowInvalidParamException() {
-    InvalidParamException ex = Assertions.assertThrows(
-      InvalidParamException.class,
-      () -> brokerController.getBrokerInfo(null, null)
-    );
-
-    Assertions.assertEquals("INVALID_FIELDS", ex.getCode());
-    Mockito.verifyNoInteractions(brokerRetrieverServiceMock);
   }
 
 }
