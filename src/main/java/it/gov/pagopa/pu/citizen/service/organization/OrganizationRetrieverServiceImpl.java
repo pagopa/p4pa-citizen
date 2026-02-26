@@ -8,6 +8,7 @@ import it.gov.pagopa.pu.citizen.mapper.OrganizationsWithSpontaneousDTOMapper;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrgWithActiveSpontaneousCount;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -23,16 +24,18 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
   private final DebtPositionTypeOrgService debtPositionTypeOrgService;
   private final OrganizationsWithSpontaneousDTOMapper organizationsWithSpontaneousDTOMapper;
   private final OrganizationService organizationService;
-
-
+  private final String cieOrgFiscalCode;
+  private Organization cieOrganization = null;
 
   public OrganizationRetrieverServiceImpl(BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverService, DebtPositionTypeOrgService debtPositionTypeOrgService,
-                                          OrganizationsWithSpontaneousDTOMapper organizationsWithSpontaneousDTOMapper, OrganizationService organizationService
+                                          OrganizationsWithSpontaneousDTOMapper organizationsWithSpontaneousDTOMapper, OrganizationService organizationService,
+                                          @Value("${cie.organization.fiscal-code}") String cieOrgFiscalCode
   ) {
     this.brokerOrganizationsRetrieverService = brokerOrganizationsRetrieverService;
     this.debtPositionTypeOrgService = debtPositionTypeOrgService;
     this.organizationsWithSpontaneousDTOMapper = organizationsWithSpontaneousDTOMapper;
       this.organizationService = organizationService;
+    this.cieOrgFiscalCode = cieOrgFiscalCode;
   }
 
   @Override
@@ -84,5 +87,31 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
       throw new ResourceNotFoundException("ORGANIZATION_NOT_FOUND","Organization having orgFiscalCode "+orgFiscalCode+" and brokerId "+brokerId+" not found");
     }
     return organization;
+  }
+
+  @Override
+  public boolean isCieBroker(Long brokerId, String accessToken) {
+    if(brokerId == null){
+      return false;
+    }
+    return brokerId.equals(getCieOrganization(accessToken).getBrokerId());
+  }
+
+  @Override
+  public Organization getCieOrganization(String accessToken){
+    if(cieOrganization == null) {
+      setCieOrganization(accessToken);
+    }
+    return cieOrganization;
+  }
+
+  private synchronized void setCieOrganization(String accessToken){
+    if(cieOrganization == null) {
+      Organization organization = organizationService.findByOrgFiscalCode(cieOrgFiscalCode, accessToken);
+      if (organization == null) {
+        throw new ResourceNotFoundException("ORGANIZATION_NOT_FOUND", "Cie organization not found");
+      }
+      cieOrganization = organization;
+    }
   }
 }

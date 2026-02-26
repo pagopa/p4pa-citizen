@@ -106,10 +106,11 @@ See [application.yml](src/main/resources/application.yml) for each configurable 
 | CIE_WAIT_TIME_MILLIS                  | Cie retry waiting time (milliseconds)            | 500     |
 | CIE_PRINT_BODY_WHEN_ERROR             | To print body when an error occurs               | true    |
 
-#### 💼 Business logic
-| ENV                                  | DESCRIPTION                   | DEFAULT   |
-|--------------------------------------|-------------------------------|-----------|
-| SPONTANEOUS_EXPIRATION_DAYS          | Spontaneous expiration days   | 1         |
+    #### 💼 Business logic
+| ENV                          | DESCRIPTION                    | DEFAULT |
+|------------------------------|--------------------------------|---------|
+| SPONTANEOUS_EXPIRATION_DAYS  | Spontaneous expiration days    | 1       |
+| CIE_ORGANIZATION_FISCAL_CODE | Cie's organization fiscal code |         |
 
 
 ## 🛠️ Getting Started

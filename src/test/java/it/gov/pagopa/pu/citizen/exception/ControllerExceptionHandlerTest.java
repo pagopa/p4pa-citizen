@@ -359,4 +359,29 @@ class ControllerExceptionHandlerTest {
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
+  @Test
+  void handleDebtPositionInvalidFieldValuesException() throws Exception {
+    String errorCode = "DEBT_POSITION_INVALID_FIELD_VALUES";
+    doThrow(new DebtPositionInvalidFieldValuesException(errorCode, "Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+
+    performRequest(DATA, MediaType.APPLICATION_JSON)
+      .andExpect(MockMvcResultMatchers.status().isBadRequest())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(errorCode))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
+  }
+
+  @Test
+  void handleInvalidRequestBodyExceptionException() throws Exception {
+    String errorCode = "INVALID_REQUEST_BODY";
+    doThrow(new InvalidRequestBodyException(errorCode, "Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+
+    performRequest(DATA, MediaType.APPLICATION_JSON)
+      .andExpect(MockMvcResultMatchers.status().isBadRequest())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(errorCode))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
+  }
 }
