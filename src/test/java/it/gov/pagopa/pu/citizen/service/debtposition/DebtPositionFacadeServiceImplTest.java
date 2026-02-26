@@ -132,16 +132,12 @@ class DebtPositionFacadeServiceImplTest {
     DebtPositionRequestDTO requestDTO = podamFactory.manufacturePojo(DebtPositionRequestDTO.class);
     UserInfo loggedUser = new UserInfo();
     loggedUser.setMappedExternalUserId("mappedExternalUserId");
-    DebtPositionDTO debtPosition = podamFactory.manufacturePojo(DebtPositionDTO.class);
 
     Mockito.when(organizationRetrieverServiceMock.isCieBroker(brokerId,accessToken)).thenReturn(false);
     Mockito.when(organizationRetrieverServiceMock.getValidOrganization(requestDTO.getOrganizationId(), brokerId, accessToken)).thenThrow(ResourceNotFoundException.class);
-    Mockito.when(debtPositionDTOMapperMock.mapSpontaneousDebtPositionDTO(requestDTO, 1)).thenReturn(debtPosition);
-    Mockito.when(debtPositionServiceMock.createDebtPosition(debtPosition, false, accessToken))
-      .thenReturn(debtPosition);
 
     assertThrows(ResourceNotFoundException.class, () -> debtPositionFacadeService.createSpontaneousDebtPosition(brokerId, requestDTO, accessToken));
-    Mockito.verifyNoInteractions(debtPositionResponseDTOMapperMock);
+    Mockito.verifyNoInteractions(debtPositionResponseDTOMapperMock,debtPositionServiceMock,debtPositionDTOMapperMock);
   }
 
   @Test

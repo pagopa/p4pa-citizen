@@ -86,8 +86,8 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
     if(cieBroker) {
       return cieDebtPositionFacadeService.createSpontaneousDebtPosition(debtPositionRequestDTO,accessToken);
     }
-    DebtPositionDTO debtPosition = debtPositionService.createDebtPosition(debtPositionDTOMapper.mapSpontaneousDebtPositionDTO(debtPositionRequestDTO, expirationDays), false, accessToken);
     Organization organization = organizationRetrieverService.getValidOrganization(debtPositionRequestDTO.getOrganizationId(),brokerId,accessToken);
+    DebtPositionDTO debtPosition = debtPositionService.createDebtPosition(debtPositionDTOMapper.mapSpontaneousDebtPositionDTO(debtPositionRequestDTO, expirationDays), false, accessToken);
     return debtPositionResponseDTOMapper.map(debtPosition, organization, false);
   }
 
