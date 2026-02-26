@@ -23,15 +23,12 @@ public class BrokerController implements BrokerApi {
   public ResponseEntity<BrokerInfoDTO> getBrokerInfo(Long brokerId, String externalId) {
     log.info("getBrokerInfo was requested with brokerId {} and externalId {}", brokerId, externalId);
     validateInputFields(brokerId, externalId);
-    return ResponseEntity.ofNullable(brokerRetrieverService.getBrokerInfo(brokerId, null, SecurityUtils.getAccessToken()));
+    return ResponseEntity.ofNullable(brokerRetrieverService.getBrokerInfo(brokerId, externalId, SecurityUtils.getAccessToken()));
   }
 
   private static void validateInputFields(Long brokerId, String externalId) {
     if (brokerId == null && externalId == null) {
       throw new InvalidParamException("INVALID_FIELDS","Either brokerId or externalId must be provided");
-    }
-    if (brokerId != null && externalId != null) {
-      throw new InvalidParamException("INVALID_FIELDS","Only one of brokerId or externalId must be provided");
     }
   }
 }
