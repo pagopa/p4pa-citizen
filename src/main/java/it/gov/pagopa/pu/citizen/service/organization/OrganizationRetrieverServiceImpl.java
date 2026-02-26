@@ -25,7 +25,7 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
   private final OrganizationsWithSpontaneousDTOMapper organizationsWithSpontaneousDTOMapper;
   private final OrganizationService organizationService;
   private final String cieOrgFiscalCode;
-  private volatile Long cieBrokerId = null;
+  private Long cieBrokerId = null;
 
   public OrganizationRetrieverServiceImpl(BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverService, DebtPositionTypeOrgService debtPositionTypeOrgService,
                                           OrganizationsWithSpontaneousDTOMapper organizationsWithSpontaneousDTOMapper, OrganizationService organizationService,

@@ -11,6 +11,7 @@ import it.gov.pagopa.pu.citizen.exception.InvalidRequestBodyException;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,14 @@ class DebtPositionCieRequestDTOMapperTest {
     mapper = new DebtPositionCieRequestDTOMapper(jsonMapperMock, validatorMock);
   }
 
+  @AfterEach
+  void verifyNoMoreInteractions() {
+    Mockito.verifyNoMoreInteractions(
+      jsonMapperMock,
+      validatorMock
+    );
+  }
+
   @Test
   void whenMapThenOk(){
     String debtPositionTypeOrgCode = "debtPositionTypeOrgCode";
@@ -59,6 +68,7 @@ class DebtPositionCieRequestDTOMapperTest {
     DebtPositionCieRequestDTO result = mapper.map(debtPositionRequestDTO, debtPositionTypeOrgCode);
 
     Assertions.assertNotNull(result);
+    TestUtils.checkNotNullFields(result);
     Assertions.assertEquals(DebtPositionCieOriginAllowedEnum.SPONTANEOUS,result.getOrigin());
     Assertions.assertEquals(debtPositionTypeOrgCode,result.getDebtPositionTypeOrgCode());
     Assertions.assertEquals(installmentRequestDTO.getRemittanceInformation(),result.getRemittanceInformation());
