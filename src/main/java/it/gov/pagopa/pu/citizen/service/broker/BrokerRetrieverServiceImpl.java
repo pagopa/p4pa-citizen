@@ -23,11 +23,17 @@ public class BrokerRetrieverServiceImpl implements BrokerRetrieverService {
   }
 
   @Override
-  public BrokerInfoDTO getBrokerInfo(Long brokerId, String accessToken) {
-    Broker broker = brokerService.getBroker(brokerId, accessToken);
-    if(Objects.isNull(broker)){
-      throw new ResourceNotFoundException("BROKER_NOT_FOUND","Broker having id "+brokerId+" not found");
+  public BrokerInfoDTO getBrokerInfo(Long brokerId, String externalId, String accessToken) {
+    Broker broker;
+    if (brokerId != null){
+      broker = brokerService.getBroker(brokerId, accessToken);
+    }else {
+      broker = brokerService.getBrokerByExternalId(externalId, accessToken);
     }
-    return brokerInfoDTOMapper.map(organizationService.getBrokerOrganization(brokerId,accessToken), broker.getArpuConfig());
+
+    if(Objects.isNull(broker)){
+      throw new ResourceNotFoundException("BROKER_NOT_FOUND","Broker having id "+brokerId+" and " + externalId + "not found");
+    }
+    return brokerInfoDTOMapper.map(organizationService.getBrokerOrganization(broker.getBrokerId(),accessToken), broker.getArpuConfig());
   }
 }
