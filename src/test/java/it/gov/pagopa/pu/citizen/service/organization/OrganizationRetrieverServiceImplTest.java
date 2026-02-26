@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class OrganizationRetrieverServiceImplTest {
@@ -34,6 +35,7 @@ class OrganizationRetrieverServiceImplTest {
   private OrganizationsWithSpontaneousDTOMapper organizationsWithSpontaneousDTOMapperMock;
   @Mock
   private OrganizationService organizationServiceMock;
+  private final String cieOrgFiscalCode = "cieOrgFiscalCode";
 
   private static final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
@@ -41,7 +43,7 @@ class OrganizationRetrieverServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    organizationRetrieverService = new OrganizationRetrieverServiceImpl(brokerOrganizationsRetrieverServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock, organizationServiceMock);
+    organizationRetrieverService = new OrganizationRetrieverServiceImpl(brokerOrganizationsRetrieverServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock, organizationServiceMock, cieOrgFiscalCode);
   }
 
   @AfterEach
@@ -230,5 +232,100 @@ class OrganizationRetrieverServiceImplTest {
     Mockito.when(organizationServiceMock.findByOrgFiscalCode(orgFiscalCode,accessToken)).thenReturn(organization);
 
     Assertions.assertThrows(ResourceNotFoundException.class,() -> organizationRetrieverService.getValidOrganization(orgFiscalCode,brokerId,accessToken));
+  }
+
+  @Test
+  void whenIsCieBrokerThenTrue() {
+    String accessToken = "ACCESS_TOKEN";
+    Long brokerId = 1L;
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    organization.setBrokerId(brokerId);
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(cieOrgFiscalCode, accessToken)).thenReturn(organization);
+
+    boolean result = organizationRetrieverService.isCieBroker(brokerId,accessToken);
+
+    Assertions.assertTrue(result);
+  }
+
+  @Test
+  void givenWrongBrokerIdWhenIsCieBrokerThenFalse() {
+    String accessToken = "ACCESS_TOKEN";
+    Long brokerId = 1L;
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    organization.setBrokerId(brokerId+1);
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(cieOrgFiscalCode, accessToken)).thenReturn(organization);
+
+    boolean result = organizationRetrieverService.isCieBroker(brokerId,accessToken);
+
+    Assertions.assertFalse(result);
+  }
+
+  @Test
+  void givenMultipleInvocationWhenisCieBrokerThenReturnCachedValue() {
+    String accessToken = "ACCESS_TOKEN";
+    Long brokerId = 1L;
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    organization.setBrokerId(brokerId);
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(cieOrgFiscalCode, accessToken)).thenReturn(organization);
+
+    //populate cached value
+    organizationRetrieverService.isCieBroker(brokerId,accessToken);
+
+    Mockito.clearInvocations(organizationServiceMock);
+
+    boolean result = organizationRetrieverService.isCieBroker(brokerId,accessToken);
+
+    Assertions.assertTrue(result);
+    verifyNoInteractions(organizationServiceMock);
+  }
+
+  @Test
+  void whenGetCieOrganizationThenOk() {
+    String accessToken = "ACCESS_TOKEN";
+    Long brokerId = 1L;
+    Organization expectedResult = podamFactory.manufacturePojo(Organization.class);
+    expectedResult.setBrokerId(brokerId);
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(cieOrgFiscalCode, accessToken)).thenReturn(expectedResult);
+
+    Organization result = organizationRetrieverService.getCieOrganization(accessToken);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(expectedResult,result);
+  }
+
+  @Test
+  void givenNoOrganizationWhenGetCieOrganizationThenOk() {
+    String accessToken = "ACCESS_TOKEN";
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(cieOrgFiscalCode, accessToken)).thenReturn(null);
+
+    ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> organizationRetrieverService.getCieOrganization(accessToken));
+
+    Assertions.assertEquals("ORGANIZATION_NOT_FOUND",resourceNotFoundException.getCode());
+  }
+
+  @Test
+  void givenMultipleInvocationWhenGetCieOrganizationThenReturnCachedValue() {
+    String accessToken = "ACCESS_TOKEN";
+    Long brokerId = 1L;
+    Organization expectedResult = podamFactory.manufacturePojo(Organization.class);
+    expectedResult.setBrokerId(brokerId);
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(cieOrgFiscalCode, accessToken)).thenReturn(expectedResult);
+
+    //populate cached value
+    organizationRetrieverService.getCieOrganization(accessToken);
+
+    Mockito.clearInvocations(organizationServiceMock);
+
+    Organization result = organizationRetrieverService.getCieOrganization(accessToken);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(expectedResult,result);
+    verifyNoInteractions(organizationServiceMock);
   }
 }

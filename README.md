@@ -82,29 +82,35 @@ See [application.yml](src/main/resources/application.yml) for each configurable 
 | DEFAULT_REST_TIMEOUT_READ_MILLIS                  | Default read timeout (milliseconds)       | 120000  |
 
 ##### 🧩 Microservices
-| ENV                                   | DESCRIPTION                                            | DEFAULT |
-|---------------------------------------|--------------------------------------------------------|---------|
-| AUTH_BASE_URL                         | Auth microservice URL                                  |         |
-| AUTH_MAX_ATTEMPTS                     | Auth API max attempts                                  | 3       |
-| AUTH_WAIT_TIME_MILLIS                 | Auth retry waiting time (milliseconds)                 | 500     |
-| AUTH_PRINT_BODY_WHEN_ERROR            | To print body when an error occurs                     | true    |
-| DEBT_POSITIONS_BASE_URL               | DebtPosition microservice URL                          |         |
-| DEBT_POSITIONS_MAX_ATTEMPTS           | DebtPosition API max attempts                          | 3       |
-| DEBT_POSITIONS_WAIT_TIME_MILLIS       | DebtPosition retry waiting time (milliseconds)         | 500     |
-| DEBT_POSITIONS_PRINT_BODY_WHEN_ERROR  | To print body when an error occurs                     | true    |
-| ORGANIZATION_BASE_URL                 | Organization microservice URL                          |         |
-| ORGANIZATION_MAX_ATTEMPTS             | Organization API max attempts                          | 3       |
-| ORGANIZATION_WAIT_TIME_MILLIS         | Organization retry waiting time (milliseconds)         | 500     |
-| ORGANIZATION_PRINT_BODY_WHEN_ERROR    | To print body when an error occurs                     | true    |
-| PAGOPA_PAYMENTS_BASE_URL                 | PagoPaPayments microservice URL                     |         |
-| PAGOPA_PAYMENTS_MAX_ATTEMPTS             | PagoPaPayments API max attempts                     | 3       |
-| PAGOPA_PAYMENTS_WAIT_TIME_MILLIS         | PagoPaPayments retry waiting time (milliseconds)    | 500     |
-| PAGOPA_PAYMENTS_PRINT_BODY_WHEN_ERROR    | To print body when an error occurs                  | true    |
+| ENV                                   | DESCRIPTION                                      | DEFAULT |
+|---------------------------------------|--------------------------------------------------|---------|
+| AUTH_BASE_URL                         | Auth microservice URL                            |         |
+| AUTH_MAX_ATTEMPTS                     | Auth API max attempts                            | 3       |
+| AUTH_WAIT_TIME_MILLIS                 | Auth retry waiting time (milliseconds)           | 500     |
+| AUTH_PRINT_BODY_WHEN_ERROR            | To print body when an error occurs               | true    |
+| P4PA_AUTH_CLIENT_SECRET               | piattaforma-unitaria's client secret             |         |
+| DEBT_POSITIONS_BASE_URL               | DebtPosition microservice URL                    |         |
+| DEBT_POSITIONS_MAX_ATTEMPTS           | DebtPosition API max attempts                    | 3       |
+| DEBT_POSITIONS_WAIT_TIME_MILLIS       | DebtPosition retry waiting time (milliseconds)   | 500     |
+| DEBT_POSITIONS_PRINT_BODY_WHEN_ERROR  | To print body when an error occurs               | true    |
+| ORGANIZATION_BASE_URL                 | Organization microservice URL                    |         |
+| ORGANIZATION_MAX_ATTEMPTS             | Organization API max attempts                    | 3       |
+| ORGANIZATION_WAIT_TIME_MILLIS         | Organization retry waiting time (milliseconds)   | 500     |
+| ORGANIZATION_PRINT_BODY_WHEN_ERROR    | To print body when an error occurs               | true    |
+| PAGOPA_PAYMENTS_BASE_URL              | PagoPaPayments microservice URL                  |         |
+| PAGOPA_PAYMENTS_MAX_ATTEMPTS          | PagoPaPayments API max attempts                  | 3       |
+| PAGOPA_PAYMENTS_WAIT_TIME_MILLIS      | PagoPaPayments retry waiting time (milliseconds) | 500     |
+| PAGOPA_PAYMENTS_PRINT_BODY_WHEN_ERROR | To print body when an error occurs               | true    |
+| CIE_BASE_URL                          | Cie microservice URL                             |         |
+| CIE_MAX_ATTEMPTS                      | Cie API max attempts                             | 3       |
+| CIE_WAIT_TIME_MILLIS                  | Cie retry waiting time (milliseconds)            | 500     |
+| CIE_PRINT_BODY_WHEN_ERROR             | To print body when an error occurs               | true    |
 
-#### 💼 Business logic
-| ENV                                  | DESCRIPTION                   | DEFAULT   |
-|--------------------------------------|-------------------------------|-----------|
-| SPONTANEOUS_EXPIRATION_DAYS          | Spontaneous expiration days   | 1         |
+    #### 💼 Business logic
+| ENV                          | DESCRIPTION                    | DEFAULT |
+|------------------------------|--------------------------------|---------|
+| SPONTANEOUS_EXPIRATION_DAYS  | Spontaneous expiration days    | 1       |
+| CIE_ORGANIZATION_FISCAL_CODE | Cie's organization fiscal code |         |
 
 
 ## 🛠️ Getting Started

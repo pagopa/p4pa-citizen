@@ -1,8 +1,8 @@
 import com.github.jk1.license.filter.SpdxLicenseBundleNormalizer
 import com.github.jk1.license.render.XmlReportRenderer
-import java.util.*
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import java.util.*
 
 plugins {
   java
@@ -152,7 +152,8 @@ tasks.register("dependenciesBuild") {
     "openApiGenerateP4PAAUTH",
     "openApiGenerateDEBTPOSITIONS",
     "openApiGenerateORGANIZATION",
-    "openApiGeneratePAGOPAPAYMENTS"
+    "openApiGeneratePAGOPAPAYMENTS",
+    "openApiGenerateCIE"
   )
 }
 
@@ -199,7 +200,8 @@ openApiGenerate {
       "PaymentOptionStatus" to "it.gov.pagopa.pu.debtpositions.dto.generated.PaymentOptionStatus",
       "DebtPositionStatus" to "it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionStatus",
       "InstallmentStatus" to "it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus",
-      "InstallmentDebtorExtendedDTO" to "it.gov.pagopa.pu.citizen.dto.InstallmentDebtorExtendedDTO"
+      "InstallmentDebtorExtendedDTO" to "it.gov.pagopa.pu.citizen.dto.InstallmentDebtorExtendedDTO",
+      "PersonEntityType" to "it.gov.pagopa.pu.debtpositions.dto.generated.PersonEntityType"
     )
   )
 }
@@ -350,6 +352,42 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("ope
   importMappings.set(
     mapOf(
       "Resource" to "org.springframework.core.io.Resource"
+    )
+  )
+  library.set("resttemplate")
+}
+
+tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("openApiGenerateCIE") {
+  group = "openapi"
+  description = "description"
+
+  generatorName.set("java")
+  remoteInputSpec.set("https://raw.githubusercontent.com/pagopa/p4pa-cie/refs/heads/$targetEnv/openapi/generated.openapi.json")
+  outputDir.set("$projectDir/build/generated")
+  apiPackage.set("it.gov.pagopa.pu.cie.controller.generated")
+  modelPackage.set("it.gov.pagopa.pu.cie.dto.generated")
+  configOptions.set(
+    mapOf(
+      "swaggerAnnotations" to "false",
+      "openApiNullable" to "false",
+      "dateLibrary" to "java8",
+      "serializableModel" to "true",
+      "useSpringBoot3" to "true",
+      "useJakartaEe" to "true",
+      "useOneOfInterfaces" to "true",
+      "useBeanValidation" to "true",
+      "serializationLibrary" to "jackson",
+      "generateSupportingFiles" to "true",
+      "generateConstructorWithAllArgs" to "true",
+      "generatedConstructorWithRequiredArgs" to "true",
+      "enumPropertyNaming" to "original",
+      "additionalModelTypeAnnotations" to "@lombok.experimental.SuperBuilder(toBuilder = true)"
+    )
+  )
+  typeMappings.set(
+    mapOf(
+      "DebtPositionDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO",
+      "PersonDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.PersonDTO",
     )
   )
   library.set("resttemplate")

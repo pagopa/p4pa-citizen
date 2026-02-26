@@ -1,9 +1,11 @@
 package it.gov.pagopa.pu.citizen.connector.auth.client;
 
 import it.gov.pagopa.pu.auth.controller.generated.AuthnApi;
+import it.gov.pagopa.pu.auth.dto.generated.AccessToken;
 import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
 import it.gov.pagopa.pu.citizen.connector.auth.config.AuthApisHolder;
 import it.gov.pagopa.pu.citizen.exception.InvalidAccessTokenException;
+import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,9 +16,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.co.jemos.podam.api.PodamFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,6 +28,7 @@ class AuthnClientTest {
   private AuthApisHolder authApisHolderMock;
   @Mock
   private AuthnApi authnApiMock;
+  private final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
   private AuthnClient authnClient;
 
@@ -69,5 +72,29 @@ class AuthnClientTest {
     InvalidAccessTokenException exception = Assertions.assertThrows(InvalidAccessTokenException.class, () -> authnClient.getUserInfo(accessToken));
 
     assertEquals(bodyMessage, exception.getMessage());
+  }
+
+  @Test
+  void givenParamsWhenGetTokenThenReturnAccessToken(){
+    //given
+    String grantType = "grantType";
+    String scope = "scope";
+    String clientId= "clientId";
+    String subjectToken = "subjectToken";
+    String subjectIssuer = "subjectIssuer";
+    String subjectTokenType = "subjectTokenType";
+    String clientSecret = "clientSecret";
+
+    AccessToken expectedResult = podamFactory.manufacturePojo(AccessToken.class);
+    Mockito.when(authApisHolderMock.getAuthnApi(null)).thenReturn(authnApiMock);
+    Mockito.when(authnApiMock.postToken(clientId, grantType, scope, subjectToken, subjectIssuer, subjectTokenType, clientSecret )).thenReturn(expectedResult);
+
+    //when
+    AccessToken result = authnClient.postToken(clientId, grantType, scope, subjectToken, subjectIssuer, subjectTokenType, clientSecret);
+
+    //then
+    assertNotNull(result);
+    assertEquals(expectedResult, result);
+
   }
 }

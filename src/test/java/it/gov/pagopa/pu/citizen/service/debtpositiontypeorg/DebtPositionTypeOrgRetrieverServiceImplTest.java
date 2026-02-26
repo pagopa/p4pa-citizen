@@ -12,6 +12,7 @@ import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrg;
 import it.gov.pagopa.pu.debtpositions.dto.generated.SpontaneousForm;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -210,5 +211,50 @@ class DebtPositionTypeOrgRetrieverServiceImplTest {
     assertEquals(expectedResult, result);
   }
 
+  @Test
+  void whenGetDebtPositionTypeOrgCodeThenOk(){
+    String accessToken = "accessToken";
+    Long debtPositionTypeOrgId = 1L;
+    Long organizationId = 2L;
+    DebtPositionTypeOrg debtPositionTypeOrg = podamFactory.manufacturePojo(DebtPositionTypeOrg.class);
+    debtPositionTypeOrg.setOrganizationId(organizationId);
 
+    Mockito.when(debtPositionTypeOrgServiceMock.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken)).thenReturn(debtPositionTypeOrg);
+
+    String result = debtPositionTypeOrgRetrieverService.getDebtPositionTypeOrgCode(debtPositionTypeOrgId, organizationId, accessToken);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(debtPositionTypeOrg.getCode(),result);
+  }
+
+  @Test
+  void givenNoDebtPositionTypeOrgWhenGetDebtPositionTypeOrgCodeThenResourceNotFoundException(){
+    String accessToken = "accessToken";
+    Long debtPositionTypeOrgId = 1L;
+    Long organizationId = 2L;
+
+    Mockito.when(debtPositionTypeOrgServiceMock.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken))
+      .thenReturn(null);
+
+    ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> debtPositionTypeOrgRetrieverService.getDebtPositionTypeOrgCode(debtPositionTypeOrgId, organizationId, accessToken));
+
+    Assertions.assertEquals("DEBT_POSITION_TYPE_ORG_NOT_FOUND",resourceNotFoundException.getCode());
+  }
+
+  @Test
+  void givenNoMatchingOrganizationIdWhenGetDebtPositionTypeOrgCodeThenResourceNotFoundException(){
+    String accessToken = "accessToken";
+    Long debtPositionTypeOrgId = 1L;
+    Long organizationId = 2L;
+    DebtPositionTypeOrg debtPositionTypeOrg = podamFactory.manufacturePojo(DebtPositionTypeOrg.class);
+    debtPositionTypeOrg.setOrganizationId(organizationId+1);
+
+    Mockito.when(debtPositionTypeOrgServiceMock.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken))
+      .thenReturn(debtPositionTypeOrg);
+
+    ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class,
+      () -> debtPositionTypeOrgRetrieverService.getDebtPositionTypeOrgCode(debtPositionTypeOrgId, organizationId, accessToken));
+
+    Assertions.assertEquals("DEBT_POSITION_TYPE_ORG_NOT_FOUND",resourceNotFoundException.getCode());
+  }
 }

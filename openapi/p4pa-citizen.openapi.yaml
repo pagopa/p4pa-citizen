@@ -816,6 +816,8 @@ components:
           type: string
         flagAnonymousFiscalCode:
           type: boolean
+        allowedEntityType:
+          type: 'PersonEntityType'
         formType:
           type: string
           enum:
@@ -843,6 +845,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PaymentOptionRequestDTO'
+        fieldValues:
+          type: object
+          additionalProperties:
+            type: object
       required:
         - debtPositionTypeOrgId
         - organizationId
