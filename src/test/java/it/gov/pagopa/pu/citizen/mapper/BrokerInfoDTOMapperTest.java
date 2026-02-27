@@ -27,6 +27,7 @@ class BrokerInfoDTOMapperTest {
     assertEquals(organization.getOrgFiscalCode(), result.getBrokerFiscalCode());
     assertEquals(organization.getOrgLogo(), result.getBrokerLogo());
     assertEquals(arpuConfig, result.getConfig());
+    assertEquals("externalId", result.getExternalId());
   }
 
   @Test
@@ -55,5 +56,6 @@ class BrokerInfoDTOMapperTest {
     assertEquals(organization.getOrgFiscalCode(), result.getBrokerFiscalCode());
     assertEquals(organization.getOrgLogo(), result.getBrokerLogo());
     assertNull(result.getConfig());
+    assertEquals("externalId", result.getExternalId());
   }
 }

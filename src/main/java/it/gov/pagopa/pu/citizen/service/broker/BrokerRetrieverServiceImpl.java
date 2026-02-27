@@ -34,7 +34,7 @@ public class BrokerRetrieverServiceImpl implements BrokerRetrieverService {
     }
 
     if(Objects.isNull(broker)){
-      throw new ResourceNotFoundException("BROKER_NOT_FOUND","Broker having id "+brokerId+" and " + externalId + "not found");
+      throw new ResourceNotFoundException("BROKER_NOT_FOUND","Broker having id "+brokerId+" or " + externalId + "not found");
     }
     return brokerInfoDTOMapper.map(organizationService.getBrokerOrganization(broker.getBrokerId(),accessToken), broker.getExternalId(), broker.getArpuConfig());
   }
