@@ -21,7 +21,7 @@ public class BrokerServiceImpl implements BrokerService {
   }
 
   @Override
-  public Broker getBrokerByExternalId(String accessToken, String externalId) {
-    return brokerSearchClient.getBrokerByExternalId(accessToken, externalId);
+  public Broker getBrokerByExternalId(String externalId, String accessToken) {
+    return brokerSearchClient.getBrokerByExternalId(externalId, accessToken);
   }
 }
