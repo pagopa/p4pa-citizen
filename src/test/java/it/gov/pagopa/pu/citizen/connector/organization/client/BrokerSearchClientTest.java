@@ -51,7 +51,7 @@ class BrokerSearchClientTest {
       .thenReturn(expectedBroker);
 
     // when
-    Broker result = brokerSearchClient.getBrokerByExternalId(accessToken, externalId);
+    Broker result = brokerSearchClient.getBrokerByExternalId(externalId, accessToken);
 
     // then
     assertSame(expectedBroker, result);
@@ -68,7 +68,7 @@ class BrokerSearchClientTest {
     when(brokerSearchControllerApiMock.crudBrokersFindBrokerByExternalId(externalId))
       .thenThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, "NotFound", null, null, null));
 
-    Broker result = brokerSearchClient.getBrokerByExternalId(accessToken, externalId);
+    Broker result = brokerSearchClient.getBrokerByExternalId(externalId, accessToken);
 
     Assertions.assertNull(result);
   }

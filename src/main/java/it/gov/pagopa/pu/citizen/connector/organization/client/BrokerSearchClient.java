@@ -16,7 +16,7 @@ public class BrokerSearchClient {
     this.organizationApisHolder = organizationApisHolder;
   }
 
-  public Broker getBrokerByExternalId(String accessToken, String externalId){
+  public Broker getBrokerByExternalId(String externalId, String accessToken){
 
     try {
       return organizationApisHolder.getBrokerSearchControllerApi(accessToken)

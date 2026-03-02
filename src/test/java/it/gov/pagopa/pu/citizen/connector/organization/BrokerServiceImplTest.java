@@ -54,7 +54,7 @@ class BrokerServiceImplTest {
     String externalId = "1";
     Broker expectedResult = podamFactory.manufacturePojo(Broker.class);
 
-    Mockito.when(brokerSearchClientMock.getBrokerByExternalId(accessToken, externalId)).thenReturn(expectedResult);
+    Mockito.when(brokerSearchClientMock.getBrokerByExternalId(externalId, accessToken)).thenReturn(expectedResult);
 
     Broker result = brokerService.getBrokerByExternalId(accessToken, externalId);
 
