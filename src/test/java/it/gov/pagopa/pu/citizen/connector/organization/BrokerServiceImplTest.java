@@ -56,7 +56,7 @@ class BrokerServiceImplTest {
 
     Mockito.when(brokerSearchClientMock.getBrokerByExternalId(externalId, accessToken)).thenReturn(expectedResult);
 
-    Broker result = brokerService.getBrokerByExternalId(accessToken, externalId);
+    Broker result = brokerService.getBrokerByExternalId(externalId, accessToken);
 
     Assertions.assertNotNull(result);
     Assertions.assertEquals(expectedResult, result);
