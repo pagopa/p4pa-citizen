@@ -3,9 +3,11 @@ package it.gov.pagopa.pu.citizen.mapper;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.InstallmentRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PaymentOptionRequestDTO;
+import it.gov.pagopa.pu.citizen.exception.InvalidRequestBodyException;
 import it.gov.pagopa.pu.citizen.utils.DebtPositionConstants;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.*;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import uk.co.jemos.podam.api.PodamFactory;
@@ -71,6 +73,20 @@ class DebtPositionDTOMapperTest {
   }
 
   @Test
+  void givenNoTotalAmountCentsWhenMapSpontaneousPaymentOptionDTOThenInvalidRequestBodyException() {
+    // given
+    PaymentOptionRequestDTO request = podamFactory.manufacturePojo(PaymentOptionRequestDTO.class);
+    Integer expirationDays = 10;
+    request.setTotalAmountCents(null);
+
+    // when
+    InvalidRequestBodyException invalidRequestBodyException = assertThrows(InvalidRequestBodyException.class, () -> mapper.mapSpontaneousPaymentOptionDTO(request, expirationDays));
+
+    // then
+    Assertions.assertEquals("INVALID_DEBT_POSITION_REQUEST_BODY",invalidRequestBodyException.getCode());
+  }
+
+  @Test
   void givenInstallmentRequestDTOWhenMapSpontaneousInstallmentDTOThenReturnInstallmentDTO() {
     // given
     InstallmentRequestDTO request = podamFactory.manufacturePojo(InstallmentRequestDTO.class);
@@ -128,6 +144,19 @@ class DebtPositionDTOMapperTest {
     assertEquals(request.getRemittanceInformation(),result.getOriginalRemittanceInformation());
     assertEquals(DebtPositionConstants.INSTALLMENT_REMITTANCE_INFORMATION_PLACEHOLDER +" "+request.getUserRemittanceInformation(),result.getRemittanceInformation());
     TestUtils.checkNotNullFields(result, "updateTraceId", "nav", "updateDate", "iun", "iur", "iuv", "creationDate", "iupdPagopa", "ingestionFlowFileId", "ingestionFlowFileLineNumber", "installmentId", "balance", "transfers", "iud", "iuf", "legacyPaymentMetadata", "sourceFlowName", "updateOperatorExternalId", "receiptId", "syncStatus", "ingestionFlowFileAction", "paymentOptionId", "notificationDate");
+  }
+
+  @Test
+  void givenNoAmountCentsWhenMapSpontaneousInstallmentDTOThenInvalidRequestBodyException() {
+    // given
+    InstallmentRequestDTO request = podamFactory.manufacturePojo(InstallmentRequestDTO.class);
+    request.setAmountCents(null);
+
+    // when
+    InvalidRequestBodyException invalidRequestBodyException = assertThrows(InvalidRequestBodyException.class, () -> mapper.mapSpontaneousInstallmentDTO(request, null));
+
+    // then
+    Assertions.assertEquals("INVALID_DEBT_POSITION_REQUEST_BODY",invalidRequestBodyException.getCode());
   }
 
 }
