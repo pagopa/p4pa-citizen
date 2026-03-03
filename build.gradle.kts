@@ -362,7 +362,7 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("ope
   description = "description"
 
   generatorName.set("java")
-  inputSpec.set("$rootDir/openapi/p4pa-cie.openapi.json")
+  remoteInputSpec.set("https://raw.githubusercontent.com/pagopa/p4pa-doc/refs/heads/main/openapi/internal/p4pa-cie.$targetEnv.generated.openapi.json")
   outputDir.set("$projectDir/build/generated")
   apiPackage.set("it.gov.pagopa.pu.cie.controller.generated")
   modelPackage.set("it.gov.pagopa.pu.cie.dto.generated")

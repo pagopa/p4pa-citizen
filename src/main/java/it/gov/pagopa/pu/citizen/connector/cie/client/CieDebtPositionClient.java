@@ -17,6 +17,6 @@ public class CieDebtPositionClient {
   }
 
   public DebtPositionDTO createDebtPositionCie(DebtPositionCieRequestDTO debtPositionCieRequestDTO, String accessToken) {
-    return cieApisHolder.getDebtPositionApi(accessToken).createDebtPositionCie(debtPositionCieRequestDTO);
+    return cieApisHolder.getDebtPositionCieApi(accessToken).createDebtPositionCie(debtPositionCieRequestDTO);
   }
 }

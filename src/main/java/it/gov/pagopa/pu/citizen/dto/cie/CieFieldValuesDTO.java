@@ -12,25 +12,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CieFieldValuesDTO {
-  @NotNull
   private PersonEntityType payerEntityType;
-  @NotNull
   private String payerFiscalCode;
-  @NotNull
   private String payerFullName;
-  @NotNull
   private String payerAddress;
-  @NotNull
   private String payerCivic;
-  @NotNull
   private String payerPostalCode;
-  @NotNull
   private String payerLocation;
-  @NotNull
   private String payerProvince;
-  @NotNull
   private String payerNation;
-  @NotNull
   private String payerEmail;
   @NotNull
   private String orgFiscalCode;

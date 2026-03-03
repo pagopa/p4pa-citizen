@@ -9,7 +9,8 @@ import it.gov.pagopa.pu.citizen.dto.generated.PaymentOptionRequestDTO;
 import it.gov.pagopa.pu.citizen.exception.DebtPositionInvalidFieldValuesException;
 import it.gov.pagopa.pu.citizen.exception.InvalidRequestBodyException;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
-import jakarta.validation.ConstraintViolation;
+import it.gov.pagopa.pu.debtpositions.dto.generated.PersonEntityType;
+import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -24,30 +25,25 @@ import uk.co.jemos.podam.api.PodamFactory;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 class DebtPositionCieRequestDTOMapperTest {
 
   @Mock
   private JsonMapper jsonMapperMock;
-  @Mock
-  private Validator validatorMock;
-  @Mock
-  private ConstraintViolation<CieFieldValuesDTO> violationMock;
+  private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
   private final PodamFactory podamFactory = TestUtils.getPodamFactory();
   private DebtPositionCieRequestDTOMapper mapper;
 
   @BeforeEach
   void setUp() {
-    mapper = new DebtPositionCieRequestDTOMapper(jsonMapperMock, validatorMock);
+    mapper = new DebtPositionCieRequestDTOMapper(jsonMapperMock, validator);
   }
 
   @AfterEach
   void verifyNoMoreInteractions() {
     Mockito.verifyNoMoreInteractions(
-      jsonMapperMock,
-      validatorMock
+      jsonMapperMock
     );
   }
 
@@ -62,8 +58,6 @@ class DebtPositionCieRequestDTOMapperTest {
     CieFieldValuesDTO cieFieldValuesDTO = podamFactory.manufacturePojo(CieFieldValuesDTO.class);
 
     Mockito.when(jsonMapperMock.convertValue(debtPositionRequestDTO.getFieldValues(), CieFieldValuesDTO.class)).thenReturn(cieFieldValuesDTO);
-    Mockito.when(validatorMock.validate(cieFieldValuesDTO)).thenReturn(Collections.emptySet());
-
 
     DebtPositionCieRequestDTO result = mapper.map(debtPositionRequestDTO, debtPositionTypeOrgCode);
 
@@ -88,6 +82,50 @@ class DebtPositionCieRequestDTOMapperTest {
   }
 
   @Test
+  void givenNoPayerFieldPopulatedWhenMapThenOk(){
+    String debtPositionTypeOrgCode = "debtPositionTypeOrgCode";
+    DebtPositionRequestDTO debtPositionRequestDTO = podamFactory.manufacturePojo(DebtPositionRequestDTO.class);
+    PaymentOptionRequestDTO paymentOptionRequestDTO = podamFactory.manufacturePojo(PaymentOptionRequestDTO.class);
+    InstallmentRequestDTO installmentRequestDTO = podamFactory.manufacturePojo(InstallmentRequestDTO.class);
+    paymentOptionRequestDTO.setInstallments(List.of(installmentRequestDTO));
+    debtPositionRequestDTO.setPaymentOptions(List.of(paymentOptionRequestDTO));
+    CieFieldValuesDTO cieFieldValuesDTO = new CieFieldValuesDTO();
+    cieFieldValuesDTO.setOrgFiscalCode("orgFiscalCode");
+
+    Mockito.when(jsonMapperMock.convertValue(debtPositionRequestDTO.getFieldValues(), CieFieldValuesDTO.class)).thenReturn(cieFieldValuesDTO);
+
+    DebtPositionCieRequestDTO result = mapper.map(debtPositionRequestDTO, debtPositionTypeOrgCode);
+
+    Assertions.assertNotNull(result);
+    TestUtils.checkNotNullFields(result, "payer");
+    Assertions.assertEquals(DebtPositionCieOriginAllowedEnum.SPONTANEOUS,result.getOrigin());
+    Assertions.assertEquals(debtPositionTypeOrgCode,result.getDebtPositionTypeOrgCode());
+    Assertions.assertEquals(installmentRequestDTO.getRemittanceInformation(),result.getRemittanceInformation());
+    TestUtils.reflectionEqualsByName(installmentRequestDTO.getDebtor(),result.getDebtor());
+    Assertions.assertEquals(cieFieldValuesDTO.getOrgFiscalCode(),result.getOrgFiscalCode());
+    Assertions.assertNull(result.getPayer());
+  }
+
+  @Test
+  void givenPartialPayerFieldsWhenMapThenDebtPositionInvalidFieldValuesException(){
+    String debtPositionTypeOrgCode = "debtPositionTypeOrgCode";
+    DebtPositionRequestDTO debtPositionRequestDTO = podamFactory.manufacturePojo(DebtPositionRequestDTO.class);
+    PaymentOptionRequestDTO paymentOptionRequestDTO = podamFactory.manufacturePojo(PaymentOptionRequestDTO.class);
+    InstallmentRequestDTO installmentRequestDTO = podamFactory.manufacturePojo(InstallmentRequestDTO.class);
+    paymentOptionRequestDTO.setInstallments(List.of(installmentRequestDTO));
+    debtPositionRequestDTO.setPaymentOptions(List.of(paymentOptionRequestDTO));
+    CieFieldValuesDTO cieFieldValuesDTO = new CieFieldValuesDTO();
+    cieFieldValuesDTO.setOrgFiscalCode("orgFiscalCode");
+    cieFieldValuesDTO.setPayerEntityType(PersonEntityType.F);
+
+    Mockito.when(jsonMapperMock.convertValue(debtPositionRequestDTO.getFieldValues(), CieFieldValuesDTO.class)).thenReturn(cieFieldValuesDTO);
+
+    DebtPositionInvalidFieldValuesException debtPositionInvalidFieldValuesException = Assertions.assertThrows(DebtPositionInvalidFieldValuesException.class, () -> mapper.map(debtPositionRequestDTO, debtPositionTypeOrgCode));
+
+    Assertions.assertEquals("INVALID_DEBT_POSITION_FIELD_VALUES",debtPositionInvalidFieldValuesException.getCode());
+  }
+
+  @Test
   void givenMissingFieldValuesWhenMapThenDebtPositionInvalidFieldValuesException(){
     String debtPositionTypeOrgCode = "debtPositionTypeOrgCode";
     DebtPositionRequestDTO debtPositionRequestDTO = podamFactory.manufacturePojo(DebtPositionRequestDTO.class);
@@ -96,14 +134,13 @@ class DebtPositionCieRequestDTOMapperTest {
     paymentOptionRequestDTO.setInstallments(List.of(installmentRequestDTO));
     debtPositionRequestDTO.setPaymentOptions(List.of(paymentOptionRequestDTO));
     CieFieldValuesDTO cieFieldValuesDTO = podamFactory.manufacturePojo(CieFieldValuesDTO.class);
-    cieFieldValuesDTO.setPayerFiscalCode(null);
+    cieFieldValuesDTO.setOrgFiscalCode(null);
 
     Mockito.when(jsonMapperMock.convertValue(debtPositionRequestDTO.getFieldValues(), CieFieldValuesDTO.class)).thenReturn(cieFieldValuesDTO);
-    Mockito.when(validatorMock.validate(cieFieldValuesDTO)).thenReturn(Set.of(violationMock));
 
     DebtPositionInvalidFieldValuesException debtPositionInvalidFieldValuesException = Assertions.assertThrows(DebtPositionInvalidFieldValuesException.class, () -> mapper.map(debtPositionRequestDTO, debtPositionTypeOrgCode));
 
-    Assertions.assertEquals("DEBT_POSITION_FIELD_VALUES_MISSING",debtPositionInvalidFieldValuesException.getCode());
+    Assertions.assertEquals("MISSING_DEBT_POSITION_FIELD_VALUES",debtPositionInvalidFieldValuesException.getCode());
   }
 
   @Test
@@ -121,7 +158,7 @@ class DebtPositionCieRequestDTOMapperTest {
 
     DebtPositionInvalidFieldValuesException debtPositionInvalidFieldValuesException = Assertions.assertThrows(DebtPositionInvalidFieldValuesException.class, () -> mapper.map(debtPositionRequestDTO, debtPositionTypeOrgCode));
 
-    Assertions.assertEquals("DEBT_POSITION_FIELD_VALUES_INVALID",debtPositionInvalidFieldValuesException.getCode());
+    Assertions.assertEquals("INVALID_DEBT_POSITION_FIELD_VALUES",debtPositionInvalidFieldValuesException.getCode());
   }
 
   @Test
@@ -135,7 +172,7 @@ class DebtPositionCieRequestDTOMapperTest {
     InvalidRequestBodyException invalidRequestBodyException = Assertions.assertThrows(InvalidRequestBodyException.class,
       () -> mapper.map(debtPositionRequestDTO, null));
 
-    Assertions.assertEquals("DEBT_POSITION_REQUEST_BODY_INVALID",invalidRequestBodyException.getCode());
+    Assertions.assertEquals("INVALID_DEBT_POSITION_REQUEST_BODY",invalidRequestBodyException.getCode());
   }
 
   @Test
@@ -149,7 +186,7 @@ class DebtPositionCieRequestDTOMapperTest {
     InvalidRequestBodyException invalidRequestBodyException = Assertions.assertThrows(InvalidRequestBodyException.class,
       () -> mapper.map(debtPositionRequestDTO, debtPositionTypeOrgCode));
 
-    Assertions.assertEquals("DEBT_POSITION_REQUEST_BODY_INVALID",invalidRequestBodyException.getCode());
+    Assertions.assertEquals("INVALID_DEBT_POSITION_REQUEST_BODY",invalidRequestBodyException.getCode());
   }
 
   @Test
@@ -161,7 +198,7 @@ class DebtPositionCieRequestDTOMapperTest {
     InvalidRequestBodyException invalidRequestBodyException = Assertions.assertThrows(InvalidRequestBodyException.class,
       () -> mapper.map(debtPositionRequestDTO, debtPositionTypeOrgCode));
 
-    Assertions.assertEquals("DEBT_POSITION_REQUEST_BODY_INVALID",invalidRequestBodyException.getCode());
+    Assertions.assertEquals("INVALID_DEBT_POSITION_REQUEST_BODY",invalidRequestBodyException.getCode());
   }
 
   @Test
@@ -171,6 +208,6 @@ class DebtPositionCieRequestDTOMapperTest {
     InvalidRequestBodyException invalidRequestBodyException = Assertions.assertThrows(InvalidRequestBodyException.class,
       () -> mapper.map(null, debtPositionTypeOrgCode));
 
-    Assertions.assertEquals("DEBT_POSITION_REQUEST_BODY_INVALID",invalidRequestBodyException.getCode());
+    Assertions.assertEquals("INVALID_DEBT_POSITION_REQUEST_BODY",invalidRequestBodyException.getCode());
   }
 }
