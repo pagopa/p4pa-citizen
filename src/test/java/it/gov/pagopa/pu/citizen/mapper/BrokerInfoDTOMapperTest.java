@@ -28,6 +28,9 @@ class BrokerInfoDTOMapperTest {
     assertEquals(organization.getOrgLogo(), result.getBrokerLogo());
     assertEquals(arpuConfig, result.getConfig());
     assertEquals("externalId", result.getExternalId());
+    assertEquals(organization.getAddress(), result.getAddress());
+    assertEquals(organization.getZipCode(), result.getZipCode());
+    assertEquals(organization.getCity(), result.getCity());
   }
 
   @Test
@@ -57,5 +60,8 @@ class BrokerInfoDTOMapperTest {
     assertEquals(organization.getOrgLogo(), result.getBrokerLogo());
     assertNull(result.getConfig());
     assertEquals("externalId", result.getExternalId());
+    assertEquals(organization.getAddress(), result.getAddress());
+    assertEquals(organization.getZipCode(), result.getZipCode());
+    assertEquals(organization.getCity(), result.getCity());
   }
 }
