@@ -1946,7 +1946,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "brokerFiscalCode", "brokerId", "brokerName" ]
+        "required" : [ "brokerFiscalCode", "brokerId", "brokerName", "externalId" ]
       },
       "OrganizationsWithSpontaneousDTO" : {
         "type" : "object",
