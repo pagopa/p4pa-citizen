@@ -1226,6 +1226,7 @@ components:
         - brokerId
         - brokerName
         - brokerFiscalCode
+        - externalId
       properties:
         brokerId:
           type: integer
@@ -1241,4 +1242,10 @@ components:
           format: base64
           description: Base64 encoded logo of the organization
         config:
+          type: string
+        address:
+          type: string
+        zipCode:
+          type: string
+        city:
           type: string
