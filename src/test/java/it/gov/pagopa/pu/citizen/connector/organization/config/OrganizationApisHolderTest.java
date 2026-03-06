@@ -13,6 +13,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 class OrganizationApisHolderTest extends BaseApiHolderTest {
@@ -44,7 +45,7 @@ class OrganizationApisHolderTest extends BaseApiHolderTest {
   void whenGetOrganizationSearchControllerApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
     assertAuthenticationShouldBeSetInThreadSafeMode(
       accessToken -> apisHolder.getOrganizationSearchControllerApi(accessToken)
-        .crudOrganizationsFindByBrokerIdAndFilters(1L, null, null, null,null,1, 1,  new ArrayList<>()),
+        .crudOrganizationsFindByBrokerIdAndFilters(1L, "orgName", "ipaCode", "orgFiscalCode", Set.of(),1, 1,  new ArrayList<>()),
       new ParameterizedTypeReference<>() {},
       apisHolder::unload);
   }
