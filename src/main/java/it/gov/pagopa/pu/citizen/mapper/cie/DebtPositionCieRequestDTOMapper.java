@@ -1,5 +1,6 @@
 package it.gov.pagopa.pu.citizen.mapper.cie;
 
+import io.micrometer.common.util.StringUtils;
 import it.gov.pagopa.pu.cie.dto.generated.DebtPositionCieOriginAllowedEnum;
 import it.gov.pagopa.pu.cie.dto.generated.DebtPositionCieRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.cie.CieFieldValuesDTO;
@@ -32,7 +33,7 @@ public class DebtPositionCieRequestDTOMapper {
 
   public DebtPositionCieRequestDTO map(DebtPositionRequestDTO dto, String debtPositionTypeOrgCode) {
     if (!isValid(dto, debtPositionTypeOrgCode)) {
-      throw new InvalidRequestBodyException("DEBT_POSITION_REQUEST_BODY_INVALID","Invalid DebtPositionRequestDTO. Missing installments or debtPositionTypeOrgCode");
+      throw new InvalidRequestBodyException("INVALID_DEBT_POSITION_REQUEST_BODY","Invalid DebtPositionRequestDTO. Missing installments or debtPositionTypeOrgCode");
     }
     InstallmentRequestDTO installment = extractFirstInstallment(dto);
     return buildDebtPositionCieRequest(installment, dto.getFieldValues(), debtPositionTypeOrgCode);
@@ -48,7 +49,10 @@ public class DebtPositionCieRequestDTOMapper {
 
     CieFieldValuesDTO cieFieldValuesDTO = parseFieldValues(fieldValues);
     validateFieldValues(cieFieldValuesDTO);
-    result.setPayer(buildPayer(cieFieldValuesDTO));
+    if(hasPayerFields(cieFieldValuesDTO)){
+      validatePayerFields(cieFieldValuesDTO);
+      result.setPayer(buildPayer(cieFieldValuesDTO));
+    }
     result.setOrgFiscalCode(cieFieldValuesDTO.getOrgFiscalCode());
     return result;
   }
@@ -61,7 +65,7 @@ public class DebtPositionCieRequestDTOMapper {
         .map(e -> " " + e.getPropertyPath() + ": " + e.getMessage())
         .sorted()
         .collect(Collectors.joining(";"));
-      throw new DebtPositionInvalidFieldValuesException("DEBT_POSITION_FIELD_VALUES_MISSING", "Required fields missing from CieFieldValuesDTO. [%s]".formatted(violationsDescription));
+      throw new DebtPositionInvalidFieldValuesException("MISSING_DEBT_POSITION_FIELD_VALUES", "Required fields missing from CieFieldValuesDTO. [%s]".formatted(violationsDescription));
     }
   }
 
@@ -69,7 +73,7 @@ public class DebtPositionCieRequestDTOMapper {
     try {
       return jsonMapper.convertValue(fieldValues, CieFieldValuesDTO.class);
     } catch (IllegalArgumentException e) {
-      throw new DebtPositionInvalidFieldValuesException("DEBT_POSITION_FIELD_VALUES_INVALID","Could not convert fieldValues to CieFieldValuesDTO");
+      throw new DebtPositionInvalidFieldValuesException("INVALID_DEBT_POSITION_FIELD_VALUES","Could not convert fieldValues to CieFieldValuesDTO");
     }
   }
 
@@ -97,5 +101,29 @@ public class DebtPositionCieRequestDTOMapper {
       && !CollectionUtils.isEmpty(dto.getPaymentOptions())
       && !CollectionUtils.isEmpty(dto.getPaymentOptions().getFirst().getInstallments())
       && debtPositionTypeOrgCode != null;
+  }
+
+  private boolean hasPayerFields(CieFieldValuesDTO cieFieldValuesDTO) {
+    return cieFieldValuesDTO.getPayerEntityType() != null
+      || StringUtils.isNotBlank(cieFieldValuesDTO.getPayerFiscalCode())
+      || StringUtils.isNotBlank(cieFieldValuesDTO.getPayerFullName())
+      || StringUtils.isNotBlank(cieFieldValuesDTO.getPayerAddress())
+      || StringUtils.isNotBlank(cieFieldValuesDTO.getPayerCivic())
+      || StringUtils.isNotBlank(cieFieldValuesDTO.getPayerPostalCode())
+      || StringUtils.isNotBlank(cieFieldValuesDTO.getPayerLocation())
+      || StringUtils.isNotBlank(cieFieldValuesDTO.getPayerProvince())
+      || StringUtils.isNotBlank(cieFieldValuesDTO.getPayerNation())
+      || StringUtils.isNotBlank(cieFieldValuesDTO.getPayerEmail());
+  }
+
+  private void validatePayerFields(CieFieldValuesDTO cieFieldValuesDTO) {
+    if (cieFieldValuesDTO.getPayerEntityType() == null
+      || StringUtils.isBlank(cieFieldValuesDTO.getPayerFiscalCode())
+      || StringUtils.isBlank(cieFieldValuesDTO.getPayerFullName())) {
+      throw new DebtPositionInvalidFieldValuesException(
+        "INVALID_DEBT_POSITION_FIELD_VALUES",
+        "Payer fields entityType, fiscalCode and fullName are required when any payer field is provided"
+      );
+    }
   }
 }

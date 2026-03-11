@@ -12,12 +12,12 @@ public interface BrokerInfoDTOMapper {
   @Mapping(target = "brokerName", source = "organization.orgName")
   @Mapping(target = "brokerFiscalCode", source = "organization.orgFiscalCode")
   @Mapping(target = "config", source = "arpuConfig")
-  BrokerInfoDTO innerMap(Organization organization, String arpuConfig);
+  BrokerInfoDTO innerMap(Organization organization, String externalId, String arpuConfig);
 
-  default BrokerInfoDTO map(Organization organization, String arpuConfig) {
+  default BrokerInfoDTO map(Organization organization, String externalId, String arpuConfig) {
     if (organization == null) {
       return null;
     }
-    return innerMap(organization, arpuConfig);
+    return innerMap(organization, externalId, arpuConfig);
   }
 }

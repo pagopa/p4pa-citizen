@@ -76,7 +76,7 @@ class OrganizationSearchClientTest {
 
     Mockito.when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken)).thenReturn(organizationSearchControllerApiMock);
 
-    Mockito.when(organizationSearchControllerApiMock.crudOrganizationsFindByBrokerIdAndOrgName(brokerId.toString(), orgName, pageable.getPageNumber(), pageable.getPageSize(), new ArrayList<>())).thenReturn(expectedResult);
+    Mockito.when(organizationSearchControllerApiMock.crudOrganizationsFindByBrokerIdAndOrgName(brokerId, orgName, pageable.getPageNumber(), pageable.getPageSize(), new ArrayList<>())).thenReturn(expectedResult);
     //when
     PagedModelOrganization result = organizationSearchClient.getOrganizationsListByBrokerIdAndOrgName(brokerId, orgName, pageable, accessToken);
     //then
@@ -100,7 +100,7 @@ class OrganizationSearchClientTest {
 
     Mockito.when(organizationSearchControllerApiMock
         .crudOrganizationsFindByBrokerIdAndOrgNameAndOrgFiscalCode(
-          String.valueOf(brokerId),
+          brokerId,
           orgName,
           orgFiscalCode,
           PageUtils.getPageNumber(pageable),

@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.connector.organization;
 
 import it.gov.pagopa.pu.citizen.connector.organization.client.BrokerEntityClient;
+import it.gov.pagopa.pu.citizen.connector.organization.client.BrokerSearchClient;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.organization.dto.generated.Broker;
 import org.junit.jupiter.api.AfterEach;
@@ -17,13 +18,15 @@ import uk.co.jemos.podam.api.PodamFactory;
 class BrokerServiceImplTest {
   @Mock
   private BrokerEntityClient brokerEntityClientMock;
+  @Mock
+  private BrokerSearchClient brokerSearchClientMock;
   private final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
   BrokerService brokerService;
 
   @BeforeEach
   void setUp() {
-    brokerService = new BrokerServiceImpl(brokerEntityClientMock);
+    brokerService = new BrokerServiceImpl(brokerEntityClientMock, brokerSearchClientMock);
   }
 
   @AfterEach
@@ -40,6 +43,20 @@ class BrokerServiceImplTest {
     Mockito.when(brokerEntityClientMock.getBroker(brokerId, accessToken)).thenReturn(expectedResult);
 
     Broker result = brokerService.getBroker(brokerId, accessToken);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(expectedResult, result);
+  }
+
+  @Test
+  void whenGetBrokerByExternalIdThenInvokeClient() {
+    String accessToken = "ACCESS_TOKEN";
+    String externalId = "1";
+    Broker expectedResult = podamFactory.manufacturePojo(Broker.class);
+
+    Mockito.when(brokerSearchClientMock.getBrokerByExternalId(externalId, accessToken)).thenReturn(expectedResult);
+
+    Broker result = brokerService.getBrokerByExternalId(externalId, accessToken);
 
     Assertions.assertNotNull(result);
     Assertions.assertEquals(expectedResult, result);

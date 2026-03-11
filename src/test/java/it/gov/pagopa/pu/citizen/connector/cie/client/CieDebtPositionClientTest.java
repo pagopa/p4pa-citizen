@@ -1,6 +1,6 @@
 package it.gov.pagopa.pu.citizen.connector.cie.client;
 
-import it.gov.pagopa.pu.cie.controller.generated.DebtPositionApi;
+import it.gov.pagopa.pu.cie.controller.generated.DebtPositionCieApi;
 import it.gov.pagopa.pu.cie.dto.generated.DebtPositionCieRequestDTO;
 import it.gov.pagopa.pu.citizen.connector.cie.config.CieApisHolder;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
@@ -23,7 +23,7 @@ class CieDebtPositionClientTest {
   @Mock
   private CieApisHolder cieApisHolderMock;
   @Mock
-  private DebtPositionApi debtPositionApiMock;
+  private DebtPositionCieApi debtPositionCieApiMock;
 
   private CieDebtPositionClient cieDebtPositionClient;
 
@@ -38,7 +38,7 @@ class CieDebtPositionClientTest {
   void verifyNoMoreInteractions() {
     Mockito.verifyNoMoreInteractions(
       cieApisHolderMock,
-      debtPositionApiMock
+      debtPositionCieApiMock
     );
   }
 
@@ -48,9 +48,9 @@ class CieDebtPositionClientTest {
     String accessToken = "ACCESSTOKEN";
     DebtPositionDTO expectedResult = podamFactory.manufacturePojo(DebtPositionDTO.class);
 
-    when(cieApisHolderMock.getDebtPositionApi(accessToken))
-      .thenReturn(debtPositionApiMock);
-    when(debtPositionApiMock.createDebtPositionCie(debtPositionCieRequestDTO))
+    when(cieApisHolderMock.getDebtPositionCieApi(accessToken))
+      .thenReturn(debtPositionCieApiMock);
+    when(debtPositionCieApiMock.createDebtPositionCie(debtPositionCieRequestDTO))
       .thenReturn(expectedResult);
 
     DebtPositionDTO result = cieDebtPositionClient.createDebtPositionCie(debtPositionCieRequestDTO, accessToken);

@@ -19,7 +19,7 @@ class BrokerInfoDTOMapperTest {
     Organization organization = podamFactory.manufacturePojo(Organization.class);
     String arpuConfig = "arpuConfig";
 
-    BrokerInfoDTO result = mapper.map(organization, arpuConfig);
+    BrokerInfoDTO result = mapper.map(organization, "externalId", arpuConfig);
 
     assertNotNull(result);
     TestUtils.checkNotNullFields(result);
@@ -27,18 +27,22 @@ class BrokerInfoDTOMapperTest {
     assertEquals(organization.getOrgFiscalCode(), result.getBrokerFiscalCode());
     assertEquals(organization.getOrgLogo(), result.getBrokerLogo());
     assertEquals(arpuConfig, result.getConfig());
+    assertEquals("externalId", result.getExternalId());
+    assertEquals(organization.getAddress(), result.getAddress());
+    assertEquals(organization.getZipCode(), result.getZipCode());
+    assertEquals(organization.getCity(), result.getCity());
   }
 
   @Test
   void givenNullOrganizationWhenMapThenNull() {
-    BrokerInfoDTO result = mapper.map(null, null);
+    BrokerInfoDTO result = mapper.map(null,"externalId", null);
 
     assertNull(result);
   }
 
   @Test
   void givenArpuConfigAndNoOrganizationWhenMapThenNull() {
-    BrokerInfoDTO result = mapper.map(null, "arpuConfig");
+    BrokerInfoDTO result = mapper.map(null, "externalId", "arpuConfig");
 
     assertNull(result);
   }
@@ -47,7 +51,7 @@ class BrokerInfoDTOMapperTest {
   void givenOrganizationAndNoArpuConfigWhenMapThenOk() {
     Organization organization = podamFactory.manufacturePojo(Organization.class);
 
-    BrokerInfoDTO result = mapper.map(organization, null);
+    BrokerInfoDTO result = mapper.map(organization, "externalId" , null);
 
     assertNotNull(result);
     TestUtils.checkNotNullFields(result, "config");
@@ -55,5 +59,9 @@ class BrokerInfoDTOMapperTest {
     assertEquals(organization.getOrgFiscalCode(), result.getBrokerFiscalCode());
     assertEquals(organization.getOrgLogo(), result.getBrokerLogo());
     assertNull(result.getConfig());
+    assertEquals("externalId", result.getExternalId());
+    assertEquals(organization.getAddress(), result.getAddress());
+    assertEquals(organization.getZipCode(), result.getZipCode());
+    assertEquals(organization.getCity(), result.getCity());
   }
 }

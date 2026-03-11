@@ -19,8 +19,8 @@ public class BrokerController implements BrokerApi {
   }
 
   @Override
-  public ResponseEntity<BrokerInfoDTO> getBrokerInfo(Long brokerId) {
-    log.info("getBrokerInfo was requested with brokerId {}", brokerId);
-    return ResponseEntity.ofNullable(brokerRetrieverService.getBrokerInfo(brokerId, SecurityUtils.getAccessToken()));
+  public ResponseEntity<BrokerInfoDTO> getBrokerInfo(Long brokerId, String externalId) {
+    log.info("getBrokerInfo was requested with brokerId {} or externalId {}", brokerId, externalId);
+    return ResponseEntity.ofNullable(brokerRetrieverService.getBrokerInfo(brokerId, externalId, SecurityUtils.getAccessToken()));
   }
 }

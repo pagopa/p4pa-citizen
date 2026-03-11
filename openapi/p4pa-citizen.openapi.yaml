@@ -7,18 +7,23 @@ servers:
   - url: "http://localhost:8080"
     description: Generated server url
 paths:
-  /brokers/{brokerId}:
+  /brokers:
     get:
       tags:
         - Broker
       operationId: getBrokerInfo
       parameters:
         - name: brokerId
-          in: path
-          required: true
+          in: query
+          required: false
           schema:
             type: integer
             format: int64
+        - name: externalId
+          in: query
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -869,7 +874,6 @@ components:
         userRemittanceInformation:
           type: string
       required:
-        - amountCents
         - debtor
         - remittanceInformation
     PaymentOptionRequestDTO:
@@ -884,7 +888,6 @@ components:
             $ref: '#/components/schemas/InstallmentRequestDTO'
       required:
         - installments
-        - totalAmountCents
     DebtPositionResponseDTO:
       type: object
       required:
@@ -1220,9 +1223,16 @@ components:
     BrokerInfoDTO:
       type: object
       required:
+        - brokerId
         - brokerName
         - brokerFiscalCode
+        - externalId
       properties:
+        brokerId:
+          type: integer
+          format: int64
+        externalId:
+          type: string
         brokerName:
           type: string
         brokerFiscalCode:
@@ -1232,4 +1242,10 @@ components:
           format: base64
           description: Base64 encoded logo of the organization
         config:
+          type: string
+        address:
+          type: string
+        zipCode:
+          type: string
+        city:
           type: string

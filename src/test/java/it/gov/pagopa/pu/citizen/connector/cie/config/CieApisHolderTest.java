@@ -39,9 +39,9 @@ class CieApisHolderTest extends BaseApiHolderTest {
     }
 
     @Test
-    void whenGetDebtPositionApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
+    void whenGetDebtPositionCieApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
         assertAuthenticationShouldBeSetInThreadSafeMode(
-                accessToken -> apisHolder.getDebtPositionApi(accessToken)
+                accessToken -> apisHolder.getDebtPositionCieApi(accessToken)
                         .createDebtPositionCie(new DebtPositionCieRequestDTO()),
                 new ParameterizedTypeReference<>() {},
                 apisHolder::unload);
