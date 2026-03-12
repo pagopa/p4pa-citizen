@@ -89,13 +89,13 @@ class DebtPositionServiceImplTest {
     //given
     String accessToken = "ACCESS_TOKEN";
     Long organizationId = 1L;
-    String iuv = "iuv";
+    String nav = "nav";
     List<DebtPositionOrigin> debtPositionOrigins = List.of(DebtPositionOrigin.ORDINARY);
     List<DebtPositionDTO> expectedResult = podamFactory.manufacturePojo(List.class,DebtPositionDTO.class);
 
-    Mockito.when(debtPositionClientMock.getDebtPositionsByOrganizationIdAndIuv(organizationId, iuv, debtPositionOrigins, accessToken)).thenReturn(expectedResult);
+    Mockito.when(debtPositionClientMock.getDebtPositionsByOrganizationIdAndNav(organizationId, nav, debtPositionOrigins, accessToken)).thenReturn(expectedResult);
     //when
-    List<DebtPositionDTO> result = debtPositionService.getDebtPositionsByOrganizationIdAndIuv(organizationId, iuv, debtPositionOrigins,accessToken);
+    List<DebtPositionDTO> result = debtPositionService.getDebtPositionsByOrganizationIdAndNav(organizationId, nav, debtPositionOrigins,accessToken);
     //then
     Assertions.assertNotNull(result);
     Assertions.assertSame(expectedResult, result);

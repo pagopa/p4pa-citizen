@@ -138,16 +138,16 @@ class DebtPositionClientTest {
   void whenGetDebtPositionsByOrganizationIdAndIuvThenInvokeWithAccessToken() {
     String accessToken = "ACCESSTOKEN";
     Long organizationId = 1L;
-    String iuv = "iuv";
+    String nav = "nav";
     List<DebtPositionOrigin> debtPositionOrigins = List.of(DebtPositionOrigin.ORDINARY);
     List<DebtPositionDTO> expectedResult = podamFactory.manufacturePojo(List.class,DebtPositionDTO.class);
 
     when(debtPositionApisHolderMock.getDebtPositionApi(accessToken))
       .thenReturn(debtPositionApiMock);
-    when(debtPositionApiMock.getDebtPositionsByOrganizationIdAndIuv(organizationId,iuv,debtPositionOrigins))
+    when(debtPositionApiMock.getDebtPositionsByOrganizationIdAndNav(organizationId,nav,debtPositionOrigins))
       .thenReturn(expectedResult);
 
-    List<DebtPositionDTO> result = debtPositionClient.getDebtPositionsByOrganizationIdAndIuv(organizationId, iuv, debtPositionOrigins, accessToken);
+    List<DebtPositionDTO> result = debtPositionClient.getDebtPositionsByOrganizationIdAndNav(organizationId, nav, debtPositionOrigins, accessToken);
 
     Assertions.assertSame(expectedResult, result);
   }

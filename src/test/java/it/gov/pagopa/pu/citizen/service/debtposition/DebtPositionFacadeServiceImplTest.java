@@ -324,6 +324,29 @@ class DebtPositionFacadeServiceImplTest {
   }
 
   @Test
+  void givenNavWithBrokerCieWhenGetPaymentNoticeThenOk() {
+    UserInfo loggedUser = new UserInfo();
+    loggedUser.setMappedExternalUserId("mappedExternalUserId");
+    String fiscalCode = "fiscalCode";
+    Long brokerId = 1L;
+    Long organizationId = 2L;
+    String nav = "nav";
+
+    ByteArrayResource resource = new ByteArrayResource("PDF-DATA".getBytes());
+
+    FileResourceDTO expectedResult = new FileResourceDTO(resource, "filename");
+
+    Mockito.when(organizationRetrieverServiceMock.isCieBroker(brokerId,accessToken)).thenReturn(true);
+    Mockito.when(cieDebtPositionFacadeServiceMock.generateNoticeCie(nav, fiscalCode, accessToken))
+      .thenReturn(expectedResult);
+
+    FileResourceDTO result = debtPositionFacadeService.getPaymentNotice(fiscalCode, brokerId, organizationId, null, nav, null, accessToken);
+
+    assertNotNull(result);
+    assertEquals(expectedResult, result);
+  }
+
+  @Test
   void givenInstallmentIdWhenGetPaymentNoticeThenOk() {
     UserInfo loggedUser = new UserInfo();
     loggedUser.setMappedExternalUserId("mappedExternalUserId");
@@ -355,9 +378,10 @@ class DebtPositionFacadeServiceImplTest {
 
     FileResourceDTO expectedResult = new FileResourceDTO(resource, "filename");
 
+    Mockito.when(organizationRetrieverServiceMock.isCieBroker(brokerId,accessToken)).thenReturn(false);
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPositionByInstallmentId(installmentId, accessToken)).thenReturn(debtPositionDTO);
-    Mockito.when(printPaymentNoticeServiceMock.generateNotice(installmentDTOUNPAID.getIuv(), debtPositionDTO, accessToken))
+    Mockito.when(printPaymentNoticeServiceMock.generateNotice(installmentDTOUNPAID.getNav(), debtPositionDTO, accessToken))
       .thenReturn(expectedResult);
 
     FileResourceDTO result = debtPositionFacadeService.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, null, null, accessToken);
@@ -367,13 +391,13 @@ class DebtPositionFacadeServiceImplTest {
   }
 
   @Test
-  void givenIuvWhenGetPaymentNoticeThenOk() {
+  void givenNavWhenGetPaymentNoticeThenOk() {
     UserInfo loggedUser = new UserInfo();
     loggedUser.setMappedExternalUserId("mappedExternalUserId");
     String fiscalCode = "fiscalCode";
     Long brokerId = 1L;
     Long organizationId = 2L;
-    String iuv = "iuv";
+    String nav = "nav";
     List<DebtPositionOrigin> debtPositionOrigins = List.of(    DebtPositionOrigin.ORDINARY,
       DebtPositionOrigin.ORDINARY_SIL,
       DebtPositionOrigin.SPONTANEOUS,
@@ -386,7 +410,7 @@ class DebtPositionFacadeServiceImplTest {
     PaymentOptionDTO paymentOptionDTO1 = new PaymentOptionDTO();
     InstallmentDTO installmentDTOUNPAID = podamFactory.manufacturePojo(InstallmentDTO.class);
     installmentDTOUNPAID.setStatus(InstallmentStatus.UNPAID);
-    installmentDTOUNPAID.setIuv(iuv);
+    installmentDTOUNPAID.setNav(nav);
     installmentDTOUNPAID.getDebtor().setFiscalCode(fiscalCode);
     InstallmentDTO installmentDTOUNPAYABLE = podamFactory.manufacturePojo(InstallmentDTO.class);
     installmentDTOUNPAYABLE.setStatus(InstallmentStatus.UNPAYABLE);
@@ -402,13 +426,14 @@ class DebtPositionFacadeServiceImplTest {
 
     FileResourceDTO expectedResult = new FileResourceDTO(resource, "filename");
 
+    Mockito.when(organizationRetrieverServiceMock.isCieBroker(brokerId,accessToken)).thenReturn(false);
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
-    Mockito.when(debtPositionServiceMock.getDebtPositionsByOrganizationIdAndIuv(organizationId, iuv, debtPositionOrigins, accessToken))
+    Mockito.when(debtPositionServiceMock.getDebtPositionsByOrganizationIdAndNav(organizationId, nav, debtPositionOrigins, accessToken))
       .thenReturn(List.of(debtPositionDTO));
-    Mockito.when(printPaymentNoticeServiceMock.generateNotice(installmentDTOUNPAID.getIuv(), debtPositionDTO, accessToken))
+    Mockito.when(printPaymentNoticeServiceMock.generateNotice(installmentDTOUNPAID.getNav(), debtPositionDTO, accessToken))
       .thenReturn(expectedResult);
 
-    FileResourceDTO result = debtPositionFacadeService.getPaymentNotice(fiscalCode, brokerId, organizationId, null, iuv, null, accessToken);
+    FileResourceDTO result = debtPositionFacadeService.getPaymentNotice(fiscalCode, brokerId, organizationId, null, nav, null, accessToken);
 
     assertNotNull(result);
     assertEquals(expectedResult, result);
@@ -450,10 +475,11 @@ class DebtPositionFacadeServiceImplTest {
 
     FileResourceDTO expectedResult = new FileResourceDTO(resource, "filename");
 
+    Mockito.when(organizationRetrieverServiceMock.isCieBroker(brokerId,accessToken)).thenReturn(false);
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPositionsByOrganizationIdAndIud(organizationId, iud, debtPositionOrigins, accessToken))
       .thenReturn(List.of(debtPositionDTO));
-    Mockito.when(printPaymentNoticeServiceMock.generateNotice(installmentDTOUNPAID.getIuv(), debtPositionDTO, accessToken))
+    Mockito.when(printPaymentNoticeServiceMock.generateNotice(installmentDTOUNPAID.getNav(), debtPositionDTO, accessToken))
       .thenReturn(expectedResult);
 
     FileResourceDTO result = debtPositionFacadeService.getPaymentNotice(fiscalCode, brokerId, organizationId, null, null, iud, accessToken);
@@ -475,6 +501,7 @@ class DebtPositionFacadeServiceImplTest {
     debtPositionDTO.setOrganizationId(organizationId);
     debtPositionDTO.setDebtPositionOrigin(DebtPositionOrigin.ORDINARY);
 
+    Mockito.when(organizationRetrieverServiceMock.isCieBroker(brokerId,accessToken)).thenReturn(false);
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPositionByInstallmentId(installmentId, accessToken)).thenReturn(debtPositionDTO);
 
@@ -496,6 +523,7 @@ class DebtPositionFacadeServiceImplTest {
     debtPositionDTO.setOrganizationId(organizationId);
     debtPositionDTO.setDebtPositionOrigin(DebtPositionOrigin.RECEIPT_FILE);
 
+    Mockito.when(organizationRetrieverServiceMock.isCieBroker(brokerId,accessToken)).thenReturn(false);
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPositionByInstallmentId(installmentId, accessToken)).thenReturn(debtPositionDTO);
 
@@ -516,6 +544,7 @@ class DebtPositionFacadeServiceImplTest {
     DebtPositionDTO debtPositionDTO = new DebtPositionDTO();
     debtPositionDTO.setOrganizationId(organizationId+1);
 
+    Mockito.when(organizationRetrieverServiceMock.isCieBroker(brokerId,accessToken)).thenReturn(false);
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPositionByInstallmentId(installmentId, accessToken)).thenReturn(debtPositionDTO);
 
@@ -533,6 +562,7 @@ class DebtPositionFacadeServiceImplTest {
     Long organizationId = 2L;
     Long installmentId = 3L;
 
+    Mockito.when(organizationRetrieverServiceMock.isCieBroker(brokerId,accessToken)).thenReturn(false);
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPositionByInstallmentId(installmentId, accessToken)).thenReturn(null);
 
@@ -550,6 +580,7 @@ class DebtPositionFacadeServiceImplTest {
     Long brokerId = 1L;
     Long organizationId = 2L;
 
+    Mockito.when(organizationRetrieverServiceMock.isCieBroker(brokerId,accessToken)).thenReturn(false);
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
 
     assertThrows(InvalidParamException.class,() -> debtPositionFacadeService.getPaymentNotice(fiscalCode, brokerId, organizationId, null, null, null, accessToken));
@@ -567,6 +598,7 @@ class DebtPositionFacadeServiceImplTest {
     Long installmentId = 3L;
     String iuv = "iuv";
 
+    Mockito.when(organizationRetrieverServiceMock.isCieBroker(brokerId,accessToken)).thenReturn(false);
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
 
     assertThrows(InvalidParamException.class,() -> debtPositionFacadeService.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, iuv, null, accessToken));

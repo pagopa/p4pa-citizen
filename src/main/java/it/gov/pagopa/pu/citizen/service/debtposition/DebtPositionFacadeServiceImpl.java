@@ -148,9 +148,13 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
   }
 
   @Override
-  public FileResourceDTO getPaymentNotice(String fiscalCode, Long brokerId, Long organizationId, Long installmentId, String iuv, String iud, String accessToken) {
+  public FileResourceDTO getPaymentNotice(String fiscalCode, Long brokerId, Long organizationId, Long installmentId, String nav, String iud, String accessToken) {
+    boolean cieBroker = organizationRetrieverService.isCieBroker(brokerId, accessToken);
+    if(cieBroker) {
+      return cieDebtPositionFacadeService.generateNoticeCie(nav, fiscalCode, accessToken);
+    }
     organizationRetrieverService.validateOrganization(organizationId,brokerId,accessToken);
-    DebtPositionDTO debtPosition = retrieveDebtPosition(organizationId,iuv,iud,installmentId, accessToken);
+    DebtPositionDTO debtPosition = retrieveDebtPosition(organizationId,nav,iud,installmentId, accessToken);
     if (debtPosition == null) {
       return null;
     }
@@ -163,12 +167,12 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
           .stream()
           .filter(
             i ->
-              (StringUtils.isBlank(iuv) || iuv.equals(i.getIuv()))
+              (StringUtils.isBlank(nav) || nav.equals(i.getNav()))
                 && (StringUtils.isBlank(iud) || iud.equals(i.getIud()))
                 && (installmentId==null || installmentId.equals(i.getInstallmentId())))
       )
       .map(i ->
-        printPaymentNoticeService.generateNotice(i.getIuv(), debtPosition, accessToken))
+        printPaymentNoticeService.generateNotice(i.getNav(), debtPosition, accessToken))
       .findAny();
     return paymentNoticeFileResource.orElse(null);
   }
@@ -183,14 +187,14 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
     validateDebtPositionDebtor(fiscalCode, debtPosition);
   }
 
-  private DebtPositionDTO retrieveDebtPosition(Long organizationId, String iuv, String iud, Long installmentId, String accessToken) {
-    int filterCount = (StringUtils.isNotBlank(iuv)?1:0) + (StringUtils.isNotBlank(iud)?1:0) + (installmentId!=null?1:0);
+  private DebtPositionDTO retrieveDebtPosition(Long organizationId, String nav, String iud, Long installmentId, String accessToken) {
+    int filterCount = (StringUtils.isNotBlank(nav)?1:0) + (StringUtils.isNotBlank(iud)?1:0) + (installmentId!=null?1:0);
     if(filterCount!=1){
-      throw new InvalidParamException("MISSING_IUV_OR_IUD_OR_ID","Exactly one of the following parameters must be provided: iuv, iud, or installmentId");
+      throw new InvalidParamException("MISSING_NAV_OR_IUD_OR_ID","Exactly one of the following parameters must be provided: nav, iud, or installmentId");
     }
 
-    if(StringUtils.isNotBlank(iuv)){
-      return debtPositionService.getDebtPositionsByOrganizationIdAndIuv(organizationId, iuv, ORDINARY_DEBTPOSITION_ORIGINS, accessToken).stream().findFirst().orElse(null);
+    if(StringUtils.isNotBlank(nav)){
+      return debtPositionService.getDebtPositionsByOrganizationIdAndNav(organizationId, nav, ORDINARY_DEBTPOSITION_ORIGINS, accessToken).stream().findFirst().orElse(null);
     }else if(StringUtils.isNotBlank(iud)){
       return debtPositionService.getDebtPositionsByOrganizationIdAndIud(organizationId, iud, ORDINARY_DEBTPOSITION_ORIGINS, accessToken).stream().findFirst().orElse(null);
     }else{

@@ -145,7 +145,7 @@ class DebtPositionControllerTest {
   void whenGetPaymentNoticeThenOk() {
     Long brokerId = 1L;
     Long organizationId = 2L;
-    String iuv = "iuv";
+    String nav = "nav";
     String iud = "iud";
     Long installmentId = 3L;
     String fiscalCode = "fiscalCode";
@@ -154,10 +154,10 @@ class DebtPositionControllerTest {
     Resource resource = new ByteArrayResource("PDF-DATA".getBytes());
     FileResourceDTO fileResourceDTO = new FileResourceDTO(resource, fileName);
 
-    Mockito.when(debtPositionFacadeServiceMock.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, iuv, iud, accessToken))
+    Mockito.when(debtPositionFacadeServiceMock.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, nav, iud, accessToken))
       .thenReturn(fileResourceDTO);
 
-    ResponseEntity<Resource> response = debtPositionController.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, iuv, iud);
+    ResponseEntity<Resource> response = debtPositionController.getPaymentNotice(fiscalCode, brokerId, organizationId, nav, installmentId, iud);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertNotNull(response.getBody());
@@ -169,15 +169,15 @@ class DebtPositionControllerTest {
   void givenNullResourceWhenGetPaymentNoticeThenNoContent() {
     Long brokerId = 1L;
     Long organizationId = 2L;
-    String iuv = "iuv";
+    String nav = "nav";
     String iud = "iud";
     Long installmentId = 3L;
     String fiscalCode = "fiscalCode";
 
-    Mockito.when(debtPositionFacadeServiceMock.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, iuv, iud, accessToken))
+    Mockito.when(debtPositionFacadeServiceMock.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, nav, iud, accessToken))
       .thenReturn(null);
 
-    ResponseEntity<Resource> response = debtPositionController.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, iuv, iud);
+    ResponseEntity<Resource> response = debtPositionController.getPaymentNotice(fiscalCode, brokerId, organizationId, nav, installmentId, iud);
 
     assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     assertNull(response.getBody());

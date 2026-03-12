@@ -954,19 +954,19 @@
             "format" : "int64"
           }
         }, {
+          "name" : "nav",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
           "name" : "installmentId",
           "in" : "query",
           "required" : false,
           "schema" : {
             "type" : "integer",
             "format" : "int64"
-          }
-        }, {
-          "name" : "iuv",
-          "in" : "query",
-          "required" : false,
-          "schema" : {
-            "type" : "string"
           }
         }, {
           "name" : "iud",
