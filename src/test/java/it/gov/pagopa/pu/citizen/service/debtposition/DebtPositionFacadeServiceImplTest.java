@@ -163,7 +163,7 @@ class DebtPositionFacadeServiceImplTest {
     Long debtPositionId = 2L;
     Long organizationId = 3L;
     String fiscalCode = "fiscalCode";
-    String iuv = "iuv";
+    String nav = "nav";
     String excludedIuv = "excludedIuv";
 
     DebtPositionDTO debtPositionDTO = new DebtPositionDTO();
@@ -171,11 +171,11 @@ class DebtPositionFacadeServiceImplTest {
     PaymentOptionDTO paymentOptionDTO = new PaymentOptionDTO();
     PaymentOptionDTO paymentOptionDTO1 = new PaymentOptionDTO();
     InstallmentDTO installmentDTOUNPAID = podamFactory.manufacturePojo(InstallmentDTO.class);
-    installmentDTOUNPAID.setIuv(iuv);
+    installmentDTOUNPAID.setNav(nav);
     installmentDTOUNPAID.setStatus(InstallmentStatus.UNPAID);
     installmentDTOUNPAID.getDebtor().setFiscalCode(fiscalCode);
     InstallmentDTO installmentDTOEXPIRED = podamFactory.manufacturePojo(InstallmentDTO.class);
-    installmentDTOEXPIRED.setIuv(iuv);
+    installmentDTOEXPIRED.setNav(nav);
     installmentDTOEXPIRED.setStatus(InstallmentStatus.EXPIRED);
     installmentDTOEXPIRED.getDebtor().setFiscalCode(fiscalCode);
     InstallmentDTO installmentDTOEXPIREDWithWrongFiscalCode = podamFactory.manufacturePojo(InstallmentDTO.class);
@@ -205,7 +205,7 @@ class DebtPositionFacadeServiceImplTest {
 
     assertNotNull(result);
     assertEquals(expectedResult, result);
-    Mockito.verify(printPaymentNoticeServiceMock, Mockito.times(2)).generateNotice(iuv, debtPositionDTO, accessToken);
+    Mockito.verify(printPaymentNoticeServiceMock, Mockito.times(2)).generateNotice(nav, debtPositionDTO, accessToken);
   }
 
   @Test

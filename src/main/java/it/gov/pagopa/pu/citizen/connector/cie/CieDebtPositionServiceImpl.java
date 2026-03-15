@@ -23,8 +23,8 @@ public class CieDebtPositionServiceImpl implements CieDebtPositionService {
   }
 
   @Override
-  public FileResourceDTO generateNoticeCie(String nav, String debtorFiscalCode, String accessToken) {
-    return cieDebtPositionClient.generateNoticeCie(nav, debtorFiscalCode, accessToken);
+  public FileResourceDTO generateNoticeCie(String nav, String debtorFiscalCode, String orgIpaCode) {
+    return cieDebtPositionClient.generateNoticeCie(nav, debtorFiscalCode, authnService.getAccessToken(orgIpaCode));
   }
 
 }

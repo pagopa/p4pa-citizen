@@ -110,7 +110,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
           )
       )
       .map(i ->
-        printPaymentNoticeService.generateNotice(i.getIuv(), debtPosition, accessToken))
+        printPaymentNoticeService.generateNotice(i.getNav(), debtPosition, accessToken))
       .toList();
 
     if (paymentNoticeFileResources.isEmpty()) {

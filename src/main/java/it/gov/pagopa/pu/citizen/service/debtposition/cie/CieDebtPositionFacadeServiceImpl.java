@@ -43,6 +43,7 @@ public class CieDebtPositionFacadeServiceImpl implements CieDebtPositionFacadeSe
 
   @Override
   public FileResourceDTO generateNoticeCie(String nav, String fiscalCode, String accessToken) {
-    return cieDebtPositionService.generateNoticeCie(nav, fiscalCode, accessToken);
+    Organization cieOrganization = organizationRetrieverService.getCieOrganization(accessToken);
+    return cieDebtPositionService.generateNoticeCie(nav, fiscalCode, cieOrganization.getIpaCode());
   }
 }

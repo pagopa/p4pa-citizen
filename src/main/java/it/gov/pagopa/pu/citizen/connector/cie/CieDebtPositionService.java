@@ -6,5 +6,5 @@ import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 
 public interface CieDebtPositionService {
   DebtPositionDTO createDebtPositionCie(DebtPositionCieRequestDTO debtPositionCieRequestDTO, String orgIpaCode);
-  FileResourceDTO generateNoticeCie(String nav, String debtorFiscalCode, String accessToken);
+  FileResourceDTO generateNoticeCie(String nav, String debtorFiscalCode, String orgIpaCode);
 }
