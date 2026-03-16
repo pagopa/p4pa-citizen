@@ -1,11 +1,13 @@
 package it.gov.pagopa.pu.citizen.service.organization;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.DebtPositionTypeOrgService;
+import it.gov.pagopa.pu.citizen.connector.organization.BrokerService;
 import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
 import it.gov.pagopa.pu.citizen.dto.generated.OrganizationsWithSpontaneousDTO;
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.OrganizationsWithSpontaneousDTOMapper;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrgWithActiveSpontaneousCount;
+import it.gov.pagopa.pu.organization.dto.generated.Broker;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,17 +27,19 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
   private final OrganizationsWithSpontaneousDTOMapper organizationsWithSpontaneousDTOMapper;
   private final OrganizationService organizationService;
   private final String cieOrgFiscalCode;
+  private final BrokerService brokerService;
   private Organization cieOrganization = null;
 
   public OrganizationRetrieverServiceImpl(BrokerOrganizationsRetrieverService brokerOrganizationsRetrieverService, DebtPositionTypeOrgService debtPositionTypeOrgService,
                                           OrganizationsWithSpontaneousDTOMapper organizationsWithSpontaneousDTOMapper, OrganizationService organizationService,
-                                          @Value("${cie.organization.fiscal-code}") String cieOrgFiscalCode
+                                          @Value("${cie.organization.fiscal-code}") String cieOrgFiscalCode, BrokerService brokerService
   ) {
     this.brokerOrganizationsRetrieverService = brokerOrganizationsRetrieverService;
     this.debtPositionTypeOrgService = debtPositionTypeOrgService;
     this.organizationsWithSpontaneousDTOMapper = organizationsWithSpontaneousDTOMapper;
       this.organizationService = organizationService;
     this.cieOrgFiscalCode = cieOrgFiscalCode;
+    this.brokerService = brokerService;
   }
 
   @Override
@@ -113,5 +117,14 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
       }
       cieOrganization = organization;
     }
+  }
+
+  @Override
+  public boolean isDelegateBroker(Long brokerId, String accessToken) {
+    if(brokerId == null){
+      return false;
+    }
+    Broker broker = brokerService.getBroker(brokerId, accessToken);
+    return broker !=null && broker.getFlagDelegate();
   }
 }

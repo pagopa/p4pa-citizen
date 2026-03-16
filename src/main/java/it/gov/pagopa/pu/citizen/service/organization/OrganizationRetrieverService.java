@@ -12,4 +12,5 @@ public interface OrganizationRetrieverService {
   Organization getValidOrganization(String orgFiscalCode, Long brokerId, String accessToken);
   boolean isCieBroker(Long brokerId, String accessToken);
   Organization getCieOrganization(String accessToken);
+  boolean isDelegateBroker(Long brokerId, String accessToken);
 }
