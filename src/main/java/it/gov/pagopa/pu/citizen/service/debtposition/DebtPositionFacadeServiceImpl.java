@@ -9,7 +9,6 @@ import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionOverviewDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorDebtPositionDTO;
 import it.gov.pagopa.pu.citizen.exception.ConflictException;
-import it.gov.pagopa.pu.citizen.exception.InvalidParamException;
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionDTOMapper;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionResponseDTOMapper;
@@ -23,7 +22,6 @@ import it.gov.pagopa.pu.citizen.utils.InstallmentUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.*;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import jakarta.validation.ValidationException;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Pageable;
@@ -148,13 +146,14 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
   }
 
   @Override
-  public FileResourceDTO getPaymentNotice(String fiscalCode, Long brokerId, Long organizationId, Long installmentId, String nav, String iud, String accessToken) {
+  public FileResourceDTO getPaymentNotice(String fiscalCode, Long brokerId, Long organizationId, String nav, String accessToken) {
     boolean cieBroker = organizationRetrieverService.isCieBroker(brokerId, accessToken);
     if(cieBroker) {
       return cieDebtPositionFacadeService.generateNoticeCie(nav, fiscalCode, accessToken);
     }
     organizationRetrieverService.validateOrganization(organizationId,brokerId,accessToken);
-    DebtPositionDTO debtPosition = retrieveDebtPosition(organizationId,nav,iud,installmentId, accessToken);
+    DebtPositionDTO debtPosition = debtPositionService.getDebtPositionsByOrganizationIdAndNav(organizationId, nav, ORDINARY_DEBTPOSITION_ORIGINS, accessToken)
+      .stream().findFirst().orElse(null);
     if (debtPosition == null) {
       return null;
     }
@@ -165,11 +164,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
       .flatMap(po ->
         po.getInstallments()
           .stream()
-          .filter(
-            i ->
-              (StringUtils.isBlank(nav) || nav.equals(i.getNav()))
-                && (StringUtils.isBlank(iud) || iud.equals(i.getIud()))
-                && (installmentId==null || installmentId.equals(i.getInstallmentId())))
+          .filter(i -> nav.equals(i.getNav()))
       )
       .map(i ->
         printPaymentNoticeService.generateNotice(i.getNav(), debtPosition, accessToken))
@@ -185,21 +180,6 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
       throw new ValidationException("[INVALID_DEBT_POSITION_ORIGIN] Invalid debtPositionOrigin "+debtPosition.getDebtPositionOrigin());
     }
     validateDebtPositionDebtor(fiscalCode, debtPosition);
-  }
-
-  private DebtPositionDTO retrieveDebtPosition(Long organizationId, String nav, String iud, Long installmentId, String accessToken) {
-    int filterCount = (StringUtils.isNotBlank(nav)?1:0) + (StringUtils.isNotBlank(iud)?1:0) + (installmentId!=null?1:0);
-    if(filterCount!=1){
-      throw new InvalidParamException("MISSING_NAV_OR_IUD_OR_ID","Exactly one of the following parameters must be provided: nav, iud, or installmentId");
-    }
-
-    if(StringUtils.isNotBlank(nav)){
-      return debtPositionService.getDebtPositionsByOrganizationIdAndNav(organizationId, nav, ORDINARY_DEBTPOSITION_ORIGINS, accessToken).stream().findFirst().orElse(null);
-    }else if(StringUtils.isNotBlank(iud)){
-      return debtPositionService.getDebtPositionsByOrganizationIdAndIud(organizationId, iud, ORDINARY_DEBTPOSITION_ORIGINS, accessToken).stream().findFirst().orElse(null);
-    }else{
-      return debtPositionService.getDebtPositionByInstallmentId(installmentId, accessToken);
-    }
   }
 
   @Override
