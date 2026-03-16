@@ -382,4 +382,13 @@ class OrganizationRetrieverServiceImplTest {
 
     Assertions.assertFalse(result);
   }
+
+  @Test
+  void givenNoBrokerIdWhenIsDelegateBrokerThenFalse(){
+    String accessToken = "ACCESS_TOKEN";
+
+    boolean result = organizationRetrieverService.isDelegateBroker(null, accessToken);
+
+    Assertions.assertFalse(result);
+  }
 }
