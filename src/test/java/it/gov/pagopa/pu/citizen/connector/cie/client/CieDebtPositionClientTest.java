@@ -20,6 +20,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import static org.mockito.Mockito.when;
@@ -87,5 +88,21 @@ class CieDebtPositionClientTest {
     Assertions.assertNotNull(response);
     Assertions.assertEquals(expectedResource,response.getResource());
     Assertions.assertEquals(expectedFileName,response.getFileName());
+  }
+
+  @Test
+  void givenNavNotFoundWhenGenerateNoticeCieThenNull() {
+    String accessToken = "ACCESSTOKEN";
+    String nav = "nav";
+    String debtorFiscalCode = "fiscalCode";
+
+    when(cieApisHolderMock.getDebtPositionCieApi(accessToken))
+      .thenReturn(debtPositionCieApiMock);
+    when(debtPositionCieApiMock.generateNoticeCieWithHttpInfo(nav,debtorFiscalCode))
+      .thenThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, "NotFound", null, null, null));
+
+    FileResourceDTO response = cieDebtPositionClient.generateNoticeCie(nav,debtorFiscalCode,accessToken);
+
+    Assertions.assertNull(response);
   }
 }

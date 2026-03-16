@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Slf4j
 @Service
@@ -24,11 +25,16 @@ public class CieDebtPositionClient {
   }
 
   public FileResourceDTO generateNoticeCie(String nav, String debtorFiscalCode, String accessToken) {
-    ResponseEntity<Resource> resourceResponseEntity = cieApisHolder.getDebtPositionCieApi(accessToken)
-      .generateNoticeCieWithHttpInfo(nav, debtorFiscalCode);
-    return FileResourceDTO.builder()
-      .resource(resourceResponseEntity.getBody())
-      .fileName(resourceResponseEntity.getHeaders().getContentDisposition().getFilename())
-      .build();
+    try {
+      ResponseEntity<Resource> resourceResponseEntity = cieApisHolder.getDebtPositionCieApi(accessToken)
+        .generateNoticeCieWithHttpInfo(nav, debtorFiscalCode);
+      return FileResourceDTO.builder()
+        .resource(resourceResponseEntity.getBody())
+        .fileName(resourceResponseEntity.getHeaders().getContentDisposition().getFilename())
+        .build();
+    } catch (HttpClientErrorException.NotFound e) {
+      log.warn("Payment notice with nav {} not found", nav);
+      return null;
+    }
   }
 }

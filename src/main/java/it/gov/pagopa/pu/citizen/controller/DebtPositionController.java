@@ -59,7 +59,7 @@ public class DebtPositionController implements DebtPositionApi {
 
   @Override
   public ResponseEntity<Resource> getPaymentNotice(String fiscalCode, Long brokerId, Long organizationId, String nav) {
-    log.info("User requested getPaymentNotice having brokerId {} and organizationId {}", brokerId, organizationId);
+    log.info("User requested getPaymentNotice having brokerId {}, organizationId {} and nav {}", brokerId, organizationId, nav);
 
     FileResourceDTO fileResourceDTO = debtPositionFacadeService.getPaymentNotice(
       fiscalCode, brokerId, organizationId, nav, SecurityUtils.getAccessToken());
