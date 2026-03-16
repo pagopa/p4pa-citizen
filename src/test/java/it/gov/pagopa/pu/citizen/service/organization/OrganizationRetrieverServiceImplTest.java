@@ -1,12 +1,14 @@
 package it.gov.pagopa.pu.citizen.service.organization;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.DebtPositionTypeOrgService;
+import it.gov.pagopa.pu.citizen.connector.organization.BrokerService;
 import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
 import it.gov.pagopa.pu.citizen.dto.generated.OrganizationsWithSpontaneousDTO;
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.OrganizationsWithSpontaneousDTOMapper;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrgWithActiveSpontaneousCount;
+import it.gov.pagopa.pu.organization.dto.generated.Broker;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -35,6 +37,8 @@ class OrganizationRetrieverServiceImplTest {
   private OrganizationsWithSpontaneousDTOMapper organizationsWithSpontaneousDTOMapperMock;
   @Mock
   private OrganizationService organizationServiceMock;
+  @Mock
+  private BrokerService brokerServiceMock;
   private final String cieOrgFiscalCode = "cieOrgFiscalCode";
 
   private static final PodamFactory podamFactory = TestUtils.getPodamFactory();
@@ -43,12 +47,24 @@ class OrganizationRetrieverServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    organizationRetrieverService = new OrganizationRetrieverServiceImpl(brokerOrganizationsRetrieverServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock, organizationServiceMock, cieOrgFiscalCode);
+    organizationRetrieverService = new OrganizationRetrieverServiceImpl(
+      brokerOrganizationsRetrieverServiceMock,
+      debtPositionTypeOrgServiceMock,
+      organizationsWithSpontaneousDTOMapperMock,
+      organizationServiceMock,
+      cieOrgFiscalCode,
+      brokerServiceMock
+    );
   }
 
   @AfterEach
   void mockitoVerify(){
-    Mockito.verifyNoMoreInteractions(brokerOrganizationsRetrieverServiceMock, debtPositionTypeOrgServiceMock, organizationsWithSpontaneousDTOMapperMock, organizationServiceMock);
+    Mockito.verifyNoMoreInteractions(brokerOrganizationsRetrieverServiceMock,
+      debtPositionTypeOrgServiceMock,
+      organizationsWithSpontaneousDTOMapperMock,
+      organizationServiceMock,
+      brokerServiceMock
+    );
   }
 
   @Test
@@ -327,5 +343,43 @@ class OrganizationRetrieverServiceImplTest {
     Assertions.assertNotNull(result);
     Assertions.assertEquals(expectedResult,result);
     verifyNoInteractions(organizationServiceMock);
+  }
+
+  @Test
+  void givenDelegateBrokerWhenIsDelegateBrokerThenTrue(){
+    String accessToken = "ACCESS_TOKEN";
+    Broker broker = podamFactory.manufacturePojo(Broker.class);
+    broker.setFlagDelegate(true);
+
+    Mockito.when(brokerServiceMock.getBroker(broker.getBrokerId(),accessToken)).thenReturn(broker);
+
+    boolean result = organizationRetrieverService.isDelegateBroker(broker.getBrokerId(), accessToken);
+
+    Assertions.assertTrue(result);
+  }
+
+  @Test
+  void givenNoDelegateBrokerWhenIsDelegateBrokerThenFalse(){
+    String accessToken = "ACCESS_TOKEN";
+    Broker broker = podamFactory.manufacturePojo(Broker.class);
+    broker.setFlagDelegate(false);
+
+    Mockito.when(brokerServiceMock.getBroker(broker.getBrokerId(),accessToken)).thenReturn(broker);
+
+    boolean result = organizationRetrieverService.isDelegateBroker(broker.getBrokerId(), accessToken);
+
+    Assertions.assertFalse(result);
+  }
+
+  @Test
+  void givenNoBrokerWhenIsDelegateBrokerThenFalse(){
+    String accessToken = "ACCESS_TOKEN";
+    long brokerId = 1L;
+
+    Mockito.when(brokerServiceMock.getBroker(brokerId,accessToken)).thenReturn(null);
+
+    boolean result = organizationRetrieverService.isDelegateBroker(brokerId, accessToken);
+
+    Assertions.assertFalse(result);
   }
 }
