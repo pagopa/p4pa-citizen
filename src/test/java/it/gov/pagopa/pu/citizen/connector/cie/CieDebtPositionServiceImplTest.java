@@ -3,6 +3,7 @@ package it.gov.pagopa.pu.citizen.connector.cie;
 import it.gov.pagopa.pu.cie.dto.generated.DebtPositionCieRequestDTO;
 import it.gov.pagopa.pu.citizen.connector.auth.AuthnService;
 import it.gov.pagopa.pu.citizen.connector.cie.client.CieDebtPositionClient;
+import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import org.junit.jupiter.api.AfterEach;
@@ -48,6 +49,23 @@ class CieDebtPositionServiceImplTest {
     Mockito.when(cieDebtPositionClientMock.createDebtPositionCie(debtPositionCieRequestDTO,accessToken)).thenReturn(expectedResult);
 
     DebtPositionDTO result = cieDebtPositionService.createDebtPositionCie(debtPositionCieRequestDTO, cieOrgIpaCode);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertSame(expectedResult, result);
+  }
+
+  @Test
+  void whenGenerateNoticeCieThenInvokeClient() {
+    String nav = "nav";
+    String debtorFiscalCode = "fiscalCode";
+    String accessToken = "ACCESS_TOKEN";
+    String cieOrgIpaCode = "cieOrgIpaCode";
+    FileResourceDTO expectedResult = podamFactory.manufacturePojo(FileResourceDTO.class);
+
+    Mockito.when(authnServiceMock.getAccessToken(cieOrgIpaCode)).thenReturn(accessToken);
+    Mockito.when(cieDebtPositionClientMock.generateNoticeCie(nav, debtorFiscalCode, accessToken)).thenReturn(expectedResult);
+
+    FileResourceDTO result = cieDebtPositionService.generateNoticeCie(nav, debtorFiscalCode, cieOrgIpaCode);
 
     Assertions.assertNotNull(result);
     Assertions.assertSame(expectedResult, result);

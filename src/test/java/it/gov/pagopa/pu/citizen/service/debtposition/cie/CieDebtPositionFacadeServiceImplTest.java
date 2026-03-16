@@ -2,6 +2,7 @@ package it.gov.pagopa.pu.citizen.service.debtposition.cie;
 
 import it.gov.pagopa.pu.cie.dto.generated.DebtPositionCieRequestDTO;
 import it.gov.pagopa.pu.citizen.connector.cie.CieDebtPositionService;
+import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionResponseDTOMapper;
@@ -81,6 +82,23 @@ class CieDebtPositionFacadeServiceImplTest {
 
 
     DebtPositionResponseDTO result = cieDebtPositionFacadeService.createSpontaneousDebtPosition( requestDTO, accessToken);
+
+    assertNotNull(result);
+    assertSame(expectedResult, result);
+  }
+
+  @Test
+  void whenGenerateNoticeCieThenOk(){
+    String nav = "nav";
+    String debtorFiscalCode = "fiscalCode";
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    FileResourceDTO expectedResult = podamFactory.manufacturePojo(FileResourceDTO.class);
+
+    Mockito.when(organizationRetrieverServiceMock.getCieOrganization(accessToken)).thenReturn(organization);
+    Mockito.when(cieDebtPositionServiceMock.generateNoticeCie(nav, debtorFiscalCode, organization.getIpaCode()))
+      .thenReturn(expectedResult);
+
+    FileResourceDTO result = cieDebtPositionFacadeService.generateNoticeCie(nav, debtorFiscalCode, accessToken);
 
     assertNotNull(result);
     assertSame(expectedResult, result);

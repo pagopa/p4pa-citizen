@@ -398,6 +398,12 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("ope
     mapOf(
       "DebtPositionDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO",
       "PersonDTO" to "it.gov.pagopa.pu.debtpositions.dto.generated.PersonDTO",
+      "string+binary" to "Resource"
+    )
+  )
+  importMappings.set(
+    mapOf(
+      "Resource" to "org.springframework.core.io.Resource"
     )
   )
   library.set("resttemplate")
