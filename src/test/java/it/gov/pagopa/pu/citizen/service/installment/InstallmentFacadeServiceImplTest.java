@@ -1,9 +1,11 @@
 package it.gov.pagopa.pu.citizen.service.installment;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.InstallmentService;
+import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
 import it.gov.pagopa.pu.citizen.dto.InstallmentDebtorExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionInstallmentsDTO;
 import it.gov.pagopa.pu.citizen.exception.InvalidParamException;
+import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.DebtorUnpaidDebtPositionInstallmentsMapper;
 import it.gov.pagopa.pu.citizen.mapper.InstallmentDebtorExtendedDTOMapper;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
@@ -37,18 +39,32 @@ class InstallmentFacadeServiceImplTest {
   private InstallmentDebtorExtendedDTOMapper installmentDebtorExtendedDTOMapperMock;
   @Mock
   private DebtorUnpaidDebtPositionInstallmentsMapper debtorUnpaidDebtPositionInstallmentsMapperMock;
+  @Mock
+  private OrganizationService organizationServiceMock;
   private InstallmentFacadeService installmentFacadeService;
 
   private final PodamFactory podamFactory = TestUtils.getPodamFactory();
 
   @BeforeEach
   void setUp() {
-    installmentFacadeService = new InstallmentFacadeServiceImpl(organizationRetrieverServiceMock,installmentServiceMock,installmentDebtorExtendedDTOMapperMock, debtorUnpaidDebtPositionInstallmentsMapperMock);
+    installmentFacadeService = new InstallmentFacadeServiceImpl(
+      organizationRetrieverServiceMock,
+      installmentServiceMock,
+      installmentDebtorExtendedDTOMapperMock,
+      debtorUnpaidDebtPositionInstallmentsMapperMock,
+      organizationServiceMock
+    );
   }
 
   @AfterEach
   void mockitoVerify(){
-    Mockito.verifyNoMoreInteractions(organizationRetrieverServiceMock,installmentServiceMock,installmentDebtorExtendedDTOMapperMock, debtorUnpaidDebtPositionInstallmentsMapperMock);
+    Mockito.verifyNoMoreInteractions(
+      organizationRetrieverServiceMock,
+      installmentServiceMock,
+      installmentDebtorExtendedDTOMapperMock,
+      debtorUnpaidDebtPositionInstallmentsMapperMock,
+      organizationServiceMock
+    );
   }
 
   @Test
@@ -67,6 +83,7 @@ class InstallmentFacadeServiceImplTest {
     Map<Long, Organization> organizationMap = buildOrganizationMap(installments, organization);
     List<InstallmentDebtorExtendedDTO> expectedResult = podamFactory.manufacturePojo(List.class,InstallmentDebtorExtendedDTO.class);
 
+    Mockito.when(organizationRetrieverServiceMock.isDelegateBroker(brokerId,accessToken)).thenReturn(false);
     Mockito.when(organizationRetrieverServiceMock.getValidOrganization(orgFiscalCode,brokerId,accessToken)).thenReturn(organization);
     Mockito.when(installmentServiceMock.getInstallmentByIuvOrNav(iuvOrNav,debtorFiscalCode,organization.getOrganizationId(), statuses, accessToken)).thenReturn(installments);
     Mockito.when(organizationRetrieverServiceMock.getValidOrganization(Mockito.anyLong(),Mockito.eq(brokerId),Mockito.eq(accessToken)))
@@ -78,6 +95,56 @@ class InstallmentFacadeServiceImplTest {
     Assertions.assertNotNull(result);
     Assertions.assertEquals(expectedResult,result);
     Mockito.verify(organizationRetrieverServiceMock, Mockito.times(organizationMap.size()-1)).getValidOrganization(Mockito.anyLong(),Mockito.eq(brokerId),Mockito.eq(accessToken));
+  }
+
+  @Test
+  void givenDelegateBrokerWhenGetInstallmentsByIuvOrNavThenOk() {
+    String accessToken = "accessToken";
+    Long brokerId = 1L;
+    String iuvOrNav = "iuvOrNav";
+    String debtorFiscalCode = "debtorFiscalCode";
+    String orgFiscalCode = "orgFiscalCode";
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    organization.setOrgFiscalCode(orgFiscalCode);
+    List<InstallmentStatus> statuses = List.of(InstallmentStatus.PAID, InstallmentStatus.REPORTED);
+    List<InstallmentDebtorDTO> installments = podamFactory.manufacturePojo(List.class,InstallmentDebtorDTO.class);
+    installments.getFirst().setStatus(InstallmentStatus.PAID);
+
+    Map<Long, Organization> organizationMap = buildOrganizationMap(installments, organization);
+    List<InstallmentDebtorExtendedDTO> expectedResult = podamFactory.manufacturePojo(List.class,InstallmentDebtorExtendedDTO.class);
+
+    Mockito.when(organizationRetrieverServiceMock.isDelegateBroker(brokerId,accessToken)).thenReturn(true);
+    Mockito.when(organizationServiceMock.getBrokerOrganization(brokerId,accessToken)).thenReturn(organization);
+    Mockito.when(installmentServiceMock.getInstallmentByIuvOrNav(iuvOrNav,debtorFiscalCode,organization.getOrganizationId(), statuses, accessToken)).thenReturn(installments);
+    Mockito.when(organizationRetrieverServiceMock.getValidOrganization(Mockito.anyLong(),Mockito.eq(brokerId),Mockito.eq(accessToken)))
+      .thenAnswer(invocation -> organizationMap.get(invocation.getArgument(0, Long.class)));
+    Mockito.when(installmentDebtorExtendedDTOMapperMock.map(installments,organizationMap)).thenReturn(expectedResult);
+
+    List<InstallmentDebtorExtendedDTO> result = installmentFacadeService.getInstallmentByIuvOrNav(brokerId,iuvOrNav, debtorFiscalCode, orgFiscalCode, statuses, accessToken);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(expectedResult,result);
+    Mockito.verify(organizationRetrieverServiceMock, Mockito.times(organizationMap.size()-1)).getValidOrganization(Mockito.anyLong(),Mockito.eq(brokerId),Mockito.eq(accessToken));
+  }
+
+  @Test
+  void givenNoDelegateBrokerOrganizationWhenGetInstallmentsByIuvOrNavThenResourceNotFoundException() {
+    String accessToken = "accessToken";
+    Long brokerId = 1L;
+    String iuvOrNav = "iuvOrNav";
+    String debtorFiscalCode = "debtorFiscalCode";
+    String orgFiscalCode = "orgFiscalCode";
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    organization.setOrgFiscalCode(orgFiscalCode);
+    List<InstallmentStatus> statuses = List.of(InstallmentStatus.PAID, InstallmentStatus.REPORTED);
+
+    Mockito.when(organizationRetrieverServiceMock.isDelegateBroker(brokerId,accessToken)).thenReturn(true);
+    Mockito.when(organizationServiceMock.getBrokerOrganization(brokerId,accessToken)).thenReturn(null);
+
+    ResourceNotFoundException resourceNotFoundException = Assertions.assertThrows(ResourceNotFoundException.class,
+      () -> installmentFacadeService.getInstallmentByIuvOrNav(brokerId, iuvOrNav, debtorFiscalCode, orgFiscalCode, statuses, accessToken));
+
+    Assertions.assertEquals("ORGANIZATION_NOT_FOUND",resourceNotFoundException.getCode());
   }
 
   @Test
@@ -129,6 +196,7 @@ class InstallmentFacadeServiceImplTest {
     List<InstallmentStatus> expectedStatuses = new ArrayList<>(statuses);
     expectedStatuses.add(InstallmentStatus.REPORTED);
 
+    Mockito.when(organizationRetrieverServiceMock.isDelegateBroker(brokerId,accessToken)).thenReturn(false);
     Mockito.when(organizationRetrieverServiceMock.getValidOrganization(orgFiscalCode,brokerId,accessToken)).thenReturn(organization);
     Mockito.when(installmentServiceMock.getInstallmentByIuvOrNav(iuvOrNav,debtorFiscalCode,organization.getOrganizationId(), expectedStatuses, accessToken)).thenReturn(Collections.emptyList());
 

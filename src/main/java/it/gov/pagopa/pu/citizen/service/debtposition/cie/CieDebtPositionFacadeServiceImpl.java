@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.service.debtposition.cie;
 
 import it.gov.pagopa.pu.citizen.connector.cie.CieDebtPositionService;
+import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionResponseDTOMapper;
@@ -38,5 +39,11 @@ public class CieDebtPositionFacadeServiceImpl implements CieDebtPositionFacadeSe
       cieOrganization.getIpaCode()
     );
     return debtPositionResponseDTOMapper.map(debtPosition,cieOrganization,true);
+  }
+
+  @Override
+  public FileResourceDTO generateNoticeCie(String nav, String fiscalCode, String accessToken) {
+    Organization cieOrganization = organizationRetrieverService.getCieOrganization(accessToken);
+    return cieDebtPositionService.generateNoticeCie(nav, fiscalCode, cieOrganization.getIpaCode());
   }
 }

@@ -48,8 +48,8 @@ public class DebtPositionClient {
     }
   }
 
-  public List<DebtPositionDTO> getDebtPositionsByOrganizationIdAndIuv(Long organizationId, String iuv, List<DebtPositionOrigin> debtPositionOrigins, String accessToken){
-    return debtPositionsApisHolder.getDebtPositionApi(accessToken).getDebtPositionsByOrganizationIdAndIuv(organizationId, iuv, debtPositionOrigins);
+  public List<DebtPositionDTO> getDebtPositionsByOrganizationIdAndNav(Long organizationId, String nav, List<DebtPositionOrigin> debtPositionOrigins, String accessToken){
+    return debtPositionsApisHolder.getDebtPositionApi(accessToken).getDebtPositionsByOrganizationIdAndNav(organizationId, nav, debtPositionOrigins);
   }
 
   public List<DebtPositionDTO> getDebtPositionsByOrganizationIdAndIud(Long organizationId, String iud, List<DebtPositionOrigin> debtPositionOrigins, String accessToken){

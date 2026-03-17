@@ -145,19 +145,17 @@ class DebtPositionControllerTest {
   void whenGetPaymentNoticeThenOk() {
     Long brokerId = 1L;
     Long organizationId = 2L;
-    String iuv = "iuv";
-    String iud = "iud";
-    Long installmentId = 3L;
+    String nav = "nav";
     String fiscalCode = "fiscalCode";
 
     String fileName = "fileName";
     Resource resource = new ByteArrayResource("PDF-DATA".getBytes());
     FileResourceDTO fileResourceDTO = new FileResourceDTO(resource, fileName);
 
-    Mockito.when(debtPositionFacadeServiceMock.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, iuv, iud, accessToken))
+    Mockito.when(debtPositionFacadeServiceMock.getPaymentNotice(fiscalCode, brokerId, organizationId, nav, accessToken))
       .thenReturn(fileResourceDTO);
 
-    ResponseEntity<Resource> response = debtPositionController.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, iuv, iud);
+    ResponseEntity<Resource> response = debtPositionController.getPaymentNotice(fiscalCode, brokerId, organizationId, nav);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertNotNull(response.getBody());
@@ -169,15 +167,13 @@ class DebtPositionControllerTest {
   void givenNullResourceWhenGetPaymentNoticeThenNoContent() {
     Long brokerId = 1L;
     Long organizationId = 2L;
-    String iuv = "iuv";
-    String iud = "iud";
-    Long installmentId = 3L;
+    String nav = "nav";
     String fiscalCode = "fiscalCode";
 
-    Mockito.when(debtPositionFacadeServiceMock.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, iuv, iud, accessToken))
+    Mockito.when(debtPositionFacadeServiceMock.getPaymentNotice(fiscalCode, brokerId, organizationId, nav, accessToken))
       .thenReturn(null);
 
-    ResponseEntity<Resource> response = debtPositionController.getPaymentNotice(fiscalCode, brokerId, organizationId, installmentId, iuv, iud);
+    ResponseEntity<Resource> response = debtPositionController.getPaymentNotice(fiscalCode, brokerId, organizationId, nav);
 
     assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     assertNull(response.getBody());
