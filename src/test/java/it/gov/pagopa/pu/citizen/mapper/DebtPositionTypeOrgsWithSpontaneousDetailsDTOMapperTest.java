@@ -41,6 +41,7 @@ class DebtPositionTypeOrgsWithSpontaneousDetailsDTOMapperTest {
     assertEquals(spontaneousForm, result.getFormCustom());
     assertFalse(result.getFlagAnonymousFiscalCode());
     assertEquals(DebtPositionTypeOrgsWithSpontaneousDetailsDTO.FormTypeEnum.STANDARD, result.getFormType());
+    assertEquals(debtPositionTypeOrg.getDescriptionI18n(), result.getDescriptionI18n());
     TestUtils.checkNotNullFields(result, "amountCents", "externalPaymentUrl", "spontaneousFormId");
   }
 
