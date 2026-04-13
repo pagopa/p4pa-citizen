@@ -3,8 +3,10 @@ package it.gov.pagopa.pu.citizen.service.organization;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.DebtPositionTypeOrgService;
 import it.gov.pagopa.pu.citizen.connector.organization.BrokerService;
 import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
+import it.gov.pagopa.pu.citizen.dto.generated.OrganizationLogoDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.OrganizationsWithSpontaneousDTO;
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
+import it.gov.pagopa.pu.citizen.mapper.OrganizationLogoDTOMapper;
 import it.gov.pagopa.pu.citizen.mapper.OrganizationsWithSpontaneousDTOMapper;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrgWithActiveSpontaneousCount;
@@ -39,6 +41,8 @@ class OrganizationRetrieverServiceImplTest {
   private OrganizationService organizationServiceMock;
   @Mock
   private BrokerService brokerServiceMock;
+  @Mock
+  private OrganizationLogoDTOMapper organizationLogoDTOMapperMock;
   private final String cieOrgFiscalCode = "cieOrgFiscalCode";
 
   private static final PodamFactory podamFactory = TestUtils.getPodamFactory();
@@ -53,7 +57,8 @@ class OrganizationRetrieverServiceImplTest {
       organizationsWithSpontaneousDTOMapperMock,
       organizationServiceMock,
       cieOrgFiscalCode,
-      brokerServiceMock
+      brokerServiceMock,
+      organizationLogoDTOMapperMock
     );
   }
 
@@ -63,7 +68,8 @@ class OrganizationRetrieverServiceImplTest {
       debtPositionTypeOrgServiceMock,
       organizationsWithSpontaneousDTOMapperMock,
       organizationServiceMock,
-      brokerServiceMock
+      brokerServiceMock,
+      organizationLogoDTOMapperMock
     );
   }
 
@@ -390,5 +396,65 @@ class OrganizationRetrieverServiceImplTest {
     boolean result = organizationRetrieverService.isDelegateBroker(null, accessToken);
 
     Assertions.assertFalse(result);
+  }
+
+  @Test
+  void givenValidOrgFiscalCodeWhenGetOrganizationLogoThenOk(){
+    String accessToken = "ACCESS_TOKEN";
+    long brokerId = 1L;
+    String orgFiscalCode = "orgFiscalCode";
+
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    organization.setBrokerId(brokerId);
+    OrganizationLogoDTO expectedResult = podamFactory.manufacturePojo(OrganizationLogoDTO.class);
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(orgFiscalCode,accessToken)).thenReturn(organization);
+    Mockito.when(organizationLogoDTOMapperMock.map(organization)).thenReturn(expectedResult);
+
+    OrganizationLogoDTO result = organizationRetrieverService.getOrganizationLogo(brokerId,orgFiscalCode,accessToken);
+
+    assertEquals(expectedResult, result);
+  }
+
+  @Test
+  void givenOrganizationWithNoOrgLogoWhenGetOrganizationLogoThenNull(){
+    String accessToken = "ACCESS_TOKEN";
+    long brokerId = 1L;
+    String orgFiscalCode = "orgFiscalCode";
+
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    organization.setBrokerId(brokerId);
+    organization.setOrgLogo(null);
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(orgFiscalCode,accessToken)).thenReturn(organization);
+
+    OrganizationLogoDTO result = organizationRetrieverService.getOrganizationLogo(brokerId,orgFiscalCode,accessToken);
+
+    assertNull(result);
+  }
+
+  @Test
+  void givenNoOrganizationWhenGetOrganizationLogoThenResourceNotFoundException(){
+    String accessToken = "ACCESS_TOKEN";
+    long brokerId = 1L;
+    String orgFiscalCode = "orgFiscalCode";
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(orgFiscalCode,accessToken)).thenReturn(null);
+
+    Assertions.assertThrows(ResourceNotFoundException.class,() -> organizationRetrieverService.getOrganizationLogo(brokerId,orgFiscalCode,accessToken));
+  }
+
+  @Test
+  void givenNoMatchingBrokerIdWhenGetOrganizationLogoThenResourceNotFoundException(){
+    String accessToken = "ACCESS_TOKEN";
+    long brokerId = 1L;
+    String orgFiscalCode = "orgFiscalCode";
+
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    organization.setBrokerId(brokerId+1);
+
+    Mockito.when(organizationServiceMock.findByOrgFiscalCode(orgFiscalCode,accessToken)).thenReturn(organization);
+
+    Assertions.assertThrows(ResourceNotFoundException.class,() -> organizationRetrieverService.getOrganizationLogo(brokerId,orgFiscalCode,accessToken));
   }
 }

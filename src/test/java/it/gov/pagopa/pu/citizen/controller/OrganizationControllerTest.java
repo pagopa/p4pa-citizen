@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.controller;
 
 import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
+import it.gov.pagopa.pu.citizen.dto.generated.OrganizationLogoDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.OrganizationsWithSpontaneousDTO;
 import it.gov.pagopa.pu.citizen.security.SecurityUtilsTest;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
@@ -18,8 +19,7 @@ import uk.co.jemos.podam.api.PodamFactory;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class OrganizationControllerTest {
@@ -57,5 +57,36 @@ class OrganizationControllerTest {
     assertEquals(HttpStatus.OK, result.getStatusCode());
     assertNotNull(result);
     assertEquals(expectedResult, result.getBody());
+  }
+
+  @Test
+  void whenGetOrganizationLogoThenOk() {
+    //given
+    Long brokerId = 1L;
+    String orgFiscalCode = "orgFiscalCode";
+    OrganizationLogoDTO expectedResult = podamFactory.manufacturePojo( OrganizationLogoDTO.class);
+
+    Mockito.when(organizationRetrieverServiceMock.getOrganizationLogo(brokerId, orgFiscalCode, accessToken)).thenReturn(expectedResult);
+    //when
+    ResponseEntity<OrganizationLogoDTO> result = organizationController.getOrganizationLogo(brokerId,orgFiscalCode);
+    //then
+    assertEquals(HttpStatus.OK, result.getStatusCode());
+    assertNotNull(result);
+    assertEquals(expectedResult, result.getBody());
+  }
+
+  @Test
+  void givenNoOrganizationLogoDTOWhenGetOrganizationLogoThenNotFound() {
+    //given
+    Long brokerId = 1L;
+    String orgFiscalCode = "orgFiscalCode";
+
+    Mockito.when(organizationRetrieverServiceMock.getOrganizationLogo(brokerId, orgFiscalCode, accessToken)).thenReturn(null);
+    //when
+    ResponseEntity<OrganizationLogoDTO> result = organizationController.getOrganizationLogo(brokerId,orgFiscalCode);
+    //then
+    assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+    assertNotNull(result);
+    assertNull(result.getBody());
   }
 }
