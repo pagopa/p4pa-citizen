@@ -148,6 +148,26 @@ class BrokerRetrieverServiceImplTest {
   }
 
   @Test
+  void givenBrokerConfigurationNotFoundThenThrowResourceNotFound() {
+    Long brokerId = 1L;
+
+    Broker broker = podamFactory.manufacturePojo(Broker.class);
+    broker.setBrokerId(brokerId);
+
+    Mockito.when(brokerServiceMock.getBroker(brokerId, accessToken))
+      .thenReturn(broker);
+
+    ResourceNotFoundException ex =
+      assertThrows(ResourceNotFoundException.class,
+        () -> brokerRetrieverService.getBrokerInfo(brokerId, null, accessToken));
+
+    assertEquals("BROKER_CONFIGURATION_NOT_FOUND", ex.getCode());
+
+    Mockito.verify(brokerServiceMock).getBroker(brokerId, accessToken);
+    Mockito.verifyNoInteractions(organizationServiceMock, brokerInfoDTOMapperMock);
+  }
+
+  @Test
   void givenExternalIdAndNoBrokerFoundThenThrowResourceNotFound() {
 
     String externalId = "EXT-404";
