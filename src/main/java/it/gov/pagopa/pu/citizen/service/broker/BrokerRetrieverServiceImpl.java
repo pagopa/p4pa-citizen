@@ -1,5 +1,6 @@
 package it.gov.pagopa.pu.citizen.service.broker;
 
+import it.gov.pagopa.pu.citizen.connector.organization.BrokerConfigurationService;
 import it.gov.pagopa.pu.citizen.connector.organization.BrokerService;
 import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
 import it.gov.pagopa.pu.citizen.dto.generated.BrokerInfoDTO;
@@ -7,6 +8,7 @@ import it.gov.pagopa.pu.citizen.exception.InvalidParamException;
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.BrokerInfoDTOMapper;
 import it.gov.pagopa.pu.organization.dto.generated.Broker;
+import it.gov.pagopa.pu.organization.dto.generated.BrokerConfiguration;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -16,16 +18,19 @@ public class BrokerRetrieverServiceImpl implements BrokerRetrieverService {
   private final OrganizationService organizationService;
   private final BrokerInfoDTOMapper brokerInfoDTOMapper;
   private final BrokerService brokerService;
+  private final BrokerConfigurationService brokerConfigurationService;
 
-  public BrokerRetrieverServiceImpl(OrganizationService organizationService, BrokerInfoDTOMapper brokerInfoDTOMapper, BrokerService brokerService) {
+  public BrokerRetrieverServiceImpl(OrganizationService organizationService, BrokerInfoDTOMapper brokerInfoDTOMapper, BrokerService brokerService, BrokerConfigurationService brokerConfigurationService) {
     this.organizationService = organizationService;
     this.brokerInfoDTOMapper = brokerInfoDTOMapper;
     this.brokerService = brokerService;
+    this.brokerConfigurationService = brokerConfigurationService;
   }
 
   @Override
   public BrokerInfoDTO getBrokerInfo(Long brokerId, String externalId, String accessToken) {
     Broker broker;
+    BrokerConfiguration brokerConfiguration;
     validateInputFields(brokerId, externalId);
     if (brokerId != null){
       broker = brokerService.getBroker(brokerId, accessToken);
@@ -36,7 +41,9 @@ public class BrokerRetrieverServiceImpl implements BrokerRetrieverService {
     if(Objects.isNull(broker)){
       throw new ResourceNotFoundException("BROKER_NOT_FOUND","Broker having id "+brokerId+" or " + externalId + "not found");
     }
-    return brokerInfoDTOMapper.map(organizationService.getBrokerOrganization(broker.getBrokerId(),accessToken), broker.getExternalId(), broker.getArpuConfig());
+    brokerConfiguration = brokerConfigurationService.getBrokerConfiguration(broker.getBrokerId(), accessToken);
+
+    return brokerInfoDTOMapper.map(organizationService.getBrokerOrganization(broker.getBrokerId(),accessToken), broker.getExternalId(), brokerConfiguration.getArpuConfig());
   }
 
 

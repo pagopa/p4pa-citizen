@@ -4,10 +4,7 @@ package it.gov.pagopa.pu.citizen.connector.organization.config;
 import it.gov.pagopa.pu.citizen.config.rest.RestTemplateConfig;
 import it.gov.pagopa.pu.organization.controller.ApiClient;
 import it.gov.pagopa.pu.organization.controller.BaseApi;
-import it.gov.pagopa.pu.organization.controller.generated.BrokerEntityControllerApi;
-import it.gov.pagopa.pu.organization.controller.generated.BrokerSearchControllerApi;
-import it.gov.pagopa.pu.organization.controller.generated.OrganizationEntityControllerApi;
-import it.gov.pagopa.pu.organization.controller.generated.OrganizationSearchControllerApi;
+import it.gov.pagopa.pu.organization.controller.generated.*;
 import jakarta.annotation.PreDestroy;
 import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
@@ -19,6 +16,7 @@ public class OrganizationApisHolder {
   private final OrganizationEntityControllerApi organizationEntityControllerApi;
   private final BrokerEntityControllerApi brokerEntityControllerApi;
   private final BrokerSearchControllerApi brokerSearchControllerApi;
+  private final BrokerConfigurationEntityControllerApi brokerConfigurationEntityControllerApi;
   private final ThreadLocal<String> bearerTokenHolder = new ThreadLocal<>();
 
   public OrganizationApisHolder(OrganizationApiClientConfig clientConfig, RestTemplateBuilder restTemplateBuilder){
@@ -37,6 +35,7 @@ public class OrganizationApisHolder {
     this.organizationEntityControllerApi = new OrganizationEntityControllerApi(apiClient);
     this.brokerEntityControllerApi = new BrokerEntityControllerApi(apiClient);
     this.brokerSearchControllerApi = new BrokerSearchControllerApi(apiClient);
+    this.brokerConfigurationEntityControllerApi = new BrokerConfigurationEntityControllerApi(apiClient);
   }
 
   @PreDestroy
@@ -62,6 +61,11 @@ public class OrganizationApisHolder {
   /** It will return a {@link BrokerSearchControllerApi} instrumented with the provided accessToken. Use null if auth is not required */
   public BrokerSearchControllerApi getBrokerSearchControllerApi(String accessToken){
     return getApi(accessToken, brokerSearchControllerApi);
+  }
+
+  /** It will return a {@link BrokerConfigurationEntityControllerApi} instrumented with the provided accessToken. Use null if auth is not required */
+  public BrokerConfigurationEntityControllerApi getBrokerConfigurationEntityControllerApi(String accessToken){
+    return getApi(accessToken, brokerConfigurationEntityControllerApi);
   }
 
   private <T extends BaseApi> T getApi(String accessToken, T api) {
