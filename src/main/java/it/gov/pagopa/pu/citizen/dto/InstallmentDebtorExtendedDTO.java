@@ -15,4 +15,5 @@ import lombok.experimental.SuperBuilder;
 public class InstallmentDebtorExtendedDTO extends InstallmentDebtorDTO {
   private String orgFiscalCode;
   private String orgName;
+  private Boolean allCCP;
 }

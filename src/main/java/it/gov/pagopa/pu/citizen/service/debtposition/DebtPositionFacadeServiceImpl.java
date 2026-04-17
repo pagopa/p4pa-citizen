@@ -3,6 +3,7 @@ package it.gov.pagopa.pu.citizen.service.debtposition;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.DebtPositionService;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.ReceiptService;
 import it.gov.pagopa.pu.citizen.connector.pagopapayments.PrintPaymentNoticeService;
+import it.gov.pagopa.pu.citizen.dto.DebtPositionDTOEnriched;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
@@ -10,12 +11,10 @@ import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionOverviewDT
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorDebtPositionDTO;
 import it.gov.pagopa.pu.citizen.exception.ConflictException;
 import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
-import it.gov.pagopa.pu.citizen.mapper.DebtPositionDTOMapper;
-import it.gov.pagopa.pu.citizen.mapper.DebtPositionResponseDTOMapper;
-import it.gov.pagopa.pu.citizen.mapper.DebtorUnpaidDebtPositionOverviewMapper;
-import it.gov.pagopa.pu.citizen.mapper.PagedDebtorDebtPositionMapper;
+import it.gov.pagopa.pu.citizen.mapper.*;
 import it.gov.pagopa.pu.citizen.service.ZipFileService;
 import it.gov.pagopa.pu.citizen.service.debtposition.cie.CieDebtPositionFacadeService;
+import it.gov.pagopa.pu.citizen.service.installment.InstallmentFacadeService;
 import it.gov.pagopa.pu.citizen.service.organization.BrokerOrganizationsRetrieverService;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
 import it.gov.pagopa.pu.citizen.utils.InstallmentUtils;
@@ -50,6 +49,8 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
   private final DebtorUnpaidDebtPositionOverviewMapper debtorUnpaidDebtPositionOverviewMapper;
   private final ReceiptService receiptService;
   private final CieDebtPositionFacadeService cieDebtPositionFacadeService;
+  private final InstallmentFacadeService installmentFacadeService;
+  private final DebtPositionDTOEnrichedMapper debtPositionDTOEnrichedMapper;
 
   public DebtPositionFacadeServiceImpl(DebtPositionService debtPositionService,
                                        DebtPositionDTOMapper debtPositionDTOMapper,
@@ -62,8 +63,9 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
                                        PagedDebtorDebtPositionMapper pagedDebtorDebtPositionMapper,
                                        DebtorUnpaidDebtPositionOverviewMapper debtorUnpaidDebtPositionOverviewMapper,
                                        ReceiptService receiptService,
-                                       CieDebtPositionFacadeService cieDebtPositionFacadeService
-                                       ) {
+                                       CieDebtPositionFacadeService cieDebtPositionFacadeService,
+                                       InstallmentFacadeService installmentFacadeService, DebtPositionDTOEnrichedMapper debtPositionDTOEnrichedMapper
+  ) {
     this.debtPositionDTOMapper = debtPositionDTOMapper;
     this.debtPositionService = debtPositionService;
     this.expirationDays = expirationDays;
@@ -76,6 +78,8 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
     this.debtorUnpaidDebtPositionOverviewMapper = debtorUnpaidDebtPositionOverviewMapper;
     this.receiptService = receiptService;
     this.cieDebtPositionFacadeService = cieDebtPositionFacadeService;
+    this.installmentFacadeService = installmentFacadeService;
+    this.debtPositionDTOEnrichedMapper = debtPositionDTOEnrichedMapper;
   }
 
   @Override
@@ -86,12 +90,15 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
     }
     Organization organization = organizationRetrieverService.getValidOrganization(debtPositionRequestDTO.getOrganizationId(),brokerId,accessToken);
     DebtPositionDTO debtPosition = debtPositionService.createDebtPosition(debtPositionDTOMapper.mapSpontaneousDebtPositionDTO(debtPositionRequestDTO, expirationDays), false, accessToken);
-    return debtPositionResponseDTOMapper.map(debtPosition, organization, false);
+
+    List<InstallmentDTO> installments = debtPosition.getPaymentOptions().stream().flatMap(po -> po.getInstallments().stream()).toList();
+    PostalIbanVerifyResponse postalIbanVerifyResponse = installmentFacadeService.extractPostalIbanVerifyResponse(installments, InstallmentDTO::getInstallmentId, accessToken);
+    return debtPositionResponseDTOMapper.map(debtPosition, organization, false, postalIbanVerifyResponse);
   }
 
   @Override
   public Resource getDebtPositionNoticesZip(Long brokerId, String fiscalCode, Long debtPositionId, String accessToken) {
-    DebtPositionDTO debtPosition = getDebtPositionDetail(brokerId, fiscalCode, debtPositionId, accessToken);
+    DebtPositionDTO debtPosition = getDebtPositionDTO(brokerId, fiscalCode, debtPositionId, accessToken);
     if (debtPosition == null){
       return null;
     }
@@ -119,7 +126,17 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
   }
 
   @Override
-  public DebtPositionDTO getDebtPositionDetail(Long brokerId, String fiscalCode, Long debtPositionId, String accessToken) {
+  public DebtPositionDTOEnriched getDebtPositionDetail(Long brokerId, String fiscalCode, Long debtPositionId, String accessToken) {
+    DebtPositionDTO debtPosition = getDebtPositionDTO(brokerId, fiscalCode, debtPositionId, accessToken);
+    if (debtPosition == null) return null;
+
+    List<InstallmentDTO> installments = debtPosition.getPaymentOptions().stream().flatMap(po -> po.getInstallments().stream()).toList();
+    PostalIbanVerifyResponse postalIbanVerifyResponse = installmentFacadeService.extractPostalIbanVerifyResponse(installments, InstallmentDTO::getInstallmentId, accessToken);
+
+    return debtPositionDTOEnrichedMapper.map(debtPosition, postalIbanVerifyResponse);
+  }
+
+  private DebtPositionDTO getDebtPositionDTO(Long brokerId, String fiscalCode, Long debtPositionId, String accessToken) {
     DebtPositionDTO debtPosition = debtPositionService.getDebtPosition(debtPositionId, accessToken);
     if (debtPosition == null){
       return null;
@@ -217,9 +234,15 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
     if (debtorDebtPosition == null){
       return null;
     }
-    Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap = extractPaymentDateTimeFromReceiptOnMap(accessToken, debtorDebtPosition);
 
-    return debtorUnpaidDebtPositionOverviewMapper.map(organizationRetrieverService.getValidOrganization(organizationId, brokerId, accessToken), debtorDebtPosition, installmentIdAndPaymentDateTimeMap);
+    List<BaseInstallment> installments = Objects.requireNonNull(debtorDebtPosition.getPaymentOptions()).stream()
+      .flatMap(po -> Objects.requireNonNull(po.getInstallments()).stream())
+      .toList();
+
+    Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap = extractPaymentDateTimeFromReceiptOnMap(accessToken, debtorDebtPosition);
+    PostalIbanVerifyResponse postalIbanVerifyResponse = installmentFacadeService.extractPostalIbanVerifyResponse(installments, BaseInstallment::getInstallmentId, accessToken);
+
+    return debtorUnpaidDebtPositionOverviewMapper.map(organizationRetrieverService.getValidOrganization(organizationId, brokerId, accessToken), debtorDebtPosition, installmentIdAndPaymentDateTimeMap, postalIbanVerifyResponse);
   }
 
   private Map<Long, OffsetDateTime> extractPaymentDateTimeFromReceiptOnMap(String accessToken, DebtorDebtPositionDTO debtorDebtPosition) {

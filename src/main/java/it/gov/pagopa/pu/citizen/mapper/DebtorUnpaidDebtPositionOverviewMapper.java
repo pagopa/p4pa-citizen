@@ -7,6 +7,7 @@ import it.gov.pagopa.pu.citizen.utils.InstallmentUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.BaseInstallment;
 import it.gov.pagopa.pu.debtpositions.dto.generated.BasePaymentOption;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.PostalIbanVerifyResponse;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
@@ -25,14 +26,15 @@ public interface DebtorUnpaidDebtPositionOverviewMapper {
   @Mapping(target = "iupd", source = "debtorDebtPosition.iupdOrg")
   @Mapping(target = "status", source = "debtorDebtPosition.status")
   @Mapping(target = "debtPositionDescription", source = "debtorDebtPosition.debtPositionDescription")
-  DebtorUnpaidDebtPositionOverviewDTO map(Organization organization, DebtorDebtPositionDTO debtorDebtPosition, @Context Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap);
+  DebtorUnpaidDebtPositionOverviewDTO map(Organization organization, DebtorDebtPositionDTO debtorDebtPosition, @Context Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap, @Context PostalIbanVerifyResponse postalIbanVerifyResponse);
 
-  DebtorPaymentOptionOverviewDTO map(BasePaymentOption paymentOption, @Context Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap);
+  DebtorPaymentOptionOverviewDTO map(BasePaymentOption paymentOption, @Context Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap, @Context Map<String, Boolean> postalIbanVerifyResponse);
 
   @Mapping(
     target = "paymentDateTime", source = "installmentId", qualifiedByName = "extractPaymentDateTime")
   @Mapping(target = "status", expression = "java(InstallmentUtils.resolveInstallmentStatus(installment.getStatus()))")
-  DebtorInstallmentsOverviewDTO map(BaseInstallment installment, @Context Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap);
+  @Mapping(target = "allCCP", expression = "java(InstallmentUtils.extractAllCCP(installment.getInstallmentId(), postalIbanVerifyResponse))")
+  DebtorInstallmentsOverviewDTO map(BaseInstallment installment, @Context Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap, @Context PostalIbanVerifyResponse postalIbanVerifyResponse);
 
   @Named("extractPaymentDateTime")
   default OffsetDateTime extractPaymentDateTime(Long installmentId, @Context Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap) {

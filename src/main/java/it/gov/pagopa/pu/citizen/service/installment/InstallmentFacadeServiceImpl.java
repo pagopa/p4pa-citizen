@@ -2,6 +2,7 @@ package it.gov.pagopa.pu.citizen.service.installment;
 
 import io.micrometer.common.util.StringUtils;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.InstallmentService;
+import it.gov.pagopa.pu.citizen.connector.debtpositions.TransferService;
 import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
 import it.gov.pagopa.pu.citizen.dto.InstallmentDebtorExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionInstallmentsDTO;
@@ -13,6 +14,7 @@ import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverServic
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentDebtorDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentNoPII;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus;
+import it.gov.pagopa.pu.debtpositions.dto.generated.PostalIbanVerifyResponse;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -29,13 +31,15 @@ public class InstallmentFacadeServiceImpl implements InstallmentFacadeService {
   private final InstallmentDebtorExtendedDTOMapper installmentDebtorExtendedDTOMapper;
   private final DebtorUnpaidDebtPositionInstallmentsMapper debtorUnpaidDebtPositionInstallmentsMapper;
   private final OrganizationService organizationService;
+  private final TransferService transferService;
 
-  public InstallmentFacadeServiceImpl(OrganizationRetrieverService organizationRetrieverService, InstallmentService installmentService, InstallmentDebtorExtendedDTOMapper installmentDebtorExtendedDTOMapper, DebtorUnpaidDebtPositionInstallmentsMapper debtorUnpaidDebtPositionInstallmentsMapper, OrganizationService organizationService) {
+  public InstallmentFacadeServiceImpl(OrganizationRetrieverService organizationRetrieverService, InstallmentService installmentService, InstallmentDebtorExtendedDTOMapper installmentDebtorExtendedDTOMapper, DebtorUnpaidDebtPositionInstallmentsMapper debtorUnpaidDebtPositionInstallmentsMapper, OrganizationService organizationService, TransferService transferService) {
     this.organizationRetrieverService = organizationRetrieverService;
     this.installmentService = installmentService;
     this.installmentDebtorExtendedDTOMapper = installmentDebtorExtendedDTOMapper;
     this.debtorUnpaidDebtPositionInstallmentsMapper = debtorUnpaidDebtPositionInstallmentsMapper;
     this.organizationService = organizationService;
+    this.transferService = transferService;
   }
 
   @Override
@@ -57,9 +61,11 @@ public class InstallmentFacadeServiceImpl implements InstallmentFacadeService {
       return Collections.emptyList();
     }
 
+    PostalIbanVerifyResponse postalIbanVerifyResponse = extractPostalIbanVerifyResponse(installments, InstallmentDebtorDTO::getInstallmentId, accessToken);
     return installmentDebtorExtendedDTOMapper.map(
       installments,
-      buildOrganizationMap(installments, organization, brokerId, accessToken)
+      buildOrganizationMap(installments, organization, brokerId, accessToken),
+      postalIbanVerifyResponse
     );
   }
 
@@ -67,7 +73,9 @@ public class InstallmentFacadeServiceImpl implements InstallmentFacadeService {
   public List<DebtorUnpaidDebtPositionInstallmentsDTO> getDebtorInstallmentNoPII(Long brokerId, Long debtPositionId, Long paymentOptionId, String xFiscalCode, Long organizationId, String accessToken) {
     Organization organization = organizationRetrieverService.getValidOrganization(organizationId, brokerId, accessToken);
     List<InstallmentNoPII> debtorInstallmentNoPII = installmentService.getDebtorInstallmentNoPII(accessToken, debtPositionId, paymentOptionId, xFiscalCode, organizationId);
-    return debtorUnpaidDebtPositionInstallmentsMapper.mapDebtorUnpaidDebtPositionInstallmentsList(organization, debtorInstallmentNoPII, debtPositionId);
+
+    PostalIbanVerifyResponse postalIbanVerifyResponse = extractPostalIbanVerifyResponse(debtorInstallmentNoPII, InstallmentNoPII::getInstallmentId, accessToken);
+    return debtorUnpaidDebtPositionInstallmentsMapper.mapDebtorUnpaidDebtPositionInstallmentsList(organization, debtorInstallmentNoPII, debtPositionId, postalIbanVerifyResponse);
   }
 
   private Organization resolveOrganization(String orgFiscalCode, Long brokerId, String accessToken) {
@@ -104,5 +112,14 @@ public class InstallmentFacadeServiceImpl implements InstallmentFacadeService {
       organizationMap.put(organizationId, organization);
     }
     return organizationMap;
+  }
+
+  @Override
+  public <T> PostalIbanVerifyResponse extractPostalIbanVerifyResponse(List<T> installments, Function<T, Long> idExtractor, String accessToken ) {
+    List<Long> installmentIds = installments.stream()
+      .map(idExtractor)
+      .toList();
+
+    return transferService.verifyPostalIban(installmentIds, accessToken);
   }
 }
