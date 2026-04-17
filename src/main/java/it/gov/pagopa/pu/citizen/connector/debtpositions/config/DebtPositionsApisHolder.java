@@ -23,6 +23,7 @@ public class DebtPositionsApisHolder {
   private final InstallmentApi installmentApi;
   private final InstallmentNoPiiSearchControllerApi installmentNoPiiSearchControllerApi;
   private final ReceiptNoPiiEntityControllerApi receiptNoPiiEntityControllerApi;
+  private final TransferApi transferApi;
 
   private final ThreadLocal<String> bearerTokenHolder = new ThreadLocal<>();
 
@@ -51,6 +52,7 @@ public class DebtPositionsApisHolder {
     this.installmentApi = new InstallmentApi(apiClient);
     this.installmentNoPiiSearchControllerApi = new InstallmentNoPiiSearchControllerApi(apiClient);
     this.receiptNoPiiEntityControllerApi = new ReceiptNoPiiEntityControllerApi(apiClient);
+    this.transferApi = new TransferApi(apiClient);
   }
 
   @PreDestroy
@@ -129,6 +131,13 @@ public class DebtPositionsApisHolder {
    */
   public ReceiptNoPiiEntityControllerApi getReceiptNoPiiEntityControllerApi(String accessToken) {
     return getApi(accessToken, receiptNoPiiEntityControllerApi);
+  }
+
+  /**
+   * It will return a {@link TransferApi} instrumented with the provided accessToken. Use null if auth is not required
+   */
+  public TransferApi getTransferApi(String accessToken) {
+    return getApi(accessToken, transferApi);
   }
 
   private <T extends BaseApi> T getApi(String accessToken, T api) {
