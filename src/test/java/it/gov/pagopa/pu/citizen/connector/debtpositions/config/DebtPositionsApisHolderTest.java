@@ -15,6 +15,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
@@ -156,6 +157,16 @@ class DebtPositionsApisHolderTest extends BaseApiHolderTest {
       accessToken -> apisHolder.getReceiptNoPiiEntityControllerApi(accessToken)
         .crudGetReceiptnopii(
           "1"),
+      new ParameterizedTypeReference<>() {
+      },
+      apisHolder::unload);
+  }
+
+  @Test
+  void whenGetTransferApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
+    assertAuthenticationShouldBeSetInThreadSafeMode(
+      accessToken -> apisHolder.getTransferApi(accessToken)
+        .verifyPostalIban(new ArrayList<>()),
       new ParameterizedTypeReference<>() {
       },
       apisHolder::unload);
