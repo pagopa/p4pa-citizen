@@ -1,12 +1,15 @@
 package it.gov.pagopa.pu.citizen.controller;
 
 import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
+import it.gov.pagopa.pu.citizen.dto.DebtPositionDTOEnriched;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
-import it.gov.pagopa.pu.citizen.dto.generated.*;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionOverviewDTO;
+import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorDebtPositionDTO;
 import it.gov.pagopa.pu.citizen.security.SecurityUtilsTest;
 import it.gov.pagopa.pu.citizen.service.debtposition.DebtPositionFacadeService;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
-import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -114,10 +117,10 @@ class DebtPositionControllerTest {
     Long debtPositionId = 2L;
     String fiscalCode = "fiscalCode";
 
-    DebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTO.class);
+    DebtPositionDTOEnriched debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTOEnriched.class);
     Mockito.when(debtPositionFacadeServiceMock.getDebtPositionDetail(brokerId, fiscalCode, debtPositionId, accessToken)).thenReturn(debtPositionDTO);
     //when
-    ResponseEntity<DebtPositionDTO> response = debtPositionController.getDebtPositionDetail(brokerId, debtPositionId, fiscalCode);
+    ResponseEntity<DebtPositionDTOEnriched> response = debtPositionController.getDebtPositionDetail(brokerId, debtPositionId, fiscalCode);
     //then
 
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -134,7 +137,7 @@ class DebtPositionControllerTest {
 
     Mockito.when(debtPositionFacadeServiceMock.getDebtPositionDetail(brokerId, fiscalCode, debtPositionId, accessToken)).thenReturn(null);
     //when
-    ResponseEntity<DebtPositionDTO> response = debtPositionController.getDebtPositionDetail(brokerId, debtPositionId, fiscalCode);
+    ResponseEntity<DebtPositionDTOEnriched> response = debtPositionController.getDebtPositionDetail(brokerId, debtPositionId, fiscalCode);
     //then
 
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());

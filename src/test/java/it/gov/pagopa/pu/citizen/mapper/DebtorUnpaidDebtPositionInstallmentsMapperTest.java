@@ -5,6 +5,7 @@ import it.gov.pagopa.pu.citizen.utils.InstallmentUtils;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentNoPII;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus;
+import it.gov.pagopa.pu.debtpositions.dto.generated.PostalIbanVerifyResponse;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -15,8 +16,7 @@ import uk.co.jemos.podam.api.PodamFactory;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DebtorUnpaidDebtPositionInstallmentsMapperTest {
 
@@ -33,14 +33,15 @@ class DebtorUnpaidDebtPositionInstallmentsMapperTest {
     org.setOrgFiscalCode("12345678901");
 
     Long debtPositionId = 1L;
+    PostalIbanVerifyResponse postalIbanVerifyResponse = podam.manufacturePojo(PostalIbanVerifyResponse.class);
 
     try(MockedStatic<InstallmentUtils> installmentUtilsMock = Mockito.mockStatic(InstallmentUtils.class)) {
       InstallmentNoPII installment = podam.manufacturePojo(InstallmentNoPII.class);
       installment.setStatus(InstallmentStatus.UNPAID);
       installmentUtilsMock.when(()->InstallmentUtils.resolveInstallmentStatus(installment.getStatus())).thenReturn(installment.getStatus());
-
+      installmentUtilsMock.when(()->InstallmentUtils.extractAllCCP(installment.getInstallmentId(), postalIbanVerifyResponse)).thenReturn(false);
       // when
-      DebtorUnpaidDebtPositionInstallmentsDTO result = mapper.map(org, installment, debtPositionId);
+      DebtorUnpaidDebtPositionInstallmentsDTO result = mapper.map(org, installment, debtPositionId, postalIbanVerifyResponse);
 
       // then
       assertNotNull(result);
@@ -50,6 +51,7 @@ class DebtorUnpaidDebtPositionInstallmentsMapperTest {
       assertEquals(org.getOrgFiscalCode(), result.getOrgFiscalCode());
 
       assertEquals(installment.getStatus(), result.getStatus());
+      assertEquals(Boolean.FALSE, result.getAllCCP());
 
       TestUtils.checkNotNullFields(result);
       installmentUtilsMock.verify(()->InstallmentUtils.resolveInstallmentStatus(installment.getStatus()));
@@ -75,27 +77,32 @@ class DebtorUnpaidDebtPositionInstallmentsMapperTest {
     installment2.dueDate(LocalDate.of(2024, 3, 3));
     List<InstallmentNoPII> installments = List.of(installment, installment2);
 
-    // when
-    List<DebtorUnpaidDebtPositionInstallmentsDTO> result =
-      mapper.mapDebtorUnpaidDebtPositionInstallmentsList(org, installments, debtPositionId);
+    PostalIbanVerifyResponse postalIbanVerifyResponse = podam.manufacturePojo(PostalIbanVerifyResponse.class);
+    try(MockedStatic<InstallmentUtils> installmentUtilsMock = Mockito.mockStatic(InstallmentUtils.class)) {
+      installmentUtilsMock.when(()->InstallmentUtils.resolveInstallmentStatus(installment.getStatus())).thenReturn(installment.getStatus());
+      installmentUtilsMock.when(()->InstallmentUtils.extractAllCCP(installment.getInstallmentId(), postalIbanVerifyResponse)).thenReturn(false);
+      // when
+      List<DebtorUnpaidDebtPositionInstallmentsDTO> result =
+        mapper.mapDebtorUnpaidDebtPositionInstallmentsList(org, installments, debtPositionId, postalIbanVerifyResponse);
 
-    // then
-    assertNotNull(result);
-    assertEquals(installments.size(), result.size());
-    assertEquals(installment2.getDueDate(), result.getFirst().getDueDate());
-    assertEquals(installment.getDueDate(), result.getLast().getDueDate());
+      // then
+      assertNotNull(result);
+      assertEquals(installments.size(), result.size());
+      assertEquals(installment2.getDueDate(), result.getFirst().getDueDate());
+      assertEquals(installment.getDueDate(), result.getLast().getDueDate());
 
-    result.forEach(TestUtils::checkNotNullFields);
+      result.forEach(TestUtils::checkNotNullFields);
 
-    for (int i = 0; i < installments.size(); i++) {
-      InstallmentNoPII source = installments.get(i);
-      DebtorUnpaidDebtPositionInstallmentsDTO mapped = result.get(i);
+      for (int i = 0; i < installments.size(); i++) {
+        InstallmentNoPII source = installments.get(i);
+        DebtorUnpaidDebtPositionInstallmentsDTO mapped = result.get(i);
 
-      assertEquals(org.getOrganizationId(), mapped.getOrganizationId());
-      assertEquals(org.getOrgName(), mapped.getOrgName());
-      assertEquals(org.getOrgFiscalCode(), mapped.getOrgFiscalCode());
+        assertEquals(org.getOrganizationId(), mapped.getOrganizationId());
+        assertEquals(org.getOrgName(), mapped.getOrgName());
+        assertEquals(org.getOrgFiscalCode(), mapped.getOrgFiscalCode());
 
-      assertEquals(source.getStatus(), mapped.getStatus());
+        assertEquals(source.getStatus(), mapped.getStatus());
+      }
     }
   }
 }

@@ -4,6 +4,7 @@ import it.gov.pagopa.pu.citizen.dto.InstallmentDebtorExtendedDTO;
 import it.gov.pagopa.pu.citizen.utils.InstallmentUtils;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentDebtorDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.PostalIbanVerifyResponse;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -30,13 +31,16 @@ class InstallmentDebtorExtendedDTOMapperTest {
     List<InstallmentDebtorDTO> installments = podam.manufacturePojo(List.class, InstallmentDebtorDTO.class);
     Map<Long, InstallmentDebtorDTO> installmentMap = installments.stream().collect(Collectors.toMap(InstallmentDebtorDTO::getInstallmentId, Function.identity()));
     Map<Long, Organization> organizationMap = new HashMap<>();
+    PostalIbanVerifyResponse postalIbanVerifyResponse = podam.manufacturePojo(PostalIbanVerifyResponse.class);
+
     try(MockedStatic<InstallmentUtils> installmentUtilsMock = Mockito.mockStatic(InstallmentUtils.class)) {
       for (InstallmentDebtorDTO installment : installments) {
         organizationMap.put(installment.getOrganizationId(),podam.manufacturePojo(Organization.class));
         installmentUtilsMock.when(()->InstallmentUtils.resolveInstallmentStatus(installment.getStatus())).thenReturn(installment.getStatus());
+        installmentUtilsMock.when(()-> InstallmentUtils.extractAllCCP(installment.getInstallmentId(), postalIbanVerifyResponse)).thenReturn(true);
       }
 
-      List<InstallmentDebtorExtendedDTO> result = mapper.map(installments, organizationMap);
+      List<InstallmentDebtorExtendedDTO> result = mapper.map(installments, organizationMap, postalIbanVerifyResponse);
 
       assertNotNull(result);
       assertEquals(installments.size(), result.size());
@@ -49,6 +53,7 @@ class InstallmentDebtorExtendedDTOMapperTest {
         assertTrue(organizationMap.containsKey(organizationId));
         assertEquals(organizationMap.get(organizationId).getOrgName(), installmentDebtorDTO.getOrgName());
         assertEquals(organizationMap.get(organizationId).getOrgFiscalCode(), installmentDebtorDTO.getOrgFiscalCode());
+        assertEquals(Boolean.TRUE, installmentDebtorDTO.getAllCCP());
       }
       installmentUtilsMock.verify(()->InstallmentUtils.resolveInstallmentStatus(Mockito.any()), Mockito.times(installments.size()));
     }
@@ -62,7 +67,7 @@ class InstallmentDebtorExtendedDTOMapperTest {
     Map<Long,Organization> organizationMap = new HashMap<>();
     organizationMap.put(2L,podam.manufacturePojo(Organization.class));
 
-    assertThrows(IllegalStateException.class,()-> mapper.map(installments,organizationMap));
+    assertThrows(IllegalStateException.class,()-> mapper.map(installments,organizationMap, null));
   }
 
   @Test
@@ -71,6 +76,6 @@ class InstallmentDebtorExtendedDTOMapperTest {
     installment.setInstallmentId(1L);
     List<InstallmentDebtorDTO> installments = List.of(installment);
 
-    assertThrows(IllegalArgumentException.class,()-> mapper.map(installments,null));
+    assertThrows(IllegalArgumentException.class,()-> mapper.map(installments,null, null));
   }
 }

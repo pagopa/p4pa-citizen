@@ -3,10 +3,7 @@ package it.gov.pagopa.pu.citizen.mapper;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorPaymentOptionOverviewDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionOverviewDTO;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
-import it.gov.pagopa.pu.debtpositions.dto.generated.BaseInstallment;
-import it.gov.pagopa.pu.debtpositions.dto.generated.BasePaymentOption;
-import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionStatus;
-import it.gov.pagopa.pu.debtpositions.dto.generated.DebtorDebtPositionDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.*;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -56,9 +53,10 @@ class DebtorUnpaidDebtPositionOverviewMapperTest {
     dp.setPaymentOptions(List.of(po1, po2));
 
     Map<Long, OffsetDateTime> offsetDateTimeReceiptMap = Map.of(1L, OffsetDateTime.now());
+    PostalIbanVerifyResponse postalIbanVerifyResponse = podam.manufacturePojo(PostalIbanVerifyResponse.class);
 
     // when
-    DebtorUnpaidDebtPositionOverviewDTO result = mapper.map(org, dp, offsetDateTimeReceiptMap);
+    DebtorUnpaidDebtPositionOverviewDTO result = mapper.map(org, dp, offsetDateTimeReceiptMap, postalIbanVerifyResponse);
 
     // then
     assertNotNull(result);
