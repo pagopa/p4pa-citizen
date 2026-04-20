@@ -21,7 +21,7 @@ public class BrokerConfigurationEntityClient {
       return this.organizationApisHolder.getBrokerConfigurationEntityControllerApi(accessToken)
         .crudGetBrokerconfiguration(String.valueOf(brokerId));
     } catch (HttpClientErrorException.NotFound e) {
-        log.warn("Broker with brokerId {} not found", brokerId);
+        log.warn("Broker configuration with brokerId {} not found", brokerId);
         return null;
     }
   }

@@ -55,7 +55,8 @@ class BrokerRetrieverServiceImplTest {
     Mockito.verifyNoMoreInteractions(
       organizationServiceMock,
       brokerInfoDTOMapperMock,
-      brokerServiceMock
+      brokerServiceMock,
+      brokerConfigurationServiceMock
     );
   }
 
@@ -157,14 +158,14 @@ class BrokerRetrieverServiceImplTest {
     Mockito.when(brokerServiceMock.getBroker(brokerId, accessToken))
       .thenReturn(broker);
 
+    Mockito.when(brokerConfigurationServiceMock.getBrokerConfiguration(brokerId, accessToken))
+      .thenReturn(null);
+
     ResourceNotFoundException ex =
       assertThrows(ResourceNotFoundException.class,
         () -> brokerRetrieverService.getBrokerInfo(brokerId, null, accessToken));
 
     assertEquals("BROKER_CONFIGURATION_NOT_FOUND", ex.getCode());
-
-    Mockito.verify(brokerServiceMock).getBroker(brokerId, accessToken);
-    Mockito.verifyNoInteractions(organizationServiceMock, brokerInfoDTOMapperMock);
   }
 
   @Test
