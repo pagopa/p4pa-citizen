@@ -110,7 +110,7 @@ class InstallmentDebtorExtendedDTOMapperTest {
       assertEquals(installments.size(), result.size());
 
       for (InstallmentDebtorExtendedDTO dto : result) {
-        TestUtils.checkNotNullFields(dto);
+        TestUtils.checkNotNullFields(dto, "allCCP");
 
         Long organizationId = dto.getOrganizationId();
         assertTrue(organizationMap.containsKey(organizationId));
