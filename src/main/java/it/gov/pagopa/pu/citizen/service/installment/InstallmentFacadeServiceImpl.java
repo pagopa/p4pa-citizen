@@ -21,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 
 @Service
@@ -115,9 +116,10 @@ public class InstallmentFacadeServiceImpl implements InstallmentFacadeService {
   }
 
   @Override
-  public <T> PostalIbanVerifyResponse extractPostalIbanVerifyResponse(List<T> installments, Function<T, Long> idExtractor, String accessToken ) {
+  public <T> PostalIbanVerifyResponse extractPostalIbanVerifyResponse(List<T> installments, ToLongFunction<T> idExtractor, String accessToken ) {
     List<Long> installmentIds = installments.stream()
-      .map(idExtractor)
+      .mapToLong(idExtractor)
+      .boxed()
       .toList();
 
     return transferService.verifyPostalIban(installmentIds, accessToken);

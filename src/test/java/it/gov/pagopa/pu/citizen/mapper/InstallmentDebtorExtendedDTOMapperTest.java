@@ -78,4 +78,60 @@ class InstallmentDebtorExtendedDTOMapperTest {
 
     assertThrows(IllegalArgumentException.class,()-> mapper.map(installments,null, null));
   }
+
+  @Test
+  void givenNullPostalIbanVerifyResponseWhenMapThenAllCcpIsNull() {
+    // given
+    List<InstallmentDebtorDTO> installments = podam.manufacturePojo(List.class, InstallmentDebtorDTO.class);
+
+    Map<Long, Organization> organizationMap = new HashMap<>();
+
+    for (InstallmentDebtorDTO installment : installments) {
+      organizationMap.put(
+        installment.getOrganizationId(),
+        podam.manufacturePojo(Organization.class)
+      );
+    }
+
+    try (MockedStatic<InstallmentUtils> installmentUtilsMock = Mockito.mockStatic(InstallmentUtils.class)) {
+
+      for (InstallmentDebtorDTO installment : installments) {
+        installmentUtilsMock.when(() ->
+          InstallmentUtils.resolveInstallmentStatus(installment.getStatus())
+        ).thenReturn(installment.getStatus());
+      }
+
+      // when
+      List<InstallmentDebtorExtendedDTO> result =
+        mapper.map(installments, organizationMap, null);
+
+      // then
+      assertNotNull(result);
+      assertEquals(installments.size(), result.size());
+
+      for (InstallmentDebtorExtendedDTO dto : result) {
+        TestUtils.checkNotNullFields(dto);
+
+        Long organizationId = dto.getOrganizationId();
+        assertTrue(organizationMap.containsKey(organizationId));
+
+        assertEquals(
+          organizationMap.get(organizationId).getOrgName(),
+          dto.getOrgName()
+        );
+
+        assertEquals(
+          organizationMap.get(organizationId).getOrgFiscalCode(),
+          dto.getOrgFiscalCode()
+        );
+
+        assertNull(dto.getAllCCP());
+      }
+
+      installmentUtilsMock.verify(() ->
+          InstallmentUtils.resolveInstallmentStatus(Mockito.any()),
+        Mockito.times(installments.size())
+      );
+    }
+  }
 }

@@ -119,4 +119,20 @@ class DebtPositionDTOEnrichedMapperTest {
       TestUtils.checkNotNullFields(result);
     }
   }
+
+  @Test
+  void givenNullPostalIbanVerifyResponseThenReturnExtendedInstallment() {
+    // given
+    InstallmentDTO installment = podam.manufacturePojo(InstallmentDTO.class);
+    installment.setInstallmentId(10L);
+
+    // when
+      InstallmentExtendedDTO result =  mapper.map(installment, null);
+
+    // then
+    assertNotNull(result);
+    assertNull(result.getAllCCP());
+
+    TestUtils.checkNotNullFields(result, "allCCP");
+  }
 }

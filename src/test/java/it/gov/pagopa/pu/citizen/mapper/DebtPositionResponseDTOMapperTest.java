@@ -179,5 +179,29 @@ class DebtPositionResponseDTOMapperTest {
 
     Assertions.assertThrows(IllegalStateException.class, ()->mapper.map(debtPositionDTO, organization, true, null));
   }
+
+  @Test
+  void givenNullPostalIbanVerifyResponseWhenMapThenFieldsAreMappedCorrectly() {
+    // given
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    DebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTO.class);
+
+    PaymentOptionDTO paymentOption = new PaymentOptionDTO();
+    InstallmentDTO installment = new InstallmentDTO();
+    installment.setInstallmentId(1L);
+    installment.setAmountCents(100L);
+    installment.setDueDate(LocalDate.now().plusDays(5));
+    paymentOption.setInstallments(java.util.List.of(installment));
+    debtPositionDTO.setPaymentOptions(java.util.List.of(paymentOption));
+
+    // when
+    DebtPositionResponseDTO result = mapper.map(debtPositionDTO, organization, false, null);
+
+    // then
+    assertNotNull(result);
+    assertNull(result.getPaymentDetails().getAllCCP());
+
+    TestUtils.checkNotNullFields(result, "allCCP");
+  }
 }
 

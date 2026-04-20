@@ -33,7 +33,7 @@ public interface DebtorUnpaidDebtPositionOverviewMapper {
   @Mapping(
     target = "paymentDateTime", source = "installmentId", qualifiedByName = "extractPaymentDateTime")
   @Mapping(target = "status", expression = "java(InstallmentUtils.resolveInstallmentStatus(installment.getStatus()))")
-  @Mapping(target = "allCCP", expression = "java(InstallmentUtils.extractAllCCP(installment.getInstallmentId(), postalIbanVerifyResponse))")
+  @Mapping(target = "allCCP", expression = "java(postalIbanVerifyResponse != null ? InstallmentUtils.extractAllCCP(installment.getInstallmentId(), postalIbanVerifyResponse) : null)")
   DebtorInstallmentsOverviewDTO map(BaseInstallment installment, @Context Map<Long, OffsetDateTime> installmentIdAndPaymentDateTimeMap, @Context PostalIbanVerifyResponse postalIbanVerifyResponse);
 
   @Named("extractPaymentDateTime")

@@ -124,4 +124,40 @@ class DebtorUnpaidDebtPositionOverviewMapperTest {
     // then
     assertNull(result);
   }
+
+  @Test
+  void givenNullPostalIbanVerifyResponseWhenMapThenAllCcpIsNull() {
+    // given
+    Organization org = podam.manufacturePojo(Organization.class);
+
+    DebtorDebtPositionDTO dp = podam.manufacturePojo(DebtorDebtPositionDTO.class);
+
+    BasePaymentOption po = buildPaymentOption(1000, LocalDate.of(2024, 1, 10));
+    po.getInstallments().getFirst().setInstallmentId(1L);
+
+    dp.setPaymentOptions(List.of(po));
+
+    Map<Long, OffsetDateTime> receiptMap = Map.of(
+      1L, OffsetDateTime.now()
+    );
+
+    // when
+    DebtorUnpaidDebtPositionOverviewDTO result =
+      mapper.map(org, dp, receiptMap, null);
+
+    // then
+    assertNotNull(result);
+    assertNotNull(result.getPaymentOptions());
+
+    DebtorPaymentOptionOverviewDTO paymentOption = result.getPaymentOptions().getFirst();
+    assertNotNull(paymentOption);
+    assertNotNull(paymentOption.getInstallments());
+
+    var installment = paymentOption.getInstallments().getFirst();
+
+    assertNotNull(installment);
+    assertNull(installment.getAllCCP());
+
+    TestUtils.checkNotNullFields(installment, "allCCP");
+  }
 }

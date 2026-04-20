@@ -15,9 +15,6 @@ public class InstallmentUtils {
   }
 
   public static Boolean extractAllCCP(Long installmentId, PostalIbanVerifyResponse postalIbanVerifyResponse){
-    if (postalIbanVerifyResponse == null ){
-      return null;
-    }
     return postalIbanVerifyResponse.getInstallmentPostalIbanCheck().get(String.valueOf(installmentId));
   }
 }

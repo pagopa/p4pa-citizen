@@ -6,7 +6,6 @@ import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionOverviewDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorDebtPositionDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Pageable;
 

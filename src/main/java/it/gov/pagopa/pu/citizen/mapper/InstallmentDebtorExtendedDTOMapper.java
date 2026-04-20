@@ -20,7 +20,7 @@ public interface InstallmentDebtorExtendedDTOMapper {
   @Mapping(target = "orgName", expression = "java(resolveOrgName(installment,organizationMap))")
   @Mapping(target = "orgFiscalCode", expression = "java(resolveOrgFiscalCode(installment,organizationMap))")
   @Mapping(target = "status", expression = "java(InstallmentUtils.resolveInstallmentStatus(installment.getStatus()))")
-  @Mapping(target = "allCCP", expression = "java(InstallmentUtils.extractAllCCP(installment.getInstallmentId(), postalIbanVerifyResponse))")
+  @Mapping(target = "allCCP", expression = "java(postalIbanVerifyResponse != null ? InstallmentUtils.extractAllCCP(installment.getInstallmentId(), postalIbanVerifyResponse) : null)")
   InstallmentDebtorExtendedDTO map(InstallmentDebtorDTO installment, @Context Map<Long, Organization> organizationMap, @Context PostalIbanVerifyResponse postalIbanVerifyResponse);
 
   default String resolveOrgName(InstallmentDebtorDTO installment, @Context Map<Long,Organization> organizationMap){

@@ -105,4 +105,29 @@ class DebtorUnpaidDebtPositionInstallmentsMapperTest {
       }
     }
   }
+
+  @Test
+  void givenNullPostalIbanVerifyResponseThenOk() {
+    // given
+    Organization org = podam.manufacturePojo(Organization.class);
+    org.setOrganizationId(100L);
+    org.setOrgName("TestOrg");
+    org.setOrgFiscalCode("12345678901");
+
+    Long debtPositionId = 1L;
+
+    try(MockedStatic<InstallmentUtils> installmentUtilsMock = Mockito.mockStatic(InstallmentUtils.class)) {
+      InstallmentNoPII installment = podam.manufacturePojo(InstallmentNoPII.class);
+      installment.setStatus(InstallmentStatus.UNPAID);
+      installmentUtilsMock.when(()->InstallmentUtils.resolveInstallmentStatus(installment.getStatus())).thenReturn(installment.getStatus());
+      // when
+      DebtorUnpaidDebtPositionInstallmentsDTO result = mapper.map(org, installment, debtPositionId, null);
+
+      // then
+      assertNotNull(result);
+      assertNull(result.getAllCCP());
+
+      TestUtils.checkNotNullFields(result, "allCCP");
+    }
+  }
 }

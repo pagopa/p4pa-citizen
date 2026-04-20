@@ -20,6 +20,6 @@ public interface DebtPositionDTOEnrichedMapper {
 
   PaymentOptionExtendedDTO map(PaymentOptionDTO paymentOptionDTO, @Context PostalIbanVerifyResponse postalIbanVerifyResponse);
 
-  @Mapping(target = "allCCP", expression = "java(InstallmentUtils.extractAllCCP(installmentDTO.getInstallmentId(), postalIbanVerifyResponse))")
+  @Mapping(target = "allCCP", expression = "java(postalIbanVerifyResponse != null ? InstallmentUtils.extractAllCCP(installmentDTO.getInstallmentId(), postalIbanVerifyResponse): null)")
   InstallmentExtendedDTO map(InstallmentDTO installmentDTO, @Context PostalIbanVerifyResponse postalIbanVerifyResponse);
 }

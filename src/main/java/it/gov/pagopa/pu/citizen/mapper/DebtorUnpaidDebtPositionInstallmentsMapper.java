@@ -18,7 +18,7 @@ public interface DebtorUnpaidDebtPositionInstallmentsMapper {
   @Mapping(target = "orgName", source = "organization.orgName")
   @Mapping(target = "orgFiscalCode", source = "organization.orgFiscalCode")
   @Mapping(target = "status", expression = "java(InstallmentUtils.resolveInstallmentStatus(installment.getStatus()))")
-  @Mapping(target = "allCCP", expression = "java(InstallmentUtils.extractAllCCP(installment.getInstallmentId(), postalIbanVerifyResponse))")
+  @Mapping(target = "allCCP", expression = "java(postalIbanVerifyResponse != null ? InstallmentUtils.extractAllCCP(installment.getInstallmentId(), postalIbanVerifyResponse) : null)")
   DebtorUnpaidDebtPositionInstallmentsDTO map(Organization organization, InstallmentNoPII installment, Long debtPositionId, PostalIbanVerifyResponse postalIbanVerifyResponse);
 
   default List<DebtorUnpaidDebtPositionInstallmentsDTO> mapDebtorUnpaidDebtPositionInstallmentsList(Organization organization, List<InstallmentNoPII> installments, Long debtPositionId, PostalIbanVerifyResponse postalIbanVerifyResponse){

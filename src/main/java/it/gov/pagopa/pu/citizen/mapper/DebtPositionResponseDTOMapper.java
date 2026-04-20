@@ -21,7 +21,7 @@ public interface DebtPositionResponseDTOMapper {
   @Mapping(target = "paymentDetails", expression = "java(mapFromDebtPosition(debtPositionDTO, postalIbanVerifyResponse))")
   DebtPositionResponseDTO map(DebtPositionDTO debtPositionDTO, Organization organization, boolean delegate, @Context PostalIbanVerifyResponse postalIbanVerifyResponse);
 
-  @Mapping(target = "allCCP", expression = "java(InstallmentUtils.extractAllCCP(installmentDTO.getInstallmentId(), postalIbanVerifyResponse))")
+  @Mapping(target = "allCCP", expression = "java(postalIbanVerifyResponse != null ? InstallmentUtils.extractAllCCP(installmentDTO.getInstallmentId(), postalIbanVerifyResponse) : null)")
   PaymentDetailsDTO map(InstallmentDTO installmentDTO, PostalIbanVerifyResponse postalIbanVerifyResponse);
 
   default PaymentDetailsDTO mapFromDebtPosition(DebtPositionDTO source, PostalIbanVerifyResponse postalIbanVerifyResponse) {
