@@ -1,6 +1,6 @@
 package it.gov.pagopa.pu.citizen.mapper;
 
-import it.gov.pagopa.pu.citizen.dto.DebtPositionDTOEnriched;
+import it.gov.pagopa.pu.citizen.dto.DebtPositionExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.InstallmentExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.PaymentOptionExtendedDTO;
 import it.gov.pagopa.pu.citizen.utils.InstallmentUtils;
@@ -18,14 +18,14 @@ import uk.co.jemos.podam.api.PodamFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class DebtPositionDTOEnrichedMapperTest {
+class DebtPositionExtendedDTOMapperTest {
 
-  private final DebtPositionDTOEnrichedMapper mapper = Mappers.getMapper(DebtPositionDTOEnrichedMapper.class);
+  private final DebtPositionExtendedDTOMapper mapper = Mappers.getMapper(DebtPositionExtendedDTOMapper.class);
 
   private final PodamFactory podam = TestUtils.getPodamFactory();
 
   @Test
-  void givenDebtPositionWhenMapThenReturnEnrichedDTO() {
+  void givenDebtPositionWhenMapThenReturnExtendedDTO() {
     // given
     DebtPositionDTO debtPositionDTO = podam.manufacturePojo(DebtPositionDTO.class);
 
@@ -40,7 +40,7 @@ class DebtPositionDTOEnrichedMapperTest {
     // when
     try(MockedStatic<InstallmentUtils> installmentUtilsMock = Mockito.mockStatic(InstallmentUtils.class)) {
       installmentUtilsMock.when(() -> InstallmentUtils.extractAllCCP(installment.getInstallmentId(), postalIbanVerifyResponse)).thenReturn(false);
-      DebtPositionDTOEnriched result = mapper.map(debtPositionDTO, postalIbanVerifyResponse);
+      DebtPositionExtendedDTO result = mapper.map(debtPositionDTO, postalIbanVerifyResponse);
 
       // then
       assertNotNull(result);

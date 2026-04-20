@@ -1,7 +1,7 @@
 package it.gov.pagopa.pu.citizen.controller;
 
 import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
-import it.gov.pagopa.pu.citizen.dto.DebtPositionDTOEnriched;
+import it.gov.pagopa.pu.citizen.dto.DebtPositionExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
@@ -117,10 +117,10 @@ class DebtPositionControllerTest {
     Long debtPositionId = 2L;
     String fiscalCode = "fiscalCode";
 
-    DebtPositionDTOEnriched debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTOEnriched.class);
+    DebtPositionExtendedDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionExtendedDTO.class);
     Mockito.when(debtPositionFacadeServiceMock.getDebtPositionDetail(brokerId, fiscalCode, debtPositionId, accessToken)).thenReturn(debtPositionDTO);
     //when
-    ResponseEntity<DebtPositionDTOEnriched> response = debtPositionController.getDebtPositionDetail(brokerId, debtPositionId, fiscalCode);
+    ResponseEntity<DebtPositionExtendedDTO> response = debtPositionController.getDebtPositionDetail(brokerId, debtPositionId, fiscalCode);
     //then
 
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -137,7 +137,7 @@ class DebtPositionControllerTest {
 
     Mockito.when(debtPositionFacadeServiceMock.getDebtPositionDetail(brokerId, fiscalCode, debtPositionId, accessToken)).thenReturn(null);
     //when
-    ResponseEntity<DebtPositionDTOEnriched> response = debtPositionController.getDebtPositionDetail(brokerId, debtPositionId, fiscalCode);
+    ResponseEntity<DebtPositionExtendedDTO> response = debtPositionController.getDebtPositionDetail(brokerId, debtPositionId, fiscalCode);
     //then
 
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());

@@ -1353,7 +1353,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/DebtPositionDTOEnriched"
+                  "$ref" : "#/components/schemas/DebtPositionExtendedDTO"
                 }
               }
             }
@@ -1363,7 +1363,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/DebtPositionDTOEnriched"
+                  "$ref" : "#/components/schemas/DebtPositionExtendedDTO"
                 }
               }
             }
@@ -1373,7 +1373,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/DebtPositionDTOEnriched"
+                  "$ref" : "#/components/schemas/DebtPositionExtendedDTO"
                 }
               }
             }
@@ -1383,7 +1383,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/DebtPositionDTOEnriched"
+                  "$ref" : "#/components/schemas/DebtPositionExtendedDTO"
                 }
               }
             }
@@ -1393,7 +1393,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/DebtPositionDTOEnriched"
+                  "$ref" : "#/components/schemas/DebtPositionExtendedDTO"
                 }
               }
             }
@@ -2631,7 +2631,7 @@
         "type" : "string",
         "enum" : [ "I", "M", "A" ]
       },
-      "DebtPositionDTOEnriched" : {
+      "DebtPositionExtendedDTO" : {
         "type" : "object",
         "properties" : {
           "debtPositionId" : {

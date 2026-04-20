@@ -1,7 +1,7 @@
 package it.gov.pagopa.pu.citizen.controller;
 
 import it.gov.pagopa.pu.citizen.controller.generated.DebtPositionApi;
-import it.gov.pagopa.pu.citizen.dto.DebtPositionDTOEnriched;
+import it.gov.pagopa.pu.citizen.dto.DebtPositionExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
@@ -52,7 +52,7 @@ public class DebtPositionController implements DebtPositionApi {
   }
 
   @Override
-  public ResponseEntity<DebtPositionDTOEnriched> getDebtPositionDetail(Long brokerId, Long debtPositionId, String xFiscalCode) {
+  public ResponseEntity<DebtPositionExtendedDTO> getDebtPositionDetail(Long brokerId, Long debtPositionId, String xFiscalCode) {
     log.info("User requested getDebtPositionDetail having brokerId {} and debtPositionId {} ", brokerId, debtPositionId);
     return ResponseEntity.ofNullable(debtPositionFacadeService.getDebtPositionDetail(brokerId, xFiscalCode, debtPositionId, SecurityUtils.getAccessToken()));
   }

@@ -4,7 +4,7 @@ import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.DebtPositionService;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.ReceiptService;
 import it.gov.pagopa.pu.citizen.connector.pagopapayments.PrintPaymentNoticeService;
-import it.gov.pagopa.pu.citizen.dto.DebtPositionDTOEnriched;
+import it.gov.pagopa.pu.citizen.dto.DebtPositionExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
@@ -75,7 +75,7 @@ class DebtPositionFacadeServiceImplTest {
   @Mock
   private InstallmentFacadeService installmentFacadeServiceMock;
   @Mock
-  private DebtPositionDTOEnrichedMapper debtPositionDTOEnrichedMapperMock;
+  private DebtPositionExtendedDTOMapper debtPositionExtendedDTOMapperMock;
 
   private DebtPositionFacadeService debtPositionFacadeService;
 
@@ -88,7 +88,7 @@ class DebtPositionFacadeServiceImplTest {
     debtPositionFacadeService = new DebtPositionFacadeServiceImpl(debtPositionServiceMock, debtPositionDTOMapperMock, 1,
       debtPositionResponseDTOMapperMock, printPaymentNoticeServiceMock, zipFileServiceMock, organizationRetrieverServiceMock,
       brokerOrganizationsRetrieverServiceMock, pagedDebtorDebtPositionMapperMock, debtorUnpaidDebtPositionOverviewMapperMock,
-      receiptServiceMock, cieDebtPositionFacadeServiceMock, installmentFacadeServiceMock, debtPositionDTOEnrichedMapperMock );
+      receiptServiceMock, cieDebtPositionFacadeServiceMock, installmentFacadeServiceMock, debtPositionExtendedDTOMapperMock);
   }
 
   @AfterEach
@@ -106,7 +106,7 @@ class DebtPositionFacadeServiceImplTest {
       receiptServiceMock,
       cieDebtPositionFacadeServiceMock,
       installmentFacadeServiceMock,
-      debtPositionDTOEnrichedMapperMock
+      debtPositionExtendedDTOMapperMock
     );
   }
 
@@ -291,10 +291,10 @@ class DebtPositionFacadeServiceImplTest {
     List<InstallmentDTO> installments = debtPositionDTO.getPaymentOptions().stream().flatMap(po -> po.getInstallments().stream()).toList();
     PostalIbanVerifyResponse postalIbanVerifyResponse = podamFactory.manufacturePojo(PostalIbanVerifyResponse.class);
 
-    DebtPositionDTOEnriched expectedResult = podamFactory.manufacturePojo(DebtPositionDTOEnriched.class);
-    InstallmentDTO installmentEnriched = expectedResult.getPaymentOptions().getFirst().getInstallments().getFirst();
-    installmentEnriched.getDebtor().setFiscalCode(fiscalCode);
-    installmentEnriched.setStatus(InstallmentStatus.PAID);
+    DebtPositionExtendedDTO expectedResult = podamFactory.manufacturePojo(DebtPositionExtendedDTO.class);
+    InstallmentDTO installmentExtendedDTO = expectedResult.getPaymentOptions().getFirst().getInstallments().getFirst();
+    installmentExtendedDTO.getDebtor().setFiscalCode(fiscalCode);
+    installmentExtendedDTO.setStatus(InstallmentStatus.PAID);
 
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(debtPositionDTO.getOrganizationId(), brokerId, accessToken);
     Mockito.when(debtPositionServiceMock.getDebtPosition(debtPositionId, accessToken)).thenReturn(debtPositionDTO);
@@ -305,9 +305,9 @@ class DebtPositionFacadeServiceImplTest {
         Mockito.eq(accessToken)
       )
     ).thenReturn(postalIbanVerifyResponse);
-    Mockito.when(debtPositionDTOEnrichedMapperMock.map(debtPositionDTO, postalIbanVerifyResponse)).thenReturn(expectedResult);
+    Mockito.when(debtPositionExtendedDTOMapperMock.map(debtPositionDTO, postalIbanVerifyResponse)).thenReturn(expectedResult);
     //when
-    DebtPositionDTOEnriched result = debtPositionFacadeService.getDebtPositionDetail(brokerId, fiscalCode, debtPositionId, accessToken);
+    DebtPositionExtendedDTO result = debtPositionFacadeService.getDebtPositionDetail(brokerId, fiscalCode, debtPositionId, accessToken);
     //then
     assertNotNull(result);
     assertEquals(expectedResult, result);
@@ -342,7 +342,7 @@ class DebtPositionFacadeServiceImplTest {
 
     Mockito.when(debtPositionServiceMock.getDebtPosition(debtPositionId, accessToken)).thenReturn(null);
     //when
-    DebtPositionDTOEnriched result = debtPositionFacadeService.getDebtPositionDetail(brokerId, fiscalCode, debtPositionId, accessToken);
+    DebtPositionExtendedDTO result = debtPositionFacadeService.getDebtPositionDetail(brokerId, fiscalCode, debtPositionId, accessToken);
 
     //then
     assertNull(result);

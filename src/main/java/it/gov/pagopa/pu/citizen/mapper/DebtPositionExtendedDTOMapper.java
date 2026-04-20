@@ -1,7 +1,7 @@
 package it.gov.pagopa.pu.citizen.mapper;
 
 
-import it.gov.pagopa.pu.citizen.dto.DebtPositionDTOEnriched;
+import it.gov.pagopa.pu.citizen.dto.DebtPositionExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.InstallmentExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.PaymentOptionExtendedDTO;
 import it.gov.pagopa.pu.citizen.utils.InstallmentUtils;
@@ -14,9 +14,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", imports = {InstallmentUtils.class})
-public interface DebtPositionDTOEnrichedMapper {
+public interface DebtPositionExtendedDTOMapper {
 
-  DebtPositionDTOEnriched map(DebtPositionDTO debtPositionDTO, @Context PostalIbanVerifyResponse postalIbanVerifyResponse);
+  DebtPositionExtendedDTO map(DebtPositionDTO debtPositionDTO, @Context PostalIbanVerifyResponse postalIbanVerifyResponse);
 
   PaymentOptionExtendedDTO map(PaymentOptionDTO paymentOptionDTO, @Context PostalIbanVerifyResponse postalIbanVerifyResponse);
 

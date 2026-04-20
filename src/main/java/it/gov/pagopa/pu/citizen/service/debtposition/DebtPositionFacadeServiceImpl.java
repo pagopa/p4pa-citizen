@@ -3,7 +3,7 @@ package it.gov.pagopa.pu.citizen.service.debtposition;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.DebtPositionService;
 import it.gov.pagopa.pu.citizen.connector.debtpositions.ReceiptService;
 import it.gov.pagopa.pu.citizen.connector.pagopapayments.PrintPaymentNoticeService;
-import it.gov.pagopa.pu.citizen.dto.DebtPositionDTOEnriched;
+import it.gov.pagopa.pu.citizen.dto.DebtPositionExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
@@ -50,7 +50,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
   private final ReceiptService receiptService;
   private final CieDebtPositionFacadeService cieDebtPositionFacadeService;
   private final InstallmentFacadeService installmentFacadeService;
-  private final DebtPositionDTOEnrichedMapper debtPositionDTOEnrichedMapper;
+  private final DebtPositionExtendedDTOMapper debtPositionExtendedDTOMapper;
 
   public DebtPositionFacadeServiceImpl(DebtPositionService debtPositionService,
                                        DebtPositionDTOMapper debtPositionDTOMapper,
@@ -64,7 +64,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
                                        DebtorUnpaidDebtPositionOverviewMapper debtorUnpaidDebtPositionOverviewMapper,
                                        ReceiptService receiptService,
                                        CieDebtPositionFacadeService cieDebtPositionFacadeService,
-                                       InstallmentFacadeService installmentFacadeService, DebtPositionDTOEnrichedMapper debtPositionDTOEnrichedMapper
+                                       InstallmentFacadeService installmentFacadeService, DebtPositionExtendedDTOMapper debtPositionExtendedDTOMapper
   ) {
     this.debtPositionDTOMapper = debtPositionDTOMapper;
     this.debtPositionService = debtPositionService;
@@ -79,7 +79,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
     this.receiptService = receiptService;
     this.cieDebtPositionFacadeService = cieDebtPositionFacadeService;
     this.installmentFacadeService = installmentFacadeService;
-    this.debtPositionDTOEnrichedMapper = debtPositionDTOEnrichedMapper;
+    this.debtPositionExtendedDTOMapper = debtPositionExtendedDTOMapper;
   }
 
   @Override
@@ -126,14 +126,16 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
   }
 
   @Override
-  public DebtPositionDTOEnriched getDebtPositionDetail(Long brokerId, String fiscalCode, Long debtPositionId, String accessToken) {
+  public DebtPositionExtendedDTO getDebtPositionDetail(Long brokerId, String fiscalCode, Long debtPositionId, String accessToken) {
     DebtPositionDTO debtPosition = getDebtPositionDTO(brokerId, fiscalCode, debtPositionId, accessToken);
-    if (debtPosition == null) return null;
+    if (debtPosition == null){
+      return null;
+    }
 
     List<InstallmentDTO> installments = debtPosition.getPaymentOptions().stream().flatMap(po -> po.getInstallments().stream()).toList();
     PostalIbanVerifyResponse postalIbanVerifyResponse = installmentFacadeService.extractPostalIbanVerifyResponse(installments, InstallmentDTO::getInstallmentId, accessToken);
 
-    return debtPositionDTOEnrichedMapper.map(debtPosition, postalIbanVerifyResponse);
+    return debtPositionExtendedDTOMapper.map(debtPosition, postalIbanVerifyResponse);
   }
 
   private DebtPositionDTO getDebtPositionDTO(Long brokerId, String fiscalCode, Long debtPositionId, String accessToken) {

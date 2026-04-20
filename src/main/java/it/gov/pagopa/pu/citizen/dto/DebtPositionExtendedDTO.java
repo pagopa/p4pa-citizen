@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DebtPositionDTOEnriched {
+public class DebtPositionExtendedDTO {
 
   private Long debtPositionId;
 
