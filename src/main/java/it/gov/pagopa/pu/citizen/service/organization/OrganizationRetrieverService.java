@@ -1,5 +1,6 @@
 package it.gov.pagopa.pu.citizen.service.organization;
 
+import it.gov.pagopa.pu.citizen.dto.generated.OrganizationLogoDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.OrganizationsWithSpontaneousDTO;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 
@@ -13,4 +14,5 @@ public interface OrganizationRetrieverService {
   boolean isCieBroker(Long brokerId, String accessToken);
   Organization getCieOrganization(String accessToken);
   boolean isDelegateBroker(Long brokerId, String accessToken);
+  OrganizationLogoDTO getOrganizationLogo(Long brokerId, String orgFiscalCode, String accessToken);
 }

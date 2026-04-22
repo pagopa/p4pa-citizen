@@ -120,6 +120,12 @@ dependencies {
   mockitoAgent("org.mockito:mockito-core") { isTransitive = false }
 }
 tasks {
+  jar {
+      from("${rootProject.projectDir}") {
+          include("LICENSE.md")
+          into("META-INF")
+      }
+  }
   test {
     jvmArgs("-javaagent:${mockitoAgent.asPath}")
     testLogging.events = setOf(TestLogEvent.FAILED)
@@ -209,7 +215,8 @@ openApiGenerate {
       "DebtPositionStatus" to "it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionStatus",
       "InstallmentStatus" to "it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentStatus",
       "InstallmentDebtorExtendedDTO" to "it.gov.pagopa.pu.citizen.dto.InstallmentDebtorExtendedDTO",
-      "PersonEntityType" to "it.gov.pagopa.pu.debtpositions.dto.generated.PersonEntityType"
+      "PersonEntityType" to "it.gov.pagopa.pu.debtpositions.dto.generated.PersonEntityType",
+      "DebtPositionExtendedDTO" to "it.gov.pagopa.pu.citizen.dto.DebtPositionExtendedDTO"
     )
   )
 }

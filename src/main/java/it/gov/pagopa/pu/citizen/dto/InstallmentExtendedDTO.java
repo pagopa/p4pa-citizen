@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.dto;
 
-import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentDebtorDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentDTO;
+import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -9,11 +10,10 @@ import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder(toBuilder = true)
-public class InstallmentDebtorExtendedDTO extends InstallmentDebtorDTO {
-  private String orgFiscalCode;
-  private String orgName;
+public class InstallmentExtendedDTO extends InstallmentDTO {
+  @Nullable
   private Boolean allCCP;
 }

@@ -2,30 +2,30 @@ package it.gov.pagopa.pu.citizen.mapper;
 
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PaymentDetailsDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.InstallmentDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.PaymentOptionDTO;
-import it.gov.pagopa.pu.debtpositions.dto.generated.TransferDTO;
+import it.gov.pagopa.pu.citizen.utils.InstallmentUtils;
+import it.gov.pagopa.pu.debtpositions.dto.generated.*;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Optional;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", imports = {InstallmentUtils.class})
 public interface DebtPositionResponseDTOMapper {
 
   @Mapping(target = "organizationId", source = "organization.organizationId")
   @Mapping(target = "orgFiscalCode", expression = "java(mapOrgFiscalCode(debtPositionDTO, organization, delegate))")
   @Mapping(target = "orgName", expression = "java(mapOrgName(debtPositionDTO, organization, delegate))")
-  @Mapping(target = "paymentDetails", expression = "java(mapFromDebtPosition(debtPositionDTO))")
-  DebtPositionResponseDTO map(DebtPositionDTO debtPositionDTO, Organization organization, boolean delegate);
+  @Mapping(target = "paymentDetails", expression = "java(mapFromDebtPosition(debtPositionDTO, postalIbanVerifyResponse))")
+  DebtPositionResponseDTO map(DebtPositionDTO debtPositionDTO, Organization organization, boolean delegate, @Context PostalIbanVerifyResponse postalIbanVerifyResponse);
 
-  PaymentDetailsDTO map(InstallmentDTO installmentDTO);
+  @Mapping(target = "allCCP", expression = "java(postalIbanVerifyResponse != null ? InstallmentUtils.extractAllCCP(installmentDTO.getInstallmentId(), postalIbanVerifyResponse) : null)")
+  PaymentDetailsDTO map(InstallmentDTO installmentDTO, PostalIbanVerifyResponse postalIbanVerifyResponse);
 
-  default PaymentDetailsDTO mapFromDebtPosition(DebtPositionDTO source) {
-    return map(getFirstInstallment(source));
+  default PaymentDetailsDTO mapFromDebtPosition(DebtPositionDTO source, PostalIbanVerifyResponse postalIbanVerifyResponse) {
+    return map(getFirstInstallment(source), postalIbanVerifyResponse);
   }
 
   private static InstallmentDTO getFirstInstallment(DebtPositionDTO source) {
