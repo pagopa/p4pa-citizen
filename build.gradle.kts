@@ -6,11 +6,11 @@ import java.util.*
 
 plugins {
   java
-  id("org.springframework.boot") version "4.0.5"
+  id("org.springframework.boot") version "4.0.6"
   id("io.spring.dependency-management") version "1.1.7"
   jacoco
   id("org.sonarqube") version "7.2.3.7755"
-  id("com.github.ben-manes.versions") version "0.53.0"
+  id("com.github.ben-manes.versions") version "0.54.0"
   id("org.openapi.generator") version "7.21.0"
   id("com.gorylenko.gradle-git-properties") version "2.5.7"
   id("org.ajoberstar.grgit") version "5.3.2"
@@ -50,22 +50,20 @@ repositories {
   mavenCentral()
 }
 
-val springDocOpenApiVersion = "3.0.2"
+val springDocOpenApiVersion = "3.0.3"
 val janinoVersion = "3.1.12"
 val openApiToolsVersion = "0.2.10"
-val micrometerVersion = "1.6.4"
-val httpClientVersion = "5.6"
+val micrometerVersion = "1.6.5"
+val httpClientVersion = "5.6.1"
 val httpCoreVersion = "5.4.2"
 val podamVersion = "8.0.2.RELEASE"
 val javaJwtVersion = "4.5.1"
-val jwksRsaVersion = "0.23.0"
-val bouncycastleVersion = "1.83"
+val jwksRsaVersion = "0.23.1"
+val bouncycastleVersion = "1.84"
 val nimbusJoseJwtVersion = "10.9"
 val mapStructVersion = "1.6.3"
 val commonsLang3Version = "3.20.0"
 
-// fix cve
-val jackson3CoreVersion = "3.1.1"
 
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webmvc")
@@ -92,9 +90,6 @@ dependencies {
   implementation("com.auth0:java-jwt:${javaJwtVersion}")
   implementation("com.auth0:jwks-rsa:${jwksRsaVersion}")
   implementation("org.bouncycastle:bcprov-jdk18on:${bouncycastleVersion}")
-
-  // CVE fix
-  implementation("tools.jackson.core:jackson-core:$jackson3CoreVersion")
 
   compileOnly("org.projectlombok:lombok")
   annotationProcessor("org.projectlombok:lombok")
