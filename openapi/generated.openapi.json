@@ -2010,6 +2010,9 @@
           },
           "city" : {
             "type" : "string"
+          },
+          "favicon" : {
+            "type" : "string"
           }
         },
         "required" : [ "brokerFiscalCode", "brokerId", "brokerName", "externalId" ]
@@ -2645,10 +2648,10 @@
             "type" : "string"
           },
           "status" : {
-            "type" : "string"
+            "$ref" : "#/components/schemas/DebtPositionStatus"
           },
           "debtPositionOrigin" : {
-            "type" : "string"
+            "$ref" : "#/components/schemas/DebtPositionOrigin"
           },
           "organizationId" : {
             "type" : "integer",
@@ -2689,6 +2692,10 @@
             }
           }
         }
+      },
+      "DebtPositionStatus" : {
+        "type" : "string",
+        "enum" : [ "TO_SYNC", "REPORTED", "PAID", "PARTIALLY_PAID", "CANCELLED", "EXPIRED", "UNPAID", "DRAFT" ]
       },
       "InstallmentExtendedDTO" : {
         "type" : "object",
@@ -2903,10 +2910,6 @@
           }
         },
         "required" : [ "amountCents", "category", "orgFiscalCode", "orgName", "remittanceInformation", "transferIndex" ]
-      },
-      "DebtPositionStatus" : {
-        "type" : "string",
-        "enum" : [ "TO_SYNC", "REPORTED", "PAID", "PARTIALLY_PAID", "CANCELLED", "EXPIRED", "UNPAID", "DRAFT" ]
       },
       "DebtorPaymentOptionDTO" : {
         "type" : "object",
