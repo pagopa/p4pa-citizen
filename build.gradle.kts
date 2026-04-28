@@ -64,7 +64,6 @@ val nimbusJoseJwtVersion = "10.9"
 val mapStructVersion = "1.6.3"
 val commonsLang3Version = "3.20.0"
 
-
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webmvc")
   implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
