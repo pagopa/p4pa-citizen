@@ -47,7 +47,7 @@ public class BrokerRetrieverServiceImpl implements BrokerRetrieverService {
       throw new ResourceNotFoundException("BROKER_CONFIGURATION_NOT_FOUND","Broker configuration having broker id "+brokerId+"not found");
     }
 
-    return brokerInfoDTOMapper.map(organizationService.getBrokerOrganization(broker.getBrokerId(),accessToken), broker.getExternalId(), brokerConfiguration.getArpuConfig());
+    return brokerInfoDTOMapper.map(organizationService.getBrokerOrganization(broker.getBrokerId(),accessToken), broker.getExternalId(), brokerConfiguration);
   }
 
 

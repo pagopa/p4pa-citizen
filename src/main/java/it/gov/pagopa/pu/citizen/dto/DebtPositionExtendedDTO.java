@@ -1,5 +1,7 @@
 package it.gov.pagopa.pu.citizen.dto;
 
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionOrigin;
+import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,9 +23,9 @@ public class DebtPositionExtendedDTO {
 
   private String description;
 
-  private String status;
+  private DebtPositionStatus status;
 
-  private String debtPositionOrigin;
+  private DebtPositionOrigin debtPositionOrigin;
 
   private Long organizationId;
 

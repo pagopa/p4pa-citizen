@@ -83,7 +83,7 @@ class BrokerRetrieverServiceImplTest {
     Mockito.when(organizationServiceMock.getBrokerOrganization(brokerId, accessToken))
       .thenReturn(organization);
 
-    Mockito.when(brokerInfoDTOMapperMock.map(organization, broker.getExternalId(), brokerConfiguration.getArpuConfig()))
+    Mockito.when(brokerInfoDTOMapperMock.map(organization, broker.getExternalId(), brokerConfiguration))
       .thenReturn(expectedResult);
 
     BrokerInfoDTO result =
@@ -117,7 +117,7 @@ class BrokerRetrieverServiceImplTest {
     Mockito.when(brokerConfigurationServiceMock.getBrokerConfiguration(broker.getBrokerId(), accessToken))
       .thenReturn(brokerConfiguration);
 
-    Mockito.when(brokerInfoDTOMapperMock.map(organization, broker.getExternalId(), brokerConfiguration.getArpuConfig()))
+    Mockito.when(brokerInfoDTOMapperMock.map(organization, broker.getExternalId(), brokerConfiguration))
       .thenReturn(expectedResult);
 
     BrokerInfoDTO result =
