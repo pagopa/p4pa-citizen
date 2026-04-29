@@ -2,7 +2,9 @@
 
 This application belong to the **inbound/outbound** tier of the **Piattaforma Unitaria** product.
 
-See [PU Microservice Architecture](https://pagopa.atlassian.net/wiki/spaces/SPAC/pages/1405845916/Architettura+microservizi) for more details.
+See [PU Microservice Architecture](https://raw.githubusercontent.com/pagopa/p4pa-doc/refs/heads/main/reference/technical-docs/Architettura_microservizi.pdf) for more details.
+
+See [p4pa-doc](https://github.com/pagopa/p4pa-doc) for further documentation.
 
 ## 🧱 Role
 
@@ -46,6 +48,8 @@ See [log configured pattern](/src/main/resources/logback-spring.xml).
   * To access to domain data and operations;
 * [p4pa-pagopa-payments](https://github.com/pagopa/p4pa-pagopa-payments):
   * To get payment pdf notice;
+* [p4pa-cie](https://github.com/pagopa/p4pa-cie):
+  * To handle CIE payments.
 
 ## 🔧 Configuration
 
@@ -88,7 +92,6 @@ See [application.yml](src/main/resources/application.yml) for each configurable 
 | AUTH_MAX_ATTEMPTS                     | Auth API max attempts                            | 3       |
 | AUTH_WAIT_TIME_MILLIS                 | Auth retry waiting time (milliseconds)           | 500     |
 | AUTH_PRINT_BODY_WHEN_ERROR            | To print body when an error occurs               | true    |
-| P4PA_AUTH_CLIENT_SECRET               | piattaforma-unitaria's client secret             |         |
 | DEBT_POSITIONS_BASE_URL               | DebtPosition microservice URL                    |         |
 | DEBT_POSITIONS_MAX_ATTEMPTS           | DebtPosition API max attempts                    | 3       |
 | DEBT_POSITIONS_WAIT_TIME_MILLIS       | DebtPosition retry waiting time (milliseconds)   | 500     |
@@ -111,6 +114,11 @@ See [application.yml](src/main/resources/application.yml) for each configurable 
 |------------------------------|--------------------------------|---------|
 | SPONTANEOUS_EXPIRATION_DAYS  | Spontaneous expiration days    | 1       |
 | CIE_ORGANIZATION_FISCAL_CODE | Cie's organization fiscal code |         |
+
+#### 🔑 keys
+| ENV                          | DESCRIPTION                                                              | DEFAULT |
+|------------------------------|--------------------------------------------------------------------------|---------|
+| P4PA_AUTH_CLIENT_SECRET      | client_secret used on M2M authentication to get a technical access token |         |
 
 
 ## 🛠️ Getting Started
