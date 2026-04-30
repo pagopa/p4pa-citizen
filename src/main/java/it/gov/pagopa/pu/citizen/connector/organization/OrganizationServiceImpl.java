@@ -1,0 +1,51 @@
+package it.gov.pagopa.pu.citizen.connector.organization;
+
+import it.gov.pagopa.pu.citizen.connector.organization.client.OrganizationEntityClient;
+import it.gov.pagopa.pu.citizen.connector.organization.client.OrganizationSearchClient;
+import it.gov.pagopa.pu.organization.dto.generated.Organization;
+import it.gov.pagopa.pu.organization.dto.generated.OrganizationStatus;
+import it.gov.pagopa.pu.organization.dto.generated.PagedModelOrganization;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+@Service
+public class OrganizationServiceImpl implements OrganizationService {
+
+  private final OrganizationSearchClient organizationSearchClient;
+  private final OrganizationEntityClient organizationEntityClient;
+
+  public OrganizationServiceImpl(OrganizationSearchClient organizationSearchClient, OrganizationEntityClient organizationEntityClient) {
+    this.organizationSearchClient = organizationSearchClient;
+    this.organizationEntityClient = organizationEntityClient;
+  }
+
+  @Override
+  public PagedModelOrganization getPagedOrganizationsByBrokerIdAndStatus(Long brokerId, OrganizationStatus status, Pageable pageable, String accessToken) {
+    return organizationSearchClient.getPagedOrganizationsByBrokerIdAndStatus(brokerId, status, pageable, accessToken);
+  }
+
+  @Override
+  public Organization getOrganizationByOrganizationId(Long organizationId, String accessToken){
+    return organizationEntityClient.getOrganizationByOrganizationId(organizationId, accessToken);
+  }
+
+  @Override
+  public PagedModelOrganization getOrganizationsListByBrokerIdAndOrgName(Long brokerId, String orgName, Pageable pageable, String accessToken) {
+    return organizationSearchClient.getOrganizationsListByBrokerIdAndOrgName(brokerId, orgName, pageable, accessToken);
+  }
+
+  @Override
+  public PagedModelOrganization getOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(Long brokerId, String orgName, String orgFiscalCode, Pageable pageable, String accessToken) {
+    return organizationSearchClient.getOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(brokerId, orgName, orgFiscalCode, pageable, accessToken);
+  }
+
+  @Override
+  public Organization getBrokerOrganization(Long brokerId, String accessToken) {
+    return organizationSearchClient.getBrokerOrganization(brokerId,accessToken);
+  }
+
+  @Override
+  public Organization findByOrgFiscalCode(String orgFiscalCode, String accessToken) {
+    return organizationSearchClient.findByOrgFiscalCode(orgFiscalCode,accessToken);
+  }
+}

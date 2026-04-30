@@ -1,0 +1,230 @@
+package it.gov.pagopa.pu.citizen.exception;
+
+import it.gov.pagopa.pu.citizen.dto.generated.ErrorDTO;
+import it.gov.pagopa.pu.citizen.mapper.UpstreamErrorMapper;
+import it.gov.pagopa.pu.citizen.utils.ErrorMessageParser;
+import it.gov.pagopa.pu.citizen.utils.Utilities;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.ValidationException;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.event.Level;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.core.convert.ConversionFailedException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.ErrorResponse;
+import org.springframework.web.ErrorResponseException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DatabindException;
+
+import java.util.stream.Collectors;
+
+@RestControllerAdvice
+@Slf4j
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class ControllerExceptionHandler {
+
+  private final UpstreamErrorMapper upstreamErrorMapper;
+
+  public ControllerExceptionHandler(UpstreamErrorMapper upstreamErrorMapper) {
+    this.upstreamErrorMapper = upstreamErrorMapper;
+  }
+
+  @ExceptionHandler({ValidationException.class, HttpMessageNotReadableException.class, MethodArgumentNotValidException.class, MethodArgumentTypeMismatchException.class, ConversionFailedException.class})
+  public ResponseEntity<ErrorDTO> handleViolationException(Exception ex, HttpServletRequest request) {
+    return handleException(ex, request, HttpStatus.BAD_REQUEST, ErrorDTO.CategoryEnum.BAD_REQUEST);
+  }
+
+  @ExceptionHandler({ServletException.class, ErrorResponseException.class})
+  public ResponseEntity<ErrorDTO> handleServletException(Exception ex, HttpServletRequest request) {
+    HttpStatusCode httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+    ErrorDTO.CategoryEnum errorCode = ErrorDTO.CategoryEnum.GENERIC_ERROR;
+    if (ex instanceof ErrorResponse errorResponse) {
+      httpStatus = errorResponse.getStatusCode();
+      if (httpStatus.isSameCodeAs(HttpStatus.NOT_FOUND)) {
+        errorCode = ErrorDTO.CategoryEnum.NOT_FOUND;
+      } else if (httpStatus.is4xxClientError()) {
+        errorCode = ErrorDTO.CategoryEnum.BAD_REQUEST;
+      }
+    }
+    return handleException(ex, request, httpStatus, errorCode);
+  }
+
+  @ExceptionHandler({RuntimeException.class})
+  public ResponseEntity<ErrorDTO> handleRuntimeException(RuntimeException ex, HttpServletRequest request) {
+    return handleException(ex, request, HttpStatus.INTERNAL_SERVER_ERROR, ErrorDTO.CategoryEnum.GENERIC_ERROR);
+  }
+
+  @ExceptionHandler(ResourceNotFoundException.class)
+  public ResponseEntity<ErrorDTO> handleResourceNotFoundException(ResourceNotFoundException ex, HttpServletRequest request) {
+    return handleException(ex, request, HttpStatus.NOT_FOUND, ErrorDTO.CategoryEnum.NOT_FOUND);
+  }
+
+  @ExceptionHandler({InvalidAccessTokenException.class})
+  public ResponseEntity<ErrorDTO> handleInvalidAccessTokenException(InvalidAccessTokenException ex, HttpServletRequest request) {
+    return handleException(ex, request, HttpStatus.BAD_REQUEST, ErrorDTO.CategoryEnum.BAD_REQUEST);
+  }
+
+  @ExceptionHandler({HttpClientErrorException.class})
+  public ResponseEntity<ErrorDTO> handleHttpClientErrorException(HttpClientErrorException ex, HttpServletRequest request) {
+    logException(ex, request, ex.getStatusCode());
+
+    ErrorDTO.CategoryEnum category = transcodeStatus(ex.getStatusCode());
+    String traceId = Utilities.getTraceId();
+    String message = ex.getMessage();
+    String code = "GENERIC_ERROR";
+
+    UpstreamErrorMapper.MappedUpstreamError mapped = upstreamErrorMapper.from(ex);
+    if(mapped != null) {
+      message = mapped.description();
+      code = mapped.code();
+    }
+
+    ErrorDTO dto = new ErrorDTO();
+    dto.setCategory(category);
+    dto.setMessage(message);
+    dto.setTraceId(traceId);
+    dto.setCode(code);
+
+    return ResponseEntity
+      .status(ex.getStatusCode())
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(dto);
+  }
+
+  private static ErrorDTO.CategoryEnum transcodeStatus(HttpStatusCode status) {
+    if (status.isSameCodeAs(HttpStatus.NOT_FOUND)) return ErrorDTO.CategoryEnum.NOT_FOUND;
+    if (status.isSameCodeAs(HttpStatus.CONFLICT)) return ErrorDTO.CategoryEnum.CONFLICT;
+    if (status.isSameCodeAs(HttpStatus.FORBIDDEN)) return ErrorDTO.CategoryEnum.FORBIDDEN;
+    if (status.is4xxClientError()) return ErrorDTO.CategoryEnum.BAD_REQUEST;
+    return ErrorDTO.CategoryEnum.GENERIC_ERROR;
+  }
+
+  @ExceptionHandler(ZipFileException.class)
+  public ResponseEntity<ErrorDTO> handleZipFileException(ZipFileException ex, HttpServletRequest request) {
+    return handleException(ex, request, HttpStatus.INTERNAL_SERVER_ERROR, ErrorDTO.CategoryEnum.GENERIC_ERROR);
+  }
+
+  @ExceptionHandler({AuthorizationDeniedException.class})
+  public ResponseEntity<ErrorDTO> handleAuthorizationDeniedException(AuthorizationDeniedException ex, HttpServletRequest request) {
+    return handleException(ex, request, HttpStatus.FORBIDDEN, ErrorDTO.CategoryEnum.FORBIDDEN);
+  }
+
+  @ExceptionHandler({ConflictException.class})
+  public ResponseEntity<ErrorDTO> handleConflictException(ConflictException ex, HttpServletRequest request) {
+    return handleException(ex, request, HttpStatus.CONFLICT, ErrorDTO.CategoryEnum.CONFLICT);
+  }
+
+  @ExceptionHandler({InvalidParamException.class})
+  public ResponseEntity<ErrorDTO> handleInvalidParamException(InvalidParamException ex, HttpServletRequest request) {
+    return handleException(ex, request, HttpStatus.BAD_REQUEST, ErrorDTO.CategoryEnum.BAD_REQUEST);
+  }
+
+  @ExceptionHandler({DebtPositionInvalidFieldValuesException.class})
+  public ResponseEntity<ErrorDTO> handleInvalidParamException(DebtPositionInvalidFieldValuesException ex, HttpServletRequest request) {
+    return handleException(ex, request, HttpStatus.BAD_REQUEST, ErrorDTO.CategoryEnum.BAD_REQUEST);
+  }
+
+  @ExceptionHandler({InvalidRequestBodyException.class})
+  public ResponseEntity<ErrorDTO> handleInvalidRequestBodyException(InvalidRequestBodyException ex, HttpServletRequest request) {
+    return handleException(ex, request, HttpStatus.BAD_REQUEST, ErrorDTO.CategoryEnum.BAD_REQUEST);
+  }
+
+  static ResponseEntity<ErrorDTO> handleException(Exception ex, HttpServletRequest request, HttpStatusCode httpStatus, ErrorDTO.CategoryEnum category) {
+    logException(ex, request, httpStatus);
+
+    String message = buildReturnedMessage(ex);
+    String code;
+
+    if (ex instanceof BaseBusinessException codedEx && StringUtils.isNotBlank(codedEx.getCode())) {
+      code = codedEx.getCode();
+    } else {
+      ErrorMessageParser.ParsedError parsed = ErrorMessageParser.parse(message);
+      code = parsed.code();
+      if (parsed.description() != null) {
+        message = parsed.description();
+      }
+    }
+
+    ErrorDTO dto = new ErrorDTO();
+    dto.setCategory(category);
+    dto.setMessage(message);
+    dto.setTraceId(Utilities.getTraceId());
+    dto.setCode(code);
+
+    return ResponseEntity
+      .status(httpStatus)
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(dto);
+  }
+
+  private static void logException(Exception ex, HttpServletRequest request, HttpStatusCode httpStatus) {
+    boolean printStackTrace = httpStatus.is5xxServerError();
+    Level logLevel = printStackTrace ? Level.ERROR : Level.INFO;
+    log.makeLoggingEventBuilder(logLevel)
+      .log("A {} occurred handling request {}: HttpStatus {} - {}",
+        ex.getClass(),
+        getRequestDetails(request),
+        httpStatus.value(),
+        ex.getMessage(),
+        printStackTrace ? ex : null
+      );
+    if (!printStackTrace && log.isDebugEnabled() && ex.getCause() != null) {
+      log.debug("CausedBy: ", ex.getCause());
+    }
+  }
+
+  private static String buildReturnedMessage(Exception ex) {
+    switch (ex) {
+      case HttpMessageNotReadableException httpMessageNotReadableException -> {
+        if (httpMessageNotReadableException.getCause() instanceof DatabindException jsonMappingException) {
+          return "Cannot parse body. " +
+            jsonMappingException.getPath().stream()
+              .map(JacksonException.Reference::getPropertyName)
+              .collect(Collectors.joining(".")) +
+            ": " + jsonMappingException.getOriginalMessage();
+        }
+        return "Required request body is missing";
+      }
+      case MethodArgumentNotValidException methodArgumentNotValidException -> {
+        return "Invalid request content." +
+          methodArgumentNotValidException.getBindingResult()
+            .getAllErrors().stream()
+            .map(e -> " " +
+              (e instanceof FieldError fieldError ? fieldError.getField() : e.getObjectName()) +
+              ": " + e.getDefaultMessage())
+            .sorted()
+            .collect(Collectors.joining(";"));
+      }
+      case ConstraintViolationException constraintViolationException -> {
+        return "Invalid request content." +
+          constraintViolationException.getConstraintViolations()
+            .stream()
+            .map(e -> " " + e.getPropertyPath() + ": " + e.getMessage())
+            .sorted()
+            .collect(Collectors.joining(";"));
+      }
+      default -> {
+        return ex.getMessage();
+      }
+    }
+  }
+
+  static String getRequestDetails(HttpServletRequest request) {
+    return "%s %s".formatted(request.getMethod(), request.getRequestURI());
+  }
+}

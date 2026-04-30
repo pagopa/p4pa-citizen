@@ -9,11 +9,17 @@ spring:
   threads:
     virtual:
       enabled: true
+
 management:
   info:
     build.enabled: true
     java.enabled: true
     git.enabled: true
+  otlp.metrics.export.enabled: "\${TRACING_EXPORT:false}"
+  tracing:
+    sampling.probability: "\${TRACING_SAMPLING_PROBABILITY:1.0}"
+    baggage.remote-fields:
+      - X-user-id
   observations:
     http.server:
       filter.order: -100
@@ -55,13 +61,22 @@ logging:
     it.gov.pagopa: "\${LOG_LEVEL_PAGOPA:INFO}"
     org.springframework: "\${LOG_LEVEL_SPRING:INFO}"
     org.springframework.boot.availability: "\${LOG_LEVEL_SPRING_BOOT_AVAILABILITY:DEBUG}"
-    it.gov.pagopa.template.exception.ControllerExceptionHandler: "\${LOGGING_LEVEL_API_REQUEST_EXCEPTION:INFO}"
+    it.gov.pagopa.pu.citizen.exception.ControllerExceptionHandler: "\${LOGGING_LEVEL_API_REQUEST_EXCEPTION:INFO}"
     org.springdoc.core.utils.SpringDocAnnotationsUtils: "\${LOG_LEVEL_SPRING_DOC:ERROR}"
     PERFORMANCE_LOG: "\${LOG_LEVEL_PERFORMANCE_LOG:INFO}"
     PERFORMANCE_LOG.API_REQUEST: "\${LOG_LEVEL_PERFORMANCE_LOG_API_REQUEST:\${logging.level.PERFORMANCE_LOG}}"
     PERFORMANCE_LOG.REST_INVOKE: "\${LOG_LEVEL_PERFORMANCE_LOG_REST_INVOKE:\${logging.level.PERFORMANCE_LOG}}"
 
+springdoc:
+  api-docs.version: openapi_3_0
+  writer-with-default-pretty-printer: true
+
+spontaneous:
+  expiration-days: "\${SPONTANEOUS_EXPIRATION_DAYS:1}"
+
 rest:
+  page:
+    request-max-page-size: "\${REST_PAGE_REQUEST_MAX_PAGE_SIZE:100}"
   defaults:
     connection-pool:
       size: "\${DEFAULT_REST_CONNECTION_POOL_SIZE:10}"
@@ -70,3 +85,34 @@ rest:
     timeout:
       connect-millis: "\${DEFAULT_REST_TIMEOUT_CONNECT_MILLIS:120000}"
       read-millis: "\${DEFAULT_REST_TIMEOUT_READ_MILLIS:120000}"
+  auth:
+    base-url: "\${AUTH_SERVER_BASE_URL:}/payhub"
+    max-attempts: "\${AUTH_MAX_ATTEMPTS:3}" # It's counting also the first attempt
+    wait-time-millis: "\${AUTH_WAIT_TIME_MILLIS:500}"
+    print-body-when-error: "\${AUTH_PRINT_BODY_WHEN_ERROR:true}"
+    post-token:
+      client_secret: "\${P4PA_AUTH_CLIENT_SECRET:clientsecret}"
+  debt-positions:
+    base-url: "\${DEBT_POSITIONS_BASE_URL:}"
+    max-attempts: "\${DEBT_POSITIONS_MAX_ATTEMPTS:3}" # It's counting also the first attempt
+    wait-time-millis: "\${DEBT_POSITIONS_WAIT_TIME_MILLIS:500}"
+    print-body-when-error: "\${DEBT_POSITIONS_PRINT_BODY_WHEN_ERROR:true}"
+  organization:
+    base-url: "\${ORGANIZATION_BASE_URL:}"
+    max-attempts: "\${ORGANIZATION_MAX_ATTEMPTS:3}" # It's counting also the first attempt
+    wait-time-millis: "\${ORGANIZATION_WAIT_TIME_MILLIS:500}"
+    print-body-when-error: "\${ORGANIZATION_PRINT_BODY_WHEN_ERROR:true}"
+  pagopa-payments:
+    base-url: "\${PAGOPA_PAYMENTS_BASE_URL:}"
+    max-attempts: "\${PAGOPA_PAYMENTS_MAX_ATTEMPTS:3}" # It's counting also the first attempt
+    wait-time-millis: "\${PAGOPA_PAYMENTS_WAIT_TIME_MILLIS:500}"
+    print-body-when-error: "\${PAGOPA_PAYMENTS_PRINT_BODY_WHEN_ERROR:true}"
+  cie:
+    base-url: "\${CIE_BASE_URL:}"
+    max-attempts: "\${CIE_MAX_ATTEMPTS:3}" # It's counting also the first attempt
+    wait-time-millis: "\${CIE_WAIT_TIME_MILLIS:500}"
+    print-body-when-error: "\${CIE_PRINT_BODY_WHEN_ERROR:true}"
+
+cie:
+  organization:
+    fiscal-code: "\${CIE_ORGANIZATION_FISCAL_CODE:}"

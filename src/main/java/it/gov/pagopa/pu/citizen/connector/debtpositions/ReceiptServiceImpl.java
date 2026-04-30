@@ -1,0 +1,57 @@
+package it.gov.pagopa.pu.citizen.connector.debtpositions;
+
+import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptClient;
+import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiSearchClient;
+import it.gov.pagopa.pu.citizen.connector.debtpositions.client.ReceiptNoPiiViewSearchClient;
+import it.gov.pagopa.pu.citizen.dto.DebtorReceiptsFiltersDTO;
+import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
+import it.gov.pagopa.pu.debtpositions.dto.generated.*;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Set;
+
+@Service
+public class ReceiptServiceImpl implements ReceiptService {
+
+  private final ReceiptNoPiiViewSearchClient receiptNoPiiViewSearchClient;
+  private final ReceiptClient receiptClient;
+  private final ReceiptNoPiiSearchClient receiptNoPiiSearchClient;
+
+  public ReceiptServiceImpl(ReceiptNoPiiViewSearchClient receiptNoPiiViewSearchClient, ReceiptClient receiptClient, ReceiptNoPiiSearchClient receiptNoPiiSearchClient) {
+    this.receiptNoPiiViewSearchClient = receiptNoPiiViewSearchClient;
+    this.receiptClient = receiptClient;
+    this.receiptNoPiiSearchClient = receiptNoPiiSearchClient;
+  }
+
+  @Override
+  public PagedModelReceiptNoPIIView getPagedModelReceiptNoPIIView(DebtorReceiptsFiltersDTO debtorReceiptsFiltersDTO, Pageable pageable, String accessToken) {
+    return receiptNoPiiViewSearchClient.getPagedModelReceiptNoPIIView(debtorReceiptsFiltersDTO, pageable, accessToken);
+  }
+
+  @Override
+  public ReceiptDetailDTO getReceiptDetail(Long receiptId, Long organizationId, String accessToken) {
+    return receiptClient.getReceiptDetail(receiptId,organizationId,accessToken);
+  }
+
+  @Override
+  public boolean isReceiptDebtorValid(Long receiptId, Long organizationId, String debtorFiscalCode, String accessToken) {
+    return receiptNoPiiSearchClient.validateReceiptDebtor(receiptId, organizationId, debtorFiscalCode, accessToken) >= 1L;
+  }
+
+  @Override
+  public FileResourceDTO getReceiptPdf(Long receiptId, Long organizationId, String accessToken) {
+    return receiptClient.getReceiptPdf(receiptId, organizationId, accessToken);
+  }
+
+  @Override
+  public List<ReceiptNoPIIView> getDebtorReceipts(String debtorFiscalCode, Long organizationId, Long debtPositionId, Long paymentOptionId, List<ReceiptOriginType> receiptOrigins, List<InstallmentStatus> installmentStatuses, String accessToken) {
+    return receiptNoPiiViewSearchClient.getDebtorReceipts(debtorFiscalCode, organizationId, debtPositionId, paymentOptionId, receiptOrigins, installmentStatuses, accessToken);
+  }
+
+  @Override
+  public List<ReceiptNoPII> getReceiptNoPiiList(Set<Long> receiptIds, String accessToken) {
+    return receiptNoPiiSearchClient.getReceiptNoPiiList(receiptIds, accessToken);
+  }
+}

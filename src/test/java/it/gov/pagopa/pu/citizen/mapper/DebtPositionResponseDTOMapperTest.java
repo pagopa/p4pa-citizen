@@ -1,0 +1,207 @@
+package it.gov.pagopa.pu.citizen.mapper;
+
+import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
+import it.gov.pagopa.pu.citizen.utils.TestUtils;
+import it.gov.pagopa.pu.debtpositions.dto.generated.*;
+import it.gov.pagopa.pu.organization.dto.generated.Organization;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
+import uk.co.jemos.podam.api.PodamFactory;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class DebtPositionResponseDTOMapperTest {
+
+  private final DebtPositionResponseDTOMapper mapper = Mappers.getMapper(DebtPositionResponseDTOMapper.class);
+  private final PodamFactory podamFactory = TestUtils.getPodamFactory();
+
+  @Test
+  void givenDebtPositionTypeOrgAndSpontaneousFormWhenMapThenFieldsAreMappedCorrectly() {
+    // given
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    DebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTO.class);
+
+    PaymentOptionDTO paymentOption = new PaymentOptionDTO();
+    InstallmentDTO installment = new InstallmentDTO();
+    installment.setInstallmentId(1L);
+    installment.setAmountCents(100L);
+    installment.setDueDate(LocalDate.now().plusDays(5));
+    paymentOption.setInstallments(java.util.List.of(installment));
+    debtPositionDTO.setPaymentOptions(java.util.List.of(paymentOption));
+    PostalIbanVerifyResponse postalIbanVerifyResponse = new PostalIbanVerifyResponse();
+    postalIbanVerifyResponse.setInstallmentPostalIbanCheck(Map.of("1", false));
+
+
+    // when
+    DebtPositionResponseDTO result = mapper.map(debtPositionDTO, organization, false, postalIbanVerifyResponse);
+
+    // then
+    assertNotNull(result);
+    assertEquals(debtPositionDTO.getDebtPositionId(), result.getDebtPositionId());
+    assertEquals(organization.getOrganizationId(), result.getOrganizationId());
+    assertEquals(organization.getOrgFiscalCode(), result.getOrgFiscalCode());
+    assertEquals(organization.getOrgName(), result.getOrgName());
+
+    assertNotNull(result.getPaymentDetails());
+    assertEquals(installment.getAmountCents(), result.getPaymentDetails().getAmountCents());
+    assertEquals(installment.getDueDate(), result.getPaymentDetails().getDueDate());
+    assertEquals(Boolean.FALSE, result.getPaymentDetails().getAllCCP());
+    TestUtils.checkNotNullFields(result);
+  }
+
+  @Test
+  void givenDebtPositionWithEmptyPaymentOptionsWhenMapThenPaymentDetailsIsNull() {
+    // given
+    DebtPositionDTO debtPositionDTO = new DebtPositionDTO();
+    debtPositionDTO.setPaymentOptions(java.util.Collections.emptyList());
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+
+    // when
+    DebtPositionResponseDTO result = mapper.map(debtPositionDTO, organization, false, null);
+
+    // then
+    assertNotNull(result);
+    assertNull(result.getPaymentDetails());
+  }
+
+  @Test
+  void givenPaymentOptionWithNoInstallmentsWhenMapThenPaymentDetailsIsNull() {
+    // given
+    PaymentOptionDTO paymentOption = new PaymentOptionDTO();
+    paymentOption.setInstallments(java.util.Collections.emptyList());
+
+    DebtPositionDTO debtPositionDTO = new DebtPositionDTO();
+    debtPositionDTO.setPaymentOptions(java.util.List.of(paymentOption));
+
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+
+    // when
+    DebtPositionResponseDTO result = mapper.map(debtPositionDTO, organization, false, null);
+
+    // then
+    assertNotNull(result);
+    assertNull(result.getPaymentDetails());
+  }
+
+  @Test
+  void givenNullDebtPositionWhenMapThenPaymentDetailsIsNullButOrganizationMapped() {
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+
+    DebtPositionResponseDTO result = mapper.map(null, organization, false, null);
+
+    assertNotNull(result);
+    assertEquals(organization.getOrganizationId(), result.getOrganizationId());
+    assertEquals(organization.getOrgFiscalCode(), result.getOrgFiscalCode());
+    assertEquals(organization.getOrgName(), result.getOrgName());
+    assertNull(result.getPaymentDetails());
+  }
+
+  @Test
+  void givenDelegateWhenMapThenOk() {
+    DebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTO.class);
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+
+    PaymentOptionDTO paymentOption = new PaymentOptionDTO();
+    InstallmentDTO installment = new InstallmentDTO();
+    installment.setAmountCents(100L);
+    installment.setDueDate(LocalDate.now().plusDays(5));
+    TransferDTO transfer = podamFactory.manufacturePojo(TransferDTO.class);
+    transfer.setFlagOwner(true);
+    installment.setTransfers(List.of(transfer));
+    paymentOption.setInstallments(java.util.List.of(installment));
+    debtPositionDTO.setPaymentOptions(java.util.List.of(paymentOption));
+    PostalIbanVerifyResponse postalIbanVerifyResponse = new PostalIbanVerifyResponse();
+    postalIbanVerifyResponse.setInstallmentPostalIbanCheck(Map.of(String.valueOf(installment.getInstallmentId()), false));
+
+    DebtPositionResponseDTO result = mapper.map(debtPositionDTO, organization, true, postalIbanVerifyResponse);
+
+    assertNotNull(result);
+    assertEquals(debtPositionDTO.getDebtPositionId(), result.getDebtPositionId());
+    assertEquals(organization.getOrganizationId(), result.getOrganizationId());
+    assertEquals(transfer.getOrgFiscalCode(), result.getOrgFiscalCode());
+    assertEquals(transfer.getOrgName(), result.getOrgName());
+
+    assertNotNull(result.getPaymentDetails());
+    assertEquals(installment.getAmountCents(), result.getPaymentDetails().getAmountCents());
+    assertEquals(installment.getDueDate(), result.getPaymentDetails().getDueDate());
+    assertEquals(Boolean.FALSE, result.getPaymentDetails().getAllCCP());
+    TestUtils.checkNotNullFields(result);
+  }
+
+  @Test
+  void givenDelegateAndNoFlagOwnerWhenMapThenIllegalStateException() {
+    DebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTO.class);
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+
+    PaymentOptionDTO paymentOption = new PaymentOptionDTO();
+    InstallmentDTO installment = new InstallmentDTO();
+    installment.setAmountCents(100L);
+    installment.setDueDate(LocalDate.now().plusDays(5));
+    TransferDTO transfer = podamFactory.manufacturePojo(TransferDTO.class);
+    transfer.setFlagOwner(false);
+    installment.setTransfers(List.of(transfer));
+    paymentOption.setInstallments(java.util.List.of(installment));
+    debtPositionDTO.setPaymentOptions(java.util.List.of(paymentOption));
+
+    Assertions.assertThrows(IllegalStateException.class, ()->mapper.map(debtPositionDTO, organization, true, null));
+  }
+
+  @Test
+  void givenDelegateAndNoTransferWhenMapThenIllegalStateException() {
+    DebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTO.class);
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+
+    PaymentOptionDTO paymentOption = new PaymentOptionDTO();
+    InstallmentDTO installment = new InstallmentDTO();
+    installment.setAmountCents(100L);
+    installment.setDueDate(LocalDate.now().plusDays(5));
+    installment.setTransfers(Collections.emptyList());
+    paymentOption.setInstallments(java.util.List.of(installment));
+    debtPositionDTO.setPaymentOptions(java.util.List.of(paymentOption));
+
+    Assertions.assertThrows(IllegalStateException.class, ()->mapper.map(debtPositionDTO, organization, true, null));
+  }
+
+  @Test
+  void givenDelegateAndNoInstallmentWhenMapThenIllegalStateException() {
+    DebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTO.class);
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+
+    PaymentOptionDTO paymentOption = new PaymentOptionDTO();
+    paymentOption.setInstallments(Collections.emptyList());
+    debtPositionDTO.setPaymentOptions(java.util.List.of(paymentOption));
+
+    Assertions.assertThrows(IllegalStateException.class, ()->mapper.map(debtPositionDTO, organization, true, null));
+  }
+
+  @Test
+  void givenNullPostalIbanVerifyResponseWhenMapThenFieldsAreMappedCorrectly() {
+    // given
+    Organization organization = podamFactory.manufacturePojo(Organization.class);
+    DebtPositionDTO debtPositionDTO = podamFactory.manufacturePojo(DebtPositionDTO.class);
+
+    PaymentOptionDTO paymentOption = new PaymentOptionDTO();
+    InstallmentDTO installment = new InstallmentDTO();
+    installment.setInstallmentId(1L);
+    installment.setAmountCents(100L);
+    installment.setDueDate(LocalDate.now().plusDays(5));
+    paymentOption.setInstallments(java.util.List.of(installment));
+    debtPositionDTO.setPaymentOptions(java.util.List.of(paymentOption));
+
+    // when
+    DebtPositionResponseDTO result = mapper.map(debtPositionDTO, organization, false, null);
+
+    // then
+    assertNotNull(result);
+    assertNull(result.getPaymentDetails().getAllCCP());
+
+    TestUtils.checkNotNullFields(result, "allCCP");
+  }
+}
+
