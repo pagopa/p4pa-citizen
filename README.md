@@ -18,6 +18,7 @@ See [OpenAPI](openapi/generated.openapi.json), exposed through the following pat
 See [Postman collection](/postman/p4pa-citizen.postman_collection.json) and [Postman Environment](https://pagopa.atlassian.net/wiki/spaces/SPAC/pages/1094615081/Environment+collection+postman).
 
 ### 📌 Common HTTP status returned:
+* `200`: Successful operation;
 * `401`: Invalid access token provided, thus a new login is required;
 * `403`: Trying to access a not authorized resource.
 
