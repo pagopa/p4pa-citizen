@@ -1,12 +1,13 @@
 package it.gov.pagopa.pu.citizen.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.exception.ZipFileException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -15,11 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class ZipFileServiceTest {
 
@@ -28,8 +26,9 @@ class ZipFileServiceTest {
   private ZipFileService zipFileService;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws IOException {
     zipFileService = new ZipFileService();
+    Files.createDirectories(tempDir);
   }
 
   @Test
