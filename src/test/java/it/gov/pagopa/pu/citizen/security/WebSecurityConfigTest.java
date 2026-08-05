@@ -1,5 +1,6 @@
 package it.gov.pagopa.pu.citizen.security;
 
+import io.micrometer.tracing.Tracer;
 import it.gov.pagopa.pu.citizen.controller.OrganizationController;
 import it.gov.pagopa.pu.citizen.mapper.UpstreamErrorMapper;
 import it.gov.pagopa.pu.citizen.service.AuthorizationService;
@@ -26,12 +27,12 @@ class WebSecurityConfigTest {
 
   @MockitoBean
   private UpstreamErrorMapper upstreamErrorMapperMock;
-
   @MockitoBean
   private OrganizationRetrieverService organizationRetrieverService;
-
   @MockitoBean
   private AuthorizationService authorizationServiceMock;
+  @MockitoBean
+  private Tracer tracerMock;
 
   @Test
   void givenURLWhenWithoutAccessTokenThenReturn403() throws Exception {

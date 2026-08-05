@@ -8,4 +8,8 @@ public class Utilities {
     public static String getTraceId(){
         return MDC.get("traceId");
     }
+
+    public static String getSpanId(){
+      return MDC.get("spanId");
+    }
 }
