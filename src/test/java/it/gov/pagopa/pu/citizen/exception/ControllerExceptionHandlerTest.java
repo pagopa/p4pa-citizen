@@ -11,25 +11,27 @@ class ControllerExceptionHandlerTest extends CommonExceptionHandlerTest {
 
   @Test
   void handleZipFileException() throws Exception {
-    doThrow(new ZipFileException("ZIPPING_ERROR","Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+    doThrow(new ZipFileException("ZIPPING_ERROR", "Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
       .andExpect(MockMvcResultMatchers.status().isInternalServerError())
       .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("GENERIC_ERROR"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("ZIPPING_ERROR"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.fields").doesNotExist())
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
   @Test
   void handleInvalidParamException() throws Exception {
-    doThrow(new InvalidParamException("INVALID_PARAM","Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
+    doThrow(new InvalidParamException("INVALID_PARAM", "Error")).when(testControllerSpy).testEndpoint(DATA, BODY);
 
     performRequest(DATA, MediaType.APPLICATION_JSON)
-        .andExpect(MockMvcResultMatchers.status().isBadRequest())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("BAD_REQUEST"))
+      .andExpect(MockMvcResultMatchers.status().isBadRequest())
+      .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("BAD_REQUEST"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("INVALID_PARAM"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.fields").doesNotExist())
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -42,6 +44,7 @@ class ControllerExceptionHandlerTest extends CommonExceptionHandlerTest {
       .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("BAD_REQUEST"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("INVALID_ACCESS_TOKEN"))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.fields").doesNotExist())
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 
@@ -68,6 +71,7 @@ class ControllerExceptionHandlerTest extends CommonExceptionHandlerTest {
       .andExpect(MockMvcResultMatchers.jsonPath("$.category").value("BAD_REQUEST"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Error"))
       .andExpect(MockMvcResultMatchers.jsonPath("$.code").value(errorCode))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.fields").doesNotExist())
       .andExpect(MockMvcResultMatchers.jsonPath("$.traceId").value(traceId));
   }
 }
