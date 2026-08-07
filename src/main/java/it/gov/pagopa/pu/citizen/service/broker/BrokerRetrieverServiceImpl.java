@@ -5,7 +5,7 @@ import it.gov.pagopa.pu.citizen.connector.organization.BrokerService;
 import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
 import it.gov.pagopa.pu.citizen.dto.generated.BrokerInfoDTO;
 import it.gov.pagopa.pu.citizen.exception.InvalidParamException;
-import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
+import it.gov.pagopa.pu.citizen.exception.common.NotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.BrokerInfoDTOMapper;
 import it.gov.pagopa.pu.organization.dto.generated.Broker;
 import it.gov.pagopa.pu.organization.dto.generated.BrokerConfiguration;
@@ -39,12 +39,12 @@ public class BrokerRetrieverServiceImpl implements BrokerRetrieverService {
     }
 
     if(Objects.isNull(broker)){
-      throw new ResourceNotFoundException("BROKER_NOT_FOUND","Broker having id "+brokerId+" or " + externalId + "not found");
+      throw new NotFoundException("BROKER_NOT_FOUND","Broker having id "+brokerId+" or " + externalId + "not found");
     }
 
     brokerConfiguration = brokerConfigurationService.getBrokerConfiguration(broker.getBrokerId(), accessToken);
     if(Objects.isNull(brokerConfiguration)) {
-      throw new ResourceNotFoundException("BROKER_CONFIGURATION_NOT_FOUND","Broker configuration having broker id "+brokerId+"not found");
+      throw new NotFoundException("BROKER_CONFIGURATION_NOT_FOUND","Broker configuration having broker id "+brokerId+"not found");
     }
 
     return brokerInfoDTOMapper.map(organizationService.getBrokerOrganization(broker.getBrokerId(),accessToken), broker.getExternalId(), brokerConfiguration);

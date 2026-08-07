@@ -7,7 +7,7 @@ import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.ReceiptDetailExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorReceiptDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
-import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
+import it.gov.pagopa.pu.citizen.exception.common.NotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.PagedDebtorReceiptsDTOMapper;
 import it.gov.pagopa.pu.citizen.mapper.ReceiptDetailExtendedMapper;
 import it.gov.pagopa.pu.citizen.service.organization.BrokerOrganizationsRetrieverService;
@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 
 import static it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptOriginType.RECEIPT_PAGOPA;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ReceiptFacadeServiceImplTest {
@@ -88,9 +89,9 @@ class ReceiptFacadeServiceImplTest {
     PagedModelReceiptNoPIIView pagedModelReceiptNoPIIView = podamFactory.manufacturePojo(PagedModelReceiptNoPIIView.class);
     PagedDebtorReceiptsDTO expectedResult = podamFactory.manufacturePojo(PagedDebtorReceiptsDTO.class);
 
-    Mockito.when(brokerOrganizationsRetrieverServiceMock.getAllOrganizationsByBrokerIdAndOrgName(brokerId, orgName, accessToken)).thenReturn(organizations);
-    Mockito.when(receiptServiceMock.getPagedModelReceiptNoPIIView(debtorReceiptsFiltersDTO, null, accessToken)).thenReturn(pagedModelReceiptNoPIIView);
-    Mockito.when(pagedDebtorReceiptsDTOMapperMock.map(organizationMap, pagedModelReceiptNoPIIView)).thenReturn(expectedResult);
+    when(brokerOrganizationsRetrieverServiceMock.getAllOrganizationsByBrokerIdAndOrgName(brokerId, orgName, accessToken)).thenReturn(organizations);
+    when(receiptServiceMock.getPagedModelReceiptNoPIIView(debtorReceiptsFiltersDTO, null, accessToken)).thenReturn(pagedModelReceiptNoPIIView);
+    when(pagedDebtorReceiptsDTOMapperMock.map(organizationMap, pagedModelReceiptNoPIIView)).thenReturn(expectedResult);
     //when
 
     PagedDebtorReceiptsDTO result = receiptFacadeService.getPagedDebtorReceipts(brokerId, orgName, debtorReceiptsFiltersDTO, accessToken, null);
@@ -102,7 +103,7 @@ class ReceiptFacadeServiceImplTest {
   }
 
   @Test
-  void givenEmptyListWhenGetPagedDebtorReceiptsThenThrowResourceNotFoundException() {
+  void givenEmptyListWhenGetPagedDebtorReceiptsThenThrowNotFoundException() {
     //given
     Long brokerId = 1L;
     String orgName = "orgName";
@@ -118,10 +119,10 @@ class ReceiptFacadeServiceImplTest {
       .paymentDateTimeFrom(paymentDateTimeFrom)
       .build();
 
-    Mockito.when(brokerOrganizationsRetrieverServiceMock.getAllOrganizationsByBrokerIdAndOrgName(brokerId, orgName, accessToken)).thenReturn(Collections.emptyList());
+    when(brokerOrganizationsRetrieverServiceMock.getAllOrganizationsByBrokerIdAndOrgName(brokerId, orgName, accessToken)).thenReturn(Collections.emptyList());
     //when
 
-    assertThrows(ResourceNotFoundException.class, () -> receiptFacadeService.getPagedDebtorReceipts(brokerId, orgName, debtorReceiptsFiltersDTO, accessToken, null));
+    assertThrows(NotFoundException.class, () -> receiptFacadeService.getPagedDebtorReceipts(brokerId, orgName, debtorReceiptsFiltersDTO, accessToken, null));
     Mockito.verifyNoInteractions(receiptServiceMock, pagedDebtorReceiptsDTOMapperMock);
   }
 
@@ -141,9 +142,9 @@ class ReceiptFacadeServiceImplTest {
     ReceiptDetailExtendedDTO expectedResult = podamFactory.manufacturePojo(ReceiptDetailExtendedDTO.class);
     expectedResult.getDebtor().setFiscalCode(fiscalCode);
 
-    Mockito.when(organizationRetrieverServiceMock.getValidOrganization(organizationId, brokerId, accessToken)).thenReturn(organization);
-    Mockito.when(receiptServiceMock.getReceiptDetail(receiptId,organizationId,accessToken)).thenReturn(receiptDetailDTO);
-    Mockito.when(receiptDetailExtendedMapperMock.map(organization, receiptDetailDTO)).thenReturn(expectedResult);
+    when(organizationRetrieverServiceMock.getValidOrganization(organizationId, brokerId, accessToken)).thenReturn(organization);
+    when(receiptServiceMock.getReceiptDetail(receiptId,organizationId,accessToken)).thenReturn(receiptDetailDTO);
+    when(receiptDetailExtendedMapperMock.map(organization, receiptDetailDTO)).thenReturn(expectedResult);
 
     ReceiptDetailExtendedDTO result = receiptFacadeService.getReceiptDetail(fiscalCode,brokerId,organizationId,receiptId, accessToken);
 
@@ -161,7 +162,7 @@ class ReceiptFacadeServiceImplTest {
     Long receiptId = 3L;
     String fiscalCode = "fiscalCode";
 
-    Mockito.when(receiptServiceMock.getReceiptDetail(receiptId,organizationId,accessToken)).thenReturn(null);
+    when(receiptServiceMock.getReceiptDetail(receiptId,organizationId,accessToken)).thenReturn(null);
 
     ReceiptDetailExtendedDTO result = receiptFacadeService.getReceiptDetail(fiscalCode,brokerId,organizationId,receiptId, accessToken);
 
@@ -182,7 +183,7 @@ class ReceiptFacadeServiceImplTest {
     ReceiptDetailDTO expectedResult = podamFactory.manufacturePojo(ReceiptDetailDTO.class);
     expectedResult.getDebtor().setFiscalCode(fiscalCode+"1");
 
-    Mockito.when(receiptServiceMock.getReceiptDetail(receiptId,organizationId,accessToken)).thenReturn(expectedResult);
+    when(receiptServiceMock.getReceiptDetail(receiptId,organizationId,accessToken)).thenReturn(expectedResult);
 
     assertThrows(AuthorizationDeniedException.class,() -> receiptFacadeService.getReceiptDetail(fiscalCode,brokerId,organizationId,receiptId, accessToken));
   }
@@ -200,9 +201,9 @@ class ReceiptFacadeServiceImplTest {
     FileResourceDTO expectedResult = new FileResourceDTO(resource, "filename");
 
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
-    Mockito.when(receiptServiceMock.isReceiptDebtorValid(receiptId,organizationId,debtorFiscalCode,accessToken))
+    when(receiptServiceMock.isReceiptDebtorValid(receiptId,organizationId,debtorFiscalCode,accessToken))
       .thenReturn(true);
-    Mockito.when(receiptServiceMock.getReceiptPdf(receiptId,organizationId,accessToken)).thenReturn(expectedResult);
+    when(receiptServiceMock.getReceiptPdf(receiptId,organizationId,accessToken)).thenReturn(expectedResult);
 
     FileResourceDTO result = receiptFacadeService.getReceiptPdf(debtorFiscalCode,brokerId,organizationId,receiptId,accessToken);
 
@@ -221,7 +222,7 @@ class ReceiptFacadeServiceImplTest {
     String debtorFiscalCode = "debtorFiscalCode";
 
     Mockito.doNothing().when(organizationRetrieverServiceMock).validateOrganization(organizationId, brokerId, accessToken);
-    Mockito.when(receiptServiceMock.isReceiptDebtorValid(receiptId,organizationId,debtorFiscalCode,accessToken))
+    when(receiptServiceMock.isReceiptDebtorValid(receiptId,organizationId,debtorFiscalCode,accessToken))
       .thenReturn(false);
 
     FileResourceDTO result = receiptFacadeService.getReceiptPdf(debtorFiscalCode,brokerId,organizationId,receiptId,accessToken);
@@ -244,11 +245,11 @@ class ReceiptFacadeServiceImplTest {
     List<ReceiptNoPIIView> receipts = podamFactory.manufacturePojo(List.class, ReceiptNoPIIView.class);
     List<DebtorReceiptDTO> expectedResult = podamFactory.manufacturePojo(List.class, ReceiptDetailExtendedDTO.class);
 
-    Mockito.when(organizationRetrieverServiceMock.getValidOrganization(organizationId, brokerId, accessToken)).thenReturn(organization);
-    Mockito.when(receiptServiceMock.getDebtorReceipts(debtorFiscalCode,organizationId,debtPositionId,paymentOptionId,
+    when(organizationRetrieverServiceMock.getValidOrganization(organizationId, brokerId, accessToken)).thenReturn(organization);
+    when(receiptServiceMock.getDebtorReceipts(debtorFiscalCode,organizationId,debtPositionId,paymentOptionId,
       List.of(RECEIPT_PAGOPA),List.of(InstallmentStatus.PAID,InstallmentStatus.REPORTED),accessToken))
       .thenReturn(receipts);
-    Mockito.when(pagedDebtorReceiptsDTOMapperMock.sortedMapReceiptNoPIIViewWithOrganization(Map.of(organization.getOrgFiscalCode(),organization), receipts))
+    when(pagedDebtorReceiptsDTOMapperMock.sortedMapReceiptNoPIIViewWithOrganization(Map.of(organization.getOrgFiscalCode(),organization), receipts))
       .thenReturn(expectedResult);
 
     List<DebtorReceiptDTO> result = receiptFacadeService.getDebtorReceipts(debtorFiscalCode,brokerId,organizationId,debtPositionId,paymentOptionId,accessToken);

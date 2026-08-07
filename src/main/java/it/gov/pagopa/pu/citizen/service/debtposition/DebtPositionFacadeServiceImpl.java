@@ -9,8 +9,8 @@ import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionRequestDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionResponseDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionOverviewDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorDebtPositionDTO;
-import it.gov.pagopa.pu.citizen.exception.ConflictException;
-import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
+import it.gov.pagopa.pu.citizen.exception.common.ConflictException;
+import it.gov.pagopa.pu.citizen.exception.common.NotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.*;
 import it.gov.pagopa.pu.citizen.service.ZipFileService;
 import it.gov.pagopa.pu.citizen.service.debtposition.cie.CieDebtPositionFacadeService;
@@ -223,7 +223,7 @@ public class DebtPositionFacadeServiceImpl implements DebtPositionFacadeService 
   private Map<Long,Organization> retrieveOrganizations(Long brokerId, String orgName, String orgFiscalCode, String accessToken){
     List<Organization> organizations = brokerOrganizationsRetrieverService.getAllOrganizationsByBrokerIdAndOrgNameAndOrgFiscalCode(brokerId, orgName, orgFiscalCode, accessToken);
     if (organizations.isEmpty()){
-      throw new ResourceNotFoundException("ORGANIZATION_NOT_FOUND", "Organizations not found with brokerId %s orgName %s and orgFiscalCode %s".formatted(brokerId, orgName, orgFiscalCode));
+      throw new NotFoundException("ORGANIZATION_NOT_FOUND", "Organizations not found with brokerId %s orgName %s and orgFiscalCode %s".formatted(brokerId, orgName, orgFiscalCode));
     }
 
     return organizations.stream()
