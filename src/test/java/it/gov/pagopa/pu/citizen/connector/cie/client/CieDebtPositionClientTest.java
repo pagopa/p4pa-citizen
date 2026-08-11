@@ -1,9 +1,10 @@
 package it.gov.pagopa.pu.citizen.connector.cie.client;
 
-import it.gov.pagopa.pu.cie.controller.generated.DebtPositionCieApi;
+import it.gov.pagopa.pu.cie.client.generated.DebtPositionCieApi;
 import it.gov.pagopa.pu.cie.dto.generated.DebtPositionCieRequestDTO;
 import it.gov.pagopa.pu.citizen.connector.cie.config.CieApisHolder;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
+import it.gov.pagopa.pu.citizen.exception.common.RestInvokeNotFoundException;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import org.junit.jupiter.api.AfterEach;
@@ -20,7 +21,6 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import static org.mockito.Mockito.when;
@@ -99,7 +99,7 @@ class CieDebtPositionClientTest {
     when(cieApisHolderMock.getDebtPositionCieApi(accessToken))
       .thenReturn(debtPositionCieApiMock);
     when(debtPositionCieApiMock.generateNoticeCieWithHttpInfo(nav,debtorFiscalCode))
-      .thenThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, "NotFound", null, null, null));
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
 
     FileResourceDTO response = cieDebtPositionClient.generateNoticeCie(nav,debtorFiscalCode,accessToken);
 

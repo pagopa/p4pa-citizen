@@ -1,10 +1,10 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions.client;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.config.DebtPositionsApisHolder;
+import it.gov.pagopa.pu.citizen.exception.common.RestInvokeNotFoundException;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrg;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 
 @Slf4j
 @Service
@@ -20,7 +20,7 @@ public class DebtPositionTypeOrgEntityClient {
     try {
       return debtPositionsApisHolder.getDebtPositionTypeOrgEntityControllerApi(accessToken)
         .crudGetDebtpositiontypeorg(String.valueOf(debtPositionTypeOrgId));
-    } catch (HttpClientErrorException.NotFound e) {
+    } catch (RestInvokeNotFoundException e) {
       log.warn("DebtPositionTypeOrg with debtPositionTypeOrgId {} not found", debtPositionTypeOrgId);
       return null;
     }

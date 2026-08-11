@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.connector.cie.config;
 
 import it.gov.pagopa.pu.cie.dto.generated.DebtPositionCieRequestDTO;
+import it.gov.pagopa.pu.citizen.config.json.JsonConfig;
 import it.gov.pagopa.pu.citizen.connector.BaseApiHolderTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,37 +14,54 @@ import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 class CieApisHolderTest extends BaseApiHolderTest {
-    @Mock
-    private RestTemplateBuilder restTemplateBuilderMock;
+  @Mock
+  private RestTemplateBuilder restTemplateBuilderMock;
 
-    private CieApisHolder apisHolder;
+  private CieApisHolder apisHolder;
+  private CieApiClientConfig apiClientConfig;
 
-    @BeforeEach
-    void setUp() {
-        Mockito.when(restTemplateBuilderMock.build()).thenReturn(restTemplateMock);
-        Mockito.when(restTemplateMock.getUriTemplateHandler()).thenReturn(new DefaultUriBuilderFactory());
-        CieApiClientConfig clientConfig = CieApiClientConfig.builder()
-          .baseUrl("http://example.com")
-          .build();
-        apisHolder = new CieApisHolder(clientConfig, restTemplateBuilderMock);
-    }
+  @BeforeEach
+  void setUp() {
+    when(restTemplateBuilderMock.build()).thenReturn(restTemplateMock);
+    when(restTemplateMock.getUriTemplateHandler()).thenReturn(new DefaultUriBuilderFactory());
 
-    @AfterEach
-    void verifyNoMoreInteractions() {
-        Mockito.verifyNoMoreInteractions(
-                restTemplateBuilderMock,
-                restTemplateMock
-        );
-    }
+    apiClientConfig = CieApiClientConfig.builder()
+      .baseUrl("http://example.com")
+      .maxAttempts(3)
+      .build();
+    apisHolder = new CieApisHolder(apiClientConfig, restTemplateBuilderMock, new JsonConfig().objectMapperJackson3());
 
-    @Test
-    void whenGetDebtPositionCieApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
-        assertAuthenticationShouldBeSetInThreadSafeMode(
-                accessToken -> apisHolder.getDebtPositionCieApi(accessToken)
-                        .createDebtPositionCie(new DebtPositionCieRequestDTO()),
-                new ParameterizedTypeReference<>() {},
-                apisHolder::unload);
-    }
+    verifyHttpClientErrorJsonBodyHandlerConfiguration(apisHolder.getDebtPositionCieApi(null));
+  }
+
+  @AfterEach
+  void verifyNoMoreInteractions() {
+    Mockito.verifyNoMoreInteractions(
+      restTemplateBuilderMock,
+      restTemplateMock
+    );
+  }
+
+  @Test
+  void testRetryConfiguration() {
+    assertRetry(apiClientConfig,
+      accessToken -> apisHolder.getDebtPositionCieApi(accessToken)
+        .createDebtPositionCie(new DebtPositionCieRequestDTO()),
+      new ParameterizedTypeReference<>() {}
+    );
+  }
+
+  @Test
+  void whenGetDebtPositionCieApiThenAuthenticationShouldBeSetInThreadSafeMode() throws InterruptedException {
+    assertAuthenticationShouldBeSetInThreadSafeMode(
+      accessToken -> apisHolder.getDebtPositionCieApi(accessToken)
+        .createDebtPositionCie(new DebtPositionCieRequestDTO()),
+      new ParameterizedTypeReference<>() {
+      },
+      apisHolder::unload);
+  }
 }

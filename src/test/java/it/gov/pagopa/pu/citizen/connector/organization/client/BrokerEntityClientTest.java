@@ -1,7 +1,8 @@
 package it.gov.pagopa.pu.citizen.connector.organization.client;
 
 import it.gov.pagopa.pu.citizen.connector.organization.config.OrganizationApisHolder;
-import it.gov.pagopa.pu.organization.controller.generated.BrokerEntityControllerApi;
+import it.gov.pagopa.pu.citizen.exception.common.RestInvokeNotFoundException;
+import it.gov.pagopa.pu.organization.client.generated.BrokerEntityControllerApi;
 import it.gov.pagopa.pu.organization.dto.generated.Broker;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -12,7 +13,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
+
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BrokerEntityClientTest {
@@ -42,9 +44,9 @@ class BrokerEntityClientTest {
     String accessToken = "ACCESSTOKEN";
     Broker expectedResult = new Broker();
 
-    Mockito.when(organizationApisHolder.getBrokerEntityControllerApi(accessToken))
+    when(organizationApisHolder.getBrokerEntityControllerApi(accessToken))
       .thenReturn(brokerEntityControllerApiMock);
-    Mockito.when(brokerEntityControllerApiMock.crudGetBroker(String.valueOf(brokerId)))
+    when(brokerEntityControllerApiMock.crudGetBroker(String.valueOf(brokerId)))
       .thenReturn(expectedResult);
 
     Broker result = brokerEntityClient.getBroker(brokerId, accessToken);
@@ -57,10 +59,10 @@ class BrokerEntityClientTest {
     Long brokerId = 1L;
     String accessToken = "ACCESSTOKEN";
 
-    Mockito.when(organizationApisHolder.getBrokerEntityControllerApi(accessToken))
+    when(organizationApisHolder.getBrokerEntityControllerApi(accessToken))
       .thenReturn(brokerEntityControllerApiMock);
-    Mockito.when(brokerEntityControllerApiMock.crudGetBroker(String.valueOf(brokerId)))
-      .thenThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, "NotFound", null, null, null));
+    when(brokerEntityControllerApiMock.crudGetBroker(String.valueOf(brokerId)))
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
 
     Broker result = brokerEntityClient.getBroker(brokerId, accessToken);
 

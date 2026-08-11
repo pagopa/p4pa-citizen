@@ -1,5 +1,6 @@
 package it.gov.pagopa.pu.citizen.connector.organization.config;
 
+import it.gov.pagopa.pu.citizen.config.json.JsonConfig;
 import it.gov.pagopa.pu.citizen.connector.BaseApiHolderTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,22 +16,29 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import java.util.ArrayList;
 import java.util.Set;
 
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 class OrganizationApisHolderTest extends BaseApiHolderTest {
 
   @Mock
   private RestTemplateBuilder restTemplateBuilderMock;
 
-  OrganizationApisHolder apisHolder;
+  private OrganizationApisHolder apisHolder;
+  private OrganizationApiClientConfig apiClientConfig;
 
   @BeforeEach
   void setUp() {
-    Mockito.when(restTemplateBuilderMock.build()).thenReturn(restTemplateMock);
-    Mockito.when(restTemplateMock.getUriTemplateHandler()).thenReturn(new DefaultUriBuilderFactory());
-    OrganizationApiClientConfig clientConfig = OrganizationApiClientConfig.builder()
+    when(restTemplateBuilderMock.build()).thenReturn(restTemplateMock);
+    when(restTemplateMock.getUriTemplateHandler()).thenReturn(new DefaultUriBuilderFactory());
+
+    apiClientConfig = OrganizationApiClientConfig.builder()
       .baseUrl("http://example.com")
+      .maxAttempts(3)
       .build();
-    apisHolder = new OrganizationApisHolder(clientConfig, restTemplateBuilderMock);
+    apisHolder = new OrganizationApisHolder(apiClientConfig, restTemplateBuilderMock, new JsonConfig().objectMapperJackson3());
+
+    verifyHttpClientErrorJsonBodyHandlerConfiguration(apisHolder.getOrganizationSearchControllerApi(null));
   }
 
   @AfterEach
@@ -38,6 +46,15 @@ class OrganizationApisHolderTest extends BaseApiHolderTest {
     Mockito.verifyNoMoreInteractions(
       restTemplateBuilderMock,
       restTemplateMock
+    );
+  }
+
+  @Test
+  void testRetryConfiguration() {
+    assertRetry(apiClientConfig,
+      accessToken -> apisHolder.getOrganizationSearchControllerApi(accessToken)
+        .crudOrganizationsFindByBrokerIdAndFilters(1L, "orgName", "ipaCode", "orgFiscalCode", Set.of(),1, 1,  new ArrayList<>()),
+      new ParameterizedTypeReference<>() {}
     );
   }
 

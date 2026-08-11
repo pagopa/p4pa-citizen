@@ -2,7 +2,7 @@ package it.gov.pagopa.pu.citizen.connector.debtpositions.client;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.config.DebtPositionsApisHolder;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
-import it.gov.pagopa.pu.debtpositions.controller.generated.ReceiptNoPiiSearchControllerApi;
+import it.gov.pagopa.pu.debtpositions.client.generated.ReceiptNoPiiSearchControllerApi;
 import it.gov.pagopa.pu.debtpositions.dto.generated.CollectionModelReceiptNoPII;
 import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptNoPII;
 import org.junit.jupiter.api.AfterEach;
