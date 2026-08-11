@@ -2,7 +2,8 @@ package it.gov.pagopa.pu.citizen.connector.debtpositions.client;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.config.DebtPositionsApisHolder;
 import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
-import it.gov.pagopa.pu.debtpositions.controller.generated.ReceiptApi;
+import it.gov.pagopa.pu.citizen.exception.common.RestInvokeNotFoundException;
+import it.gov.pagopa.pu.debtpositions.client.generated.ReceiptApi;
 import it.gov.pagopa.pu.debtpositions.dto.generated.ReceiptDetailDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -18,7 +19,6 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.when;
@@ -71,7 +71,7 @@ class ReceiptClientTest {
     when(debtPositionApisHolderMock.getReceiptApi(accessToken))
       .thenReturn(receiptApiMock);
     when(receiptApiMock.getReceiptDetail(receiptId, organizationId, null, null))
-      .thenThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, "NotFound", null, null, null));
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
 
     ReceiptDetailDTO result = receiptClient.getReceiptDetail(receiptId, organizationId, accessToken);
 
@@ -111,7 +111,7 @@ class ReceiptClientTest {
     when(debtPositionApisHolderMock.getReceiptApi(accessToken))
       .thenReturn(receiptApiMock);
     when(receiptApiMock.getReceiptPdfWithHttpInfo(receiptId, organizationId))
-      .thenThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, "NotFound", null, null, null));
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
 
     FileResourceDTO response = receiptClient.getReceiptPdf(receiptId, organizationId, accessToken);
 

@@ -1,10 +1,10 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions.client;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.config.DebtPositionsApisHolder;
+import it.gov.pagopa.pu.citizen.exception.common.RestInvokeNotFoundException;
 import it.gov.pagopa.pu.debtpositions.dto.generated.PostalIbanVerifyResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class TransferSearchClient {
   public PostalIbanVerifyResponse verifyPostalIban(List<Long> installmentIds, String accessToken) {
     try {
       return debtPositionsApisHolder.getTransferApi(accessToken).verifyPostalIban(installmentIds);
-    } catch (HttpClientErrorException.NotFound e) {
+    } catch (RestInvokeNotFoundException e) {
       log.warn("Transfers with following installmentIds {} were not found", installmentIds);
       return null;
     }

@@ -5,7 +5,7 @@ import it.gov.pagopa.pu.citizen.connector.organization.BrokerService;
 import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
 import it.gov.pagopa.pu.citizen.dto.generated.BrokerInfoDTO;
 import it.gov.pagopa.pu.citizen.exception.InvalidParamException;
-import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
+import it.gov.pagopa.pu.citizen.exception.common.NotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.BrokerInfoDTOMapper;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
 import it.gov.pagopa.pu.organization.dto.generated.Broker;
@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BrokerRetrieverServiceImplTest {
@@ -74,16 +75,16 @@ class BrokerRetrieverServiceImplTest {
     Organization organization = podamFactory.manufacturePojo(Organization.class);
     BrokerInfoDTO expectedResult = podamFactory.manufacturePojo(BrokerInfoDTO.class);
 
-    Mockito.when(brokerServiceMock.getBroker(brokerId, accessToken))
+    when(brokerServiceMock.getBroker(brokerId, accessToken))
       .thenReturn(broker);
 
-    Mockito.when(brokerConfigurationServiceMock.getBrokerConfiguration(brokerId, accessToken))
+    when(brokerConfigurationServiceMock.getBrokerConfiguration(brokerId, accessToken))
       .thenReturn(brokerConfiguration);
 
-    Mockito.when(organizationServiceMock.getBrokerOrganization(brokerId, accessToken))
+    when(organizationServiceMock.getBrokerOrganization(brokerId, accessToken))
       .thenReturn(organization);
 
-    Mockito.when(brokerInfoDTOMapperMock.map(organization, broker.getExternalId(), brokerConfiguration))
+    when(brokerInfoDTOMapperMock.map(organization, broker.getExternalId(), brokerConfiguration))
       .thenReturn(expectedResult);
 
     BrokerInfoDTO result =
@@ -91,8 +92,6 @@ class BrokerRetrieverServiceImplTest {
 
     assertNotNull(result);
     assertSame(expectedResult, result);
-
-    Mockito.verify(brokerServiceMock).getBroker(brokerId, accessToken);
   }
 
   @Test
@@ -108,16 +107,16 @@ class BrokerRetrieverServiceImplTest {
     brokerConfiguration.setBrokerId(broker.getBrokerId());
     BrokerInfoDTO expectedResult = podamFactory.manufacturePojo(BrokerInfoDTO.class);
 
-    Mockito.when(brokerServiceMock.getBrokerByExternalId(externalId, accessToken))
+    when(brokerServiceMock.getBrokerByExternalId(externalId, accessToken))
       .thenReturn(broker);
 
-    Mockito.when(organizationServiceMock.getBrokerOrganization(broker.getBrokerId(), accessToken))
+    when(organizationServiceMock.getBrokerOrganization(broker.getBrokerId(), accessToken))
       .thenReturn(organization);
 
-    Mockito.when(brokerConfigurationServiceMock.getBrokerConfiguration(broker.getBrokerId(), accessToken))
+    when(brokerConfigurationServiceMock.getBrokerConfiguration(broker.getBrokerId(), accessToken))
       .thenReturn(brokerConfiguration);
 
-    Mockito.when(brokerInfoDTOMapperMock.map(organization, broker.getExternalId(), brokerConfiguration))
+    when(brokerInfoDTOMapperMock.map(organization, broker.getExternalId(), brokerConfiguration))
       .thenReturn(expectedResult);
 
     BrokerInfoDTO result =
@@ -125,9 +124,6 @@ class BrokerRetrieverServiceImplTest {
 
     assertNotNull(result);
     assertSame(expectedResult, result);
-
-    Mockito.verify(brokerServiceMock)
-      .getBrokerByExternalId(externalId, accessToken);
   }
 
   @Test
@@ -135,16 +131,14 @@ class BrokerRetrieverServiceImplTest {
 
     Long brokerId = 1L;
 
-    Mockito.when(brokerServiceMock.getBroker(brokerId, accessToken))
+    when(brokerServiceMock.getBroker(brokerId, accessToken))
       .thenReturn(null);
 
-    ResourceNotFoundException ex =
-      assertThrows(ResourceNotFoundException.class,
+    NotFoundException ex = assertThrows(NotFoundException.class,
         () -> brokerRetrieverService.getBrokerInfo(brokerId, null, accessToken));
 
     assertEquals("BROKER_NOT_FOUND", ex.getCode());
 
-    Mockito.verify(brokerServiceMock).getBroker(brokerId, accessToken);
     Mockito.verifyNoInteractions(organizationServiceMock, brokerInfoDTOMapperMock);
   }
 
@@ -155,14 +149,14 @@ class BrokerRetrieverServiceImplTest {
     Broker broker = podamFactory.manufacturePojo(Broker.class);
     broker.setBrokerId(brokerId);
 
-    Mockito.when(brokerServiceMock.getBroker(brokerId, accessToken))
+    when(brokerServiceMock.getBroker(brokerId, accessToken))
       .thenReturn(broker);
 
-    Mockito.when(brokerConfigurationServiceMock.getBrokerConfiguration(brokerId, accessToken))
+    when(brokerConfigurationServiceMock.getBrokerConfiguration(brokerId, accessToken))
       .thenReturn(null);
 
-    ResourceNotFoundException ex =
-      assertThrows(ResourceNotFoundException.class,
+    NotFoundException ex =
+      assertThrows(NotFoundException.class,
         () -> brokerRetrieverService.getBrokerInfo(brokerId, null, accessToken));
 
     assertEquals("BROKER_CONFIGURATION_NOT_FOUND", ex.getCode());
@@ -173,17 +167,14 @@ class BrokerRetrieverServiceImplTest {
 
     String externalId = "EXT-404";
 
-    Mockito.when(brokerServiceMock.getBrokerByExternalId(externalId, accessToken))
+    when(brokerServiceMock.getBrokerByExternalId(externalId, accessToken))
       .thenReturn(null);
 
-    ResourceNotFoundException ex =
-      assertThrows(ResourceNotFoundException.class,
+    NotFoundException ex =
+      assertThrows(NotFoundException.class,
         () -> brokerRetrieverService.getBrokerInfo(null, externalId, accessToken));
 
     assertEquals("BROKER_NOT_FOUND", ex.getCode());
-
-    Mockito.verify(brokerServiceMock)
-      .getBrokerByExternalId(externalId, accessToken);
 
     Mockito.verifyNoInteractions(organizationServiceMock, brokerInfoDTOMapperMock);
   }

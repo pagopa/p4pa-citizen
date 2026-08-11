@@ -4,9 +4,9 @@ import it.gov.pagopa.pu.auth.dto.generated.AccessToken;
 import it.gov.pagopa.pu.auth.dto.generated.UserInfo;
 import it.gov.pagopa.pu.citizen.connector.auth.config.AuthApisHolder;
 import it.gov.pagopa.pu.citizen.exception.InvalidAccessTokenException;
+import it.gov.pagopa.pu.citizen.exception.common.RestInvokeNotAuthorizedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 
 @Service
 @Slf4j
@@ -22,8 +22,8 @@ public class AuthnClient {
     try {
       return authApisHolder.getAuthnApi(accessToken)
         .getUserInfo();
-    } catch (HttpClientErrorException.Unauthorized e) {
-      throw new InvalidAccessTokenException("INVALID_ACCESS_TOKEN", e.getResponseBodyAsString());
+    } catch (RestInvokeNotAuthorizedException e) {
+      throw new InvalidAccessTokenException("INVALID_ACCESS_TOKEN", e.getMessage());
     }
   }
 

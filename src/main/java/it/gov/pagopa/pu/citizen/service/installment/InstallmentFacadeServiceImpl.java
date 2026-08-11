@@ -7,7 +7,7 @@ import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
 import it.gov.pagopa.pu.citizen.dto.InstallmentDebtorExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorUnpaidDebtPositionInstallmentsDTO;
 import it.gov.pagopa.pu.citizen.exception.InvalidParamException;
-import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
+import it.gov.pagopa.pu.citizen.exception.common.NotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.DebtorUnpaidDebtPositionInstallmentsMapper;
 import it.gov.pagopa.pu.citizen.mapper.InstallmentDebtorExtendedDTOMapper;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
@@ -88,7 +88,7 @@ public class InstallmentFacadeServiceImpl implements InstallmentFacadeService {
     if (delegateBroker) {
       Organization brokerOrganization = organizationService.getBrokerOrganization(brokerId, accessToken);
       if(brokerOrganization==null){
-        throw new ResourceNotFoundException("ORGANIZATION_NOT_FOUND","Broker's organization having brokerId "+brokerId+ " not found");
+        throw new NotFoundException("ORGANIZATION_NOT_FOUND","Broker's organization having brokerId "+brokerId+ " not found");
       }
       return brokerOrganization;
     }

@@ -1,7 +1,8 @@
 package it.gov.pagopa.pu.citizen.connector.organization.client;
 
 import it.gov.pagopa.pu.citizen.connector.organization.config.OrganizationApisHolder;
-import it.gov.pagopa.pu.organization.controller.generated.BrokerSearchControllerApi;
+import it.gov.pagopa.pu.citizen.exception.common.RestInvokeNotFoundException;
+import it.gov.pagopa.pu.organization.client.generated.BrokerSearchControllerApi;
 import it.gov.pagopa.pu.organization.dto.generated.Broker;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -12,9 +13,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -66,7 +66,7 @@ class BrokerSearchClientTest {
       .thenReturn(brokerSearchControllerApiMock);
 
     when(brokerSearchControllerApiMock.crudBrokersFindBrokerByExternalId(externalId))
-      .thenThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, "NotFound", null, null, null));
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
 
     Broker result = brokerSearchClient.getBrokerByExternalId(externalId, accessToken);
 

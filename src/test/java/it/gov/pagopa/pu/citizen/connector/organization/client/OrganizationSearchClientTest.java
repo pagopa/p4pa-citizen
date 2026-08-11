@@ -1,9 +1,10 @@
 package it.gov.pagopa.pu.citizen.connector.organization.client;
 
 import it.gov.pagopa.pu.citizen.connector.organization.config.OrganizationApisHolder;
+import it.gov.pagopa.pu.citizen.exception.common.RestInvokeNotFoundException;
 import it.gov.pagopa.pu.citizen.utils.PageUtils;
 import it.gov.pagopa.pu.citizen.utils.TestUtils;
-import it.gov.pagopa.pu.organization.controller.generated.OrganizationSearchControllerApi;
+import it.gov.pagopa.pu.organization.client.generated.OrganizationSearchControllerApi;
 import it.gov.pagopa.pu.organization.dto.generated.Organization;
 import it.gov.pagopa.pu.organization.dto.generated.OrganizationStatus;
 import it.gov.pagopa.pu.organization.dto.generated.PagedModelOrganization;
@@ -18,10 +19,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
 import uk.co.jemos.podam.api.PodamFactory;
 
 import java.util.ArrayList;
+
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class OrganizationSearchClientTest {
@@ -54,9 +56,9 @@ class OrganizationSearchClientTest {
 
     PageRequest pageable = PageRequest.of(0, 10);
 
-    Mockito.when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken)).thenReturn(organizationSearchControllerApiMock);
+    when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken)).thenReturn(organizationSearchControllerApiMock);
 
-    Mockito.when(organizationSearchControllerApiMock.crudOrganizationsFindPagedOrganizationsByBrokerIdAndStatus(brokerId, OrganizationStatus.ACTIVE, pageable.getPageNumber(), pageable.getPageSize(), new ArrayList<>())).thenReturn(expectedResult);
+    when(organizationSearchControllerApiMock.crudOrganizationsFindPagedOrganizationsByBrokerIdAndStatus(brokerId, OrganizationStatus.ACTIVE, pageable.getPageNumber(), pageable.getPageSize(), new ArrayList<>())).thenReturn(expectedResult);
     //when
     PagedModelOrganization result = organizationSearchClient.getPagedOrganizationsByBrokerIdAndStatus(brokerId, OrganizationStatus.ACTIVE, pageable, accessToken);
     //then
@@ -74,9 +76,9 @@ class OrganizationSearchClientTest {
 
     PageRequest pageable = PageRequest.of(0, 10);
 
-    Mockito.when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken)).thenReturn(organizationSearchControllerApiMock);
+    when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken)).thenReturn(organizationSearchControllerApiMock);
 
-    Mockito.when(organizationSearchControllerApiMock.crudOrganizationsFindByBrokerIdAndOrgName(brokerId, orgName, pageable.getPageNumber(), pageable.getPageSize(), new ArrayList<>())).thenReturn(expectedResult);
+    when(organizationSearchControllerApiMock.crudOrganizationsFindByBrokerIdAndOrgName(brokerId, orgName, pageable.getPageNumber(), pageable.getPageSize(), new ArrayList<>())).thenReturn(expectedResult);
     //when
     PagedModelOrganization result = organizationSearchClient.getOrganizationsListByBrokerIdAndOrgName(brokerId, orgName, pageable, accessToken);
     //then
@@ -95,10 +97,10 @@ class OrganizationSearchClientTest {
 
     PagedModelOrganization expectedResult = podamFactory.manufacturePojo(PagedModelOrganization.class);
 
-    Mockito.when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
+    when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
       .thenReturn(organizationSearchControllerApiMock);
 
-    Mockito.when(organizationSearchControllerApiMock
+    when(organizationSearchControllerApiMock
         .crudOrganizationsFindByBrokerIdAndOrgNameAndOrgFiscalCode(
           brokerId,
           orgName,
@@ -126,9 +128,9 @@ class OrganizationSearchClientTest {
     String accessToken = "ACCESSTOKEN";
     Organization expectedResult = new Organization();
 
-    Mockito.when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
+    when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
       .thenReturn(organizationSearchControllerApiMock);
-    Mockito.when(organizationSearchControllerApiMock.crudOrganizationsGetBrokerOrganization(brokerId))
+    when(organizationSearchControllerApiMock.crudOrganizationsGetBrokerOrganization(brokerId))
       .thenReturn(expectedResult);
 
     Organization result = organizationSearchClient.getBrokerOrganization(brokerId, accessToken);
@@ -141,10 +143,10 @@ class OrganizationSearchClientTest {
     Long brokerId = 1L;
     String accessToken = "ACCESSTOKEN";
 
-    Mockito.when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
+    when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
       .thenReturn(organizationSearchControllerApiMock);
-    Mockito.when(organizationSearchControllerApiMock.crudOrganizationsGetBrokerOrganization(brokerId))
-      .thenThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, "NotFound", null, null, null));
+    when(organizationSearchControllerApiMock.crudOrganizationsGetBrokerOrganization(brokerId))
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
 
     Organization result = organizationSearchClient.getBrokerOrganization(brokerId, accessToken);
 
@@ -157,9 +159,9 @@ class OrganizationSearchClientTest {
     String accessToken = "ACCESSTOKEN";
     Organization expectedResult = new Organization();
 
-    Mockito.when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
+    when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
       .thenReturn(organizationSearchControllerApiMock);
-    Mockito.when(organizationSearchControllerApiMock.crudOrganizationsFindByOrgFiscalCode(orgFiscalCode))
+    when(organizationSearchControllerApiMock.crudOrganizationsFindByOrgFiscalCode(orgFiscalCode))
       .thenReturn(expectedResult);
 
     Organization result = organizationSearchClient.findByOrgFiscalCode(orgFiscalCode, accessToken);
@@ -172,10 +174,10 @@ class OrganizationSearchClientTest {
     String orgFiscalCode = "orgFiscalCode";
     String accessToken = "ACCESSTOKEN";
 
-    Mockito.when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
+    when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
       .thenReturn(organizationSearchControllerApiMock);
-    Mockito.when(organizationSearchControllerApiMock.crudOrganizationsFindByOrgFiscalCode(orgFiscalCode))
-      .thenThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, "NotFound", null, null, null));
+    when(organizationSearchControllerApiMock.crudOrganizationsFindByOrgFiscalCode(orgFiscalCode))
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
 
     Organization result = organizationSearchClient.findByOrgFiscalCode(orgFiscalCode, accessToken);
 
