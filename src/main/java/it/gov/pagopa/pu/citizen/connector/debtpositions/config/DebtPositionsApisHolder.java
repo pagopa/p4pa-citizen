@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions.config;
 
 import it.gov.pagopa.pu.citizen.config.rest.HttpClientErrorJsonBodyHandler;
+import it.gov.pagopa.pu.citizen.connector.debtpositions.mapper.DebtPositionErrorDTOMapper;
 import it.gov.pagopa.pu.debtpositions.generated.ApiClient;
 import it.gov.pagopa.pu.debtpositions.generated.BaseApi;
 import it.gov.pagopa.pu.debtpositions.client.generated.*;
@@ -41,7 +42,7 @@ public class DebtPositionsApisHolder {
     apiClient.setMaxAttemptsForRetry(Math.max(1, clientConfig.getMaxAttempts()));
     apiClient.setWaitTimeMillis(clientConfig.getWaitTimeMillis());
     restTemplate.setErrorHandler(new HttpClientErrorJsonBodyHandler<>(jsonMapper, "DEBT-POSITIONS", clientConfig.isPrintBodyWhenError(),
-      DebtPositionErrorDTO.class, DebtPositionErrorDTO::getCode, DebtPositionErrorDTO::getMessage)
+      DebtPositionErrorDTO.class, DebtPositionErrorDTOMapper::map)
     );
 
     this.debtPositionTypeOrgSearchControllerApi = new DebtPositionTypeOrgSearchControllerApi(apiClient);
