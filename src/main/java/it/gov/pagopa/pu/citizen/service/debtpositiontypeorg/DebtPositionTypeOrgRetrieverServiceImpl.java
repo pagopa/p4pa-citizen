@@ -4,7 +4,7 @@ import it.gov.pagopa.pu.citizen.connector.debtpositions.DebtPositionTypeOrgServi
 import it.gov.pagopa.pu.citizen.connector.debtpositions.SpontaneousFormService;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionTypeOrgsWithSpontaneousDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtPositionTypeOrgsWithSpontaneousDetailsDTO;
-import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
+import it.gov.pagopa.pu.citizen.exception.common.NotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionTypeOrgsWithSpontaneousDTOMapper;
 import it.gov.pagopa.pu.citizen.mapper.DebtPositionTypeOrgsWithSpontaneousDetailsDTOMapper;
 import it.gov.pagopa.pu.citizen.service.organization.OrganizationRetrieverService;
@@ -48,7 +48,7 @@ public class DebtPositionTypeOrgRetrieverServiceImpl implements DebtPositionType
     DebtPositionTypeOrg debtPositionTypeOrg = debtPositionTypeOrgService.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken);
 
     if (debtPositionTypeOrg == null || !Objects.equals(organizationId, debtPositionTypeOrg.getOrganizationId())){
-      throw new ResourceNotFoundException("DEBT_POSITION_TYPE_ORG_NOT_FOUND","DebtPositionTypeOrg with deptPositionTypeOrgId %d and organizationId %d not found".formatted(debtPositionTypeOrgId, organizationId));
+      throw new NotFoundException("DEBT_POSITION_TYPE_ORG_NOT_FOUND","DebtPositionTypeOrg with deptPositionTypeOrgId %d and organizationId %d not found".formatted(debtPositionTypeOrgId, organizationId));
     }
 
     return debtPositionTypeOrgsWithSpontaneousDetailsDTOMapper.map(debtPositionTypeOrg, getSpontaneousForm(accessToken, debtPositionTypeOrg));
@@ -71,7 +71,7 @@ public class DebtPositionTypeOrgRetrieverServiceImpl implements DebtPositionType
   public String getDebtPositionTypeOrgCode(Long debtPositionTypeOrgId, Long organizationId, String accessToken) {
     DebtPositionTypeOrg debtPositionTypeOrg = debtPositionTypeOrgService.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken);
     if(debtPositionTypeOrg==null || !debtPositionTypeOrg.getOrganizationId().equals(organizationId)){
-      throw new ResourceNotFoundException("DEBT_POSITION_TYPE_ORG_NOT_FOUND","DebtPositionTypeOrg with deptPositionTypeOrgId %d and organizationId %d not found".formatted(debtPositionTypeOrgId, organizationId));
+      throw new NotFoundException("DEBT_POSITION_TYPE_ORG_NOT_FOUND","DebtPositionTypeOrg with deptPositionTypeOrgId %d and organizationId %d not found".formatted(debtPositionTypeOrgId, organizationId));
     }
     return debtPositionTypeOrg.getCode();
   }

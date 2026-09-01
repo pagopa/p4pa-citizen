@@ -6,7 +6,7 @@ import it.gov.pagopa.pu.citizen.dto.FileResourceDTO;
 import it.gov.pagopa.pu.citizen.dto.ReceiptDetailExtendedDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.DebtorReceiptDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.PagedDebtorReceiptsDTO;
-import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
+import it.gov.pagopa.pu.citizen.exception.common.NotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.PagedDebtorReceiptsDTOMapper;
 import it.gov.pagopa.pu.citizen.mapper.ReceiptDetailExtendedMapper;
 import it.gov.pagopa.pu.citizen.service.organization.BrokerOrganizationsRetrieverService;
@@ -51,7 +51,7 @@ public class ReceiptFacadeServiceImpl implements ReceiptFacadeService{
   private Map<String,Organization> retrieveOrganizations(Long brokerId, String orgName, String accessToken){
     List<Organization> organizations = brokerOrganizationsRetrieverService.getAllOrganizationsByBrokerIdAndOrgName(brokerId, orgName, accessToken);
     if (organizations.isEmpty()){
-      throw new ResourceNotFoundException("ORGANIZATION_NOT_FOUND", "Organizations not found with brokerId %s and orgName %s".formatted(brokerId, orgName));
+      throw new NotFoundException("ORGANIZATION_NOT_FOUND", "Organizations not found with brokerId %s and orgName %s".formatted(brokerId, orgName));
     }
 
     return organizations.stream()

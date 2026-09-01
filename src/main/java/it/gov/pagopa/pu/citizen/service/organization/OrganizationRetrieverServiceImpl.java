@@ -6,7 +6,7 @@ import it.gov.pagopa.pu.citizen.connector.organization.BrokerService;
 import it.gov.pagopa.pu.citizen.connector.organization.OrganizationService;
 import it.gov.pagopa.pu.citizen.dto.generated.OrganizationLogoDTO;
 import it.gov.pagopa.pu.citizen.dto.generated.OrganizationsWithSpontaneousDTO;
-import it.gov.pagopa.pu.citizen.exception.ResourceNotFoundException;
+import it.gov.pagopa.pu.citizen.exception.common.NotFoundException;
 import it.gov.pagopa.pu.citizen.mapper.OrganizationLogoDTOMapper;
 import it.gov.pagopa.pu.citizen.mapper.OrganizationsWithSpontaneousDTOMapper;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionTypeOrgWithActiveSpontaneousCount;
@@ -85,7 +85,7 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
   public Organization getValidOrganization(Long organizationId, Long brokerId, String accessToken){
     Organization organization = organizationService.getOrganizationByOrganizationId(organizationId, accessToken);
     if(organization==null || !brokerId.equals(organization.getBrokerId())){
-      throw new ResourceNotFoundException("ORGANIZATION_NOT_FOUND", "Organization having id "+organizationId+" and brokerId "+brokerId+" not found");
+      throw new NotFoundException("ORGANIZATION_NOT_FOUND", "Organization having id "+organizationId+" and brokerId "+brokerId+" not found");
     }
     return organization;
   }
@@ -93,7 +93,7 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
   public Organization getValidOrganization(String orgFiscalCode, Long brokerId, String accessToken) {
     Organization organization = organizationService.findByOrgFiscalCode(orgFiscalCode, accessToken);
     if(organization==null || !brokerId.equals(organization.getBrokerId())){
-      throw new ResourceNotFoundException("ORGANIZATION_NOT_FOUND","Organization having orgFiscalCode "+orgFiscalCode+" and brokerId "+brokerId+" not found");
+      throw new NotFoundException("ORGANIZATION_NOT_FOUND","Organization having orgFiscalCode "+orgFiscalCode+" and brokerId "+brokerId+" not found");
     }
     return organization;
   }
@@ -118,7 +118,7 @@ public class OrganizationRetrieverServiceImpl implements OrganizationRetrieverSe
     if(cieOrganization == null) {
       Organization organization = organizationService.findByOrgFiscalCode(cieOrgFiscalCode, accessToken);
       if (organization == null) {
-        throw new ResourceNotFoundException("ORGANIZATION_NOT_FOUND", "Cie organization not found");
+        throw new NotFoundException("ORGANIZATION_NOT_FOUND", "Cie organization not found");
       }
       cieOrganization = organization;
     }

@@ -1,6 +1,7 @@
 package it.gov.pagopa.pu.citizen.connector.debtpositions.client;
 
 import it.gov.pagopa.pu.citizen.connector.debtpositions.config.DebtPositionsApisHolder;
+import it.gov.pagopa.pu.citizen.exception.common.RestInvokeNotFoundException;
 import it.gov.pagopa.pu.citizen.utils.PageUtils;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionDTO;
 import it.gov.pagopa.pu.debtpositions.dto.generated.DebtPositionOrigin;
@@ -9,7 +10,6 @@ import it.gov.pagopa.pu.debtpositions.dto.generated.PagedDebtorUnpaidDebtPositio
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class DebtPositionClient {
     try {
       return debtPositionsApisHolder.getDebtPositionApi(accessToken)
           .getDebtPosition(debtPositionId);
-    } catch (HttpClientErrorException.NotFound e) {
+    } catch (RestInvokeNotFoundException e) {
       log.warn("DebtPosition with debtPositionId {} not found", debtPositionId);
       return null;
     }
@@ -42,7 +42,7 @@ public class DebtPositionClient {
     try{
       return debtPositionsApisHolder.getDebtPositionApi(accessToken).getDebtPositionByInstallmentId(installmentId);
 
-    } catch (HttpClientErrorException.NotFound e) {
+    } catch (RestInvokeNotFoundException e) {
       log.warn("DebtPosition having installment with Id {} not found", installmentId);
       return null;
     }
@@ -69,7 +69,7 @@ public class DebtPositionClient {
     try {
       return debtPositionsApisHolder.getDebtPositionApi(accessToken)
         .getDebtorUnpaidDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId);
-    }catch (HttpClientErrorException.NotFound e) {
+    }catch (RestInvokeNotFoundException e) {
       log.warn("DebtorDebtPositionDTO having debtPositionId {}  and organizationId {} not found", debtPositionId, organizationId);
       return null;
     }
