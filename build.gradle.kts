@@ -65,6 +65,9 @@ val nimbusJoseJwtVersion = "10.9.1"
 val mapStructVersion = "1.6.3"
 val commonsLang3Version = "3.20.0"
 
+// CVE Security dependencies
+val tomcatEmbedCoreVersion = "11.0.25"
+
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webmvc")
   implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
@@ -94,6 +97,9 @@ dependencies {
   implementation("com.auth0:java-jwt:$javaJwtVersion")
   implementation("com.auth0:jwks-rsa:$jwksRsaVersion")
   implementation("org.bouncycastle:bcprov-jdk18on:$bouncycastleVersion")
+
+  // CVE Security dependencies
+  implementation("org.apache.tomcat.embed:tomcat-embed-core:$tomcatEmbedCoreVersion")
 
   compileOnly("org.projectlombok:lombok")
   annotationProcessor("org.projectlombok:lombok")
