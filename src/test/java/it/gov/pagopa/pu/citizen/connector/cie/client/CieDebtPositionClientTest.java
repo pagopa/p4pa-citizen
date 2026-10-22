@@ -99,7 +99,7 @@ class CieDebtPositionClientTest {
     when(cieApisHolderMock.getDebtPositionCieApi(accessToken))
       .thenReturn(debtPositionCieApiMock);
     when(debtPositionCieApiMock.generateNoticeCieWithHttpInfo(nav,debtorFiscalCode))
-      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE", "BODY"));
 
     FileResourceDTO response = cieDebtPositionClient.generateNoticeCie(nav,debtorFiscalCode,accessToken);
 
