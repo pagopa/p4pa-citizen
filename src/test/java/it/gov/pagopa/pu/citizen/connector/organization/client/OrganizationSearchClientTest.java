@@ -146,7 +146,7 @@ class OrganizationSearchClientTest {
     when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
       .thenReturn(organizationSearchControllerApiMock);
     when(organizationSearchControllerApiMock.crudOrganizationsGetBrokerOrganization(brokerId))
-      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE", "BODY"));
 
     Organization result = organizationSearchClient.getBrokerOrganization(brokerId, accessToken);
 
@@ -177,7 +177,7 @@ class OrganizationSearchClientTest {
     when(organizationApisHolderMock.getOrganizationSearchControllerApi(accessToken))
       .thenReturn(organizationSearchControllerApiMock);
     when(organizationSearchControllerApiMock.crudOrganizationsFindByOrgFiscalCode(orgFiscalCode))
-      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE", "BODY"));
 
     Organization result = organizationSearchClient.findByOrgFiscalCode(orgFiscalCode, accessToken);
 

@@ -94,7 +94,7 @@ class DebtPositionClientTest {
     when(debtPositionApisHolderMock.getDebtPositionApi(accessToken))
       .thenReturn(debtPositionApiMock);
     when(debtPositionApiMock.getDebtPosition(debtPositionId))
-      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE", "BODY"));
 
     DebtPositionDTO result = debtPositionClient.getDebtPosition(debtPositionId, accessToken);
 
@@ -125,7 +125,7 @@ class DebtPositionClientTest {
     when(debtPositionApisHolderMock.getDebtPositionApi(accessToken))
       .thenReturn(debtPositionApiMock);
     when(debtPositionApiMock.getDebtPositionByInstallmentId(installmentId))
-      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE", "BODY"));
 
     DebtPositionDTO result = debtPositionClient.getDebtPositionByInstallmentId(installmentId, accessToken);
 
@@ -217,7 +217,7 @@ class DebtPositionClientTest {
     when(debtPositionApisHolderMock.getDebtPositionApi(accessToken))
       .thenReturn(debtPositionApiMock);
     when(debtPositionApiMock.getDebtorUnpaidDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId))
-      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE", "BODY"));
 
     DebtorDebtPositionDTO result = debtPositionClient.getDebtorDebtPositionOverview(debtPositionId, debtorFiscalCode, organizationId, accessToken);
 

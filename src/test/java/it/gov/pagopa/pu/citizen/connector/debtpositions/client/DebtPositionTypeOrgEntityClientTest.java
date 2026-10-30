@@ -67,7 +67,7 @@ class DebtPositionTypeOrgEntityClientTest {
             .thenReturn(debtPositionTypeOrgEntityControllerApiMock);
     when(debtPositionTypeOrgEntityControllerApiMock.crudGetDebtpositiontypeorg(
             String.valueOf(debtPositionTypeOrgId)))
-            .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
+            .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE", "BODY"));
 
     DebtPositionTypeOrg result = debtPositionTypeOrgEntityClient.getDebtPositionTypeOrg(debtPositionTypeOrgId, accessToken);
 

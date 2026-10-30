@@ -74,7 +74,7 @@ class TransferSearchClientTest {
       .thenReturn(transferApiMock);
 
     when(transferApiMock.verifyPostalIban(installmentIds))
-      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE", "BODY"));
 
     // when
     PostalIbanVerifyResponse result =

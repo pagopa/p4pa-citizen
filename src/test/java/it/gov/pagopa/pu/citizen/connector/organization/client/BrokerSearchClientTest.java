@@ -66,7 +66,7 @@ class BrokerSearchClientTest {
       .thenReturn(brokerSearchControllerApiMock);
 
     when(brokerSearchControllerApiMock.crudBrokersFindBrokerByExternalId(externalId))
-      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE", "BODY"));
 
     Broker result = brokerSearchClient.getBrokerByExternalId(externalId, accessToken);
 

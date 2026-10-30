@@ -71,7 +71,7 @@ class ReceiptClientTest {
     when(debtPositionApisHolderMock.getReceiptApi(accessToken))
       .thenReturn(receiptApiMock);
     when(receiptApiMock.getReceiptDetail(receiptId, organizationId, null, null))
-      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE", "BODY"));
 
     ReceiptDetailDTO result = receiptClient.getReceiptDetail(receiptId, organizationId, accessToken);
 
@@ -111,7 +111,7 @@ class ReceiptClientTest {
     when(debtPositionApisHolderMock.getReceiptApi(accessToken))
       .thenReturn(receiptApiMock);
     when(receiptApiMock.getReceiptPdfWithHttpInfo(receiptId, organizationId))
-      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE"));
+      .thenThrow(new RestInvokeNotFoundException("APPNAME", HttpStatus.NOT_FOUND, "ERROR", "ERRORCODE", "ERRORMESSAGE", "BODY"));
 
     FileResourceDTO response = receiptClient.getReceiptPdf(receiptId, organizationId, accessToken);
 
